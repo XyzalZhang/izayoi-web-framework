@@ -24,7 +24,14 @@
 
 $(function () {
 
-    $('a.external').attr('target', "_blank");
+
+    // external links
+
+    $('a[href^=http://], a[href^=https://], a[href^=ftp://]').addClass('external').attr('target', "_blank");
+    $('a[href^=mailto:]').addClass('mailto');
+
+
+    // code beautify
 
     var FORMAT_TYPES = {
         'js': 'javascript',

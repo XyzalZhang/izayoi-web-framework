@@ -29,7 +29,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="author" content="Mo Chen <withinsea@gmail.com>" />
-    <title>Welcome! | izayoi web framework</title>
+    <title>cortile | izayoi web framework</title>
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shCore.css" />
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shThemeDefault.css" />
     <link rel="stylesheet" href="styles/izayoi-common.css" />
@@ -46,7 +46,7 @@
     <script type="text/javascript" src="scripts/izayoi.js"></script>
 </head>
 <body>
-    <div class="page index">
+    <div class="page">
 
         <div class="header">
             <div class="site_navi">
@@ -68,7 +68,7 @@
             </div>
             <div class="breadcrumb">
                 <a href="index.html">izayoi web framework</a> &gt;
-                <span>welcome!</span>
+                <span>cortile</span>
             </div>
         </div>
 
@@ -76,23 +76,13 @@
 
         <div class="content">
 
-            <div class="block">
-
-                <h2>Welcome!<sup><br />and have a good day</sup></h2>
-
-            </div>
-
-            <a name="projects" />
-
             <div class="column left half">
-                <a href="cortile.html">
-                    <div class="block">
-                        <h2>cortile<sup>
-                            html compatible<br />
-                            dynamic page engine
-                        </sup></h2>
-                    </div>
-                </a>
+                <div class="block">
+                    <h2>cortile<sup>
+                        html compatible<br />
+                        dynamic page engine
+                    </sup></h2>
+                </div>
             </div>
 
             <div class="column right half">
@@ -110,38 +100,57 @@
 
             <div class="block">
 
-                <h2>News<sup><br />recent updates</sup></h2>
+                <h2>quick start<sup><br />in one minute</sup></h2>
 
                 <div class="text">
                     <div>
+                        <h3>Build your first cortile application: <br />
+                            <sub>(cortile packages, <a class="external" href="http://java.sun.com/javase">JRE 6+</a> and
+                                 a servlet container like <a class="external" href="http://tomcat.apache.org/">Apache
+                                                                                                               Tomcat</a>
+                                 are required)
+                            </sub>
+                        </h3>
                         <ul>
-                            <li><h4><span class="date minor">2009-12-31</span>izayoi web framework site online</h4>
-
-                                <p>
-                                    那么总而言之，总算是赶上了哈。~(^ ^~) (~^ ^)~
-                                </p>
-
-                                <p>
-                                    虽然是并不宏大的项目，但从数月前与 kabbesy 兄谈及此事到今天，也算是经历了各种各样的考验：
-                                    接近完成的功能无法完全实现而必须改换设计的时候，需要微调利用的工具包却找不到源代码的时候，
-                                    IDE 崩溃造成代码丢失欲哭无泪的时候，看来看去就是觉得项目名字不顺眼的时候……
-                                    对于终于是能够在最后获得自己所一直期望的功能而没有拖到明年去这件事，无论怎么说心里都是很高兴的。
-                                </p>
-
-                                <p>
-                                    今天随着网站一起上线的是「庭院」与「萤火」的第一次 beta 版；
-                                    还没有经过什么实际项目考验的关系，想来还是会是有着各种各样的 bug 需要解决。
-                                    未来的一年我会继续努力改进，也请各位对这一项目感兴趣的朋友，无论是发现旧的错误还是希望新的功能，还请千万不吝赐教。
-                                </p>
-
-                                <address>
-                                    —— 陈墨，2009 年元旦前夕
-                                </address>
+                            <li><h4><span class="minor">Step 1:</span>web.xml</h4>
+                                <pre class="code">
+                                    <code src="codes/cortile.properties:quickstart.web.xml"></code>
+                                </pre>
                             </li>
+                            <li><h4><span class="minor">Step 2:</span>index.html</h4>
+                                <pre class="code">
+                                    <code src="codes/cortile.properties:quickstart.index.html"></code>
+                                </pre>
+                            </li>
+                            <li><h4><span class="minor">Done. Browse </span>http://yourhost/index.html</h4></li>
                         </ul>
                     </div>
                 </div>
+            </div>
 
+            <div class="block">
+
+                <h2>opinion<sup><br />our goal of design pattern</sup></h2>
+
+                <div class="text">
+                    <div>
+                        <h3>Cortile is a standalone, totally HTML compatible dynamic page engine.</h3>
+                        <ol>
+                            <li><p>Cortile 是单纯的视图层技术。在未经自行扩展的前提下，由 Cortile
+                                   所构建的页面只响应直接发往该页面的请求，并只从请求上下文中取得数据。除最低程度的必要转发外 Cortile
+                                   无法参与请求/响应、业务逻辑及数据交换等后台机制的管理；但另一方面，这种机制也使得任何一个 web 开发框架只要能够结合传统的 JSP 页，就一定可以通过同样的方式结合
+                                   Cortile。</p></li>
+                            <li><p>Cortile 的语法完全基于 HTML 注释与标签属性；这种机制回避了因引入额外标签或非 XML 代码造成的文档 DOM 结构的变化，也就是说，通过
+                                   Cortile 构建的动态页面可以脱离 J2EE 容器，作为静态 HTML 页进行正常的 HTML、CSS、Javascript 编程调试。</p></li>
+                            <li><p>Cortile 直接提供包括 EL 表达式、页面片段递归等在内的一系列语法；对于更加复杂的需求，Cortile 允许用户向编译器挂载自己编制的语法类、EL
+                                   解释器（系统默认使用
+                                   MVEL2 作为 EL　脚本的引擎），或者直接向 Cortile 引擎添加新的编译器实现。</p></li>
+                            <li><p>Cortile 在第一次访问时将页面编译成 JSP，之后向其转发所有发往原页面的请求；这一机制使得 Cortile 能够在仅有 JRE 的场合利用 Servlet
+                                   容器获得尽可能高的运行效率，也使得 Cortile 得以提供一些辅助语法，以允许用户继续利用传统的 JSP
+                                   代码（这并不推荐，但它可以帮助用户顺利过渡）。</p></li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
         </div>

@@ -22,18 +22,19 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-/* excludes */
+/* hero */
 
 hr {
-    display: none;
+    border: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    line-height: 1px;
+    font-size: 1px;
+    clear: both;
 }
 
 /* text */
-
-html,
-body {
-    font-family: tahoma, arial, sans-serif;
-}
 
 html,
 a,

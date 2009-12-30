@@ -56,7 +56,11 @@ body > .page > div .block .text h3 {
 
 body > .page > div .block .text h4 {
     font-size: 11px;
-    font-weight: normal;
+}
+
+body > .page > div .block .text h3 sub,
+body > .page > div .block .text h3 sub a {
+    font-size: 11px;
 }
 
 /* size */
@@ -104,10 +108,26 @@ body > .page > div .site_navi li.about a {
     height: 30px;
 }
 
+body > .page > .content .column.narrow {
+    width: 260px;
+}
+
+body > .page > .content .column.half {
+    width: 435px;
+}
+
+body > .page > .content .column.wide {
+    width: 610px;
+}
+
 body > .page > .content .block {
     border-width: 2px;
     border-style: solid;
     min-height: 50px;
+}
+
+body > .page > .content a > .block {
+    max-height: 50px;
 }
 
 /* flow */
@@ -125,6 +145,14 @@ body > .page > .footer > * {
 body > .page > div .navi > ul > li,
 body > .page > div .navi > ul > li {
     float: left;
+}
+
+body > .page > .content .column.left {
+    float: left;
+}
+
+body > .page > .content .column.right {
+    float: right;
 }
 
 body > .page > div .block h2 {
@@ -210,17 +238,17 @@ body > .page > .footer {
 }
 
 body > .page > div .navi li {
-    margin-left: 8px;
+    margin-left: 14px;
 }
 
-body > .page > .content > .block {
+body > .page > .content .block {
     margin: 0 0 10px 0;
     padding: 10px;
 }
 
 body > .page > div .block h2 {
-    padding: 2px 2px 4px 100px;
-    margin: 5px 0 10px 15px;
+    padding: 2px 2px 4px 80px;
+    margin: 5px 0 40px 15px;
 }
 
 body > .page > div .block h2 sup {
@@ -240,6 +268,10 @@ body > .page > div .block .text h3 {
 
 body > .page > div .block .text h4 {
     margin: 20px 0 10px 0;
+}
+
+body > .page > div .block .text h4 span.minor {
+    margin-right: 0.5em;
 }
 
 body > .page > div .block h4 img.face {
@@ -265,4 +297,3 @@ body > .page > div .block .text ol li {
 body > .page > div .block .text ul li {
     list-style: outside none;
 }
-
