@@ -37,6 +37,15 @@ code {
 
 /* text-style */
 
+html,
+body {
+    font-family: tahoma, arial, sans-serif;
+}
+
+.minor {
+    font-weight: normal;
+}
+
 body > .page > .header li,
 body > .page > .footer li {
     list-style: none;
@@ -56,6 +65,11 @@ body > .page > .footer .navi a:hover {
 body > .page > div .block h2 {
     font-family: Kalinga, arial, sans-serif;
     font-style: italic;
+}
+
+body > .page > div .block .text h3 sub,
+body > .page > div .block .text h3 sub a {
+    font-weight: normal
 }
 
 body > .page > div .block .text h4 {
@@ -99,6 +113,11 @@ body > .page > .footer .site_navi li.about a:hover {
 }
 
 body > .page > .content .block {
+    background: transparent url(bg_light.jpg) repeat;
+}
+
+body > .page > .content a > .block,
+body > .page > .content .block.dark {
     background: transparent url(bg_dark.jpg) repeat;
 }
 
@@ -159,6 +178,15 @@ body > .page > .footer .copyright a {
 }
 
 /* sprits */
+
+body > .page > div .block .text h4 span.date {
+    color: #392e79;
+    border-right: 2px solid #392e79;
+    border-left: 28px groove #392e79;
+    font-weight: bold;
+    padding: 0 10px 1px 10px;
+    margin-right: 13px;
+}
 
 /*
 h1,

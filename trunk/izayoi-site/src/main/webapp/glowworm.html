@@ -46,7 +46,7 @@
     <script type="text/javascript" src="scripts/izayoi.js"></script>
 </head>
 <body>
-    <div class="page index">
+    <div class="page">
 
         <div class="header">
             <div class="site_navi">
@@ -68,21 +68,13 @@
             </div>
             <div class="breadcrumb">
                 <a href="index.html">izayoi web framework</a> &gt;
-                <span>welcome!</span>
+                <span>glowworm</span>
             </div>
         </div>
 
         <hr />
 
         <div class="content">
-
-            <div class="block">
-
-                <h2>Welcome!<sup><br />and have a good day</sup></h2>
-
-            </div>
-
-            <a name="projects" />
 
             <div class="column left half">
                 <a href="cortile.html">
@@ -96,49 +88,67 @@
             </div>
 
             <div class="column right half">
-                <a href="glowworm.html">
-                    <div class="block">
-                        <h2>glowworm<sup>
-                            tiny dependency injector<br />
-                            for web frontend development
-                        </sup></h2>
-                    </div>
-                </a>
+                <div class="block">
+                    <h2>glowworm<sup>
+                        tiny dependency injector<br />
+                        for web frontend development
+                    </sup></h2>
+                </div>
             </div>
 
             <hr />
 
-            <div class="block">
+            <div class="block project glowworm">
 
-                <h2>News<sup><br />recent updates</sup></h2>
+                <h2>quick start<sup><br />in one minute</sup></h2>
 
                 <div class="text">
                     <div>
+                        <h3>Build your first glowworm application:<br />
+                            <sub>(<a class="external" href="http://java.sun.com/javase">JRE 6+</a> and a servlet
+                                 container like <a class="external" href="http://tomcat.apache.org/">Apache Tomcat</a>
+                                 are required)
+                            </sub>
+                        </h3>
                         <ul>
-                            <li><h4><span class="date minor">2009-12-31</span>izayoi web framework site online</h4>
-
-                                <p>
-                                    那么总而言之，总算是赶上了哈。~(^ ^~) (~^ ^)~
-                                </p>
-
-                                <p>
-                                    虽然是并不宏大的项目，但从数月前与 kabbesy 兄谈及此事到今天，也算是经历了各种各样的考验：
-                                    接近完成的功能无法完全实现而必须改换设计的时候，需要微调利用的工具包却找不到源代码的时候，
-                                    IDE 崩溃造成代码丢失欲哭无泪的时候，看来看去就是觉得项目名字不顺眼的时候……
-                                    对于终于是能够在最后获得自己所一直期望的功能而没有拖到明年去这件事，无论怎么说心里都是很高兴的。
-                                </p>
-
-                                <p>
-                                    今天随着网站一起上线的是「庭院」与「萤火」的第一次 beta 版；
-                                    还没有经过什么实际项目考验的关系，想来还是会是有着各种各样的 bug 需要解决。
-                                    未来的一年我会继续努力改进，也请各位对这一项目感兴趣的朋友，无论是发现旧的错误还是希望新的功能，还请千万不吝赐教。
-                                </p>
-
-                                <address>
-                                    —— 陈墨，2009 年元旦前夕
-                                </address>
+                            <li><h4><span class="minor">Step 1:</span>web.xml</h4>
+                                <pre class="code">
+                                    <code src="codes/glowworm.properties:quickstart.web.xml"></code>
+                                </pre>
                             </li>
+                            <li><h4><span class="minor">Step 2:</span>index.jsp</h4>
+                                <pre class="code">
+                                    <code src="codes/glowworm.properties:quickstart.index.jsp"></code>
+                                </pre>
+                            </li>
+                            <li><h4><span class="minor">Step 3:</span>index.jsp.gw.json</h4>
+                                <pre class="code">
+                                    <code src="codes/glowworm.properties:quickstart.index.jsp.gw.json"></code>
+                                </pre>
+                            </li>
+                            <li><h4><span class="minor">Done. Browse</span>http://yourhost/index.jsp</h4></li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block project glowworm">
+
+                <h2>opinion<sup><br />our goal of design pattern</sup></h2>
+
+                <div class="text">
+                    <div>
+                        <h3>Glowworm is a tiny tiny name mapping based dependency injector for web frontend
+                            development.</h3>
+                        <ol>
+                            <li><p>Glowworm 是一个功能非常、非常有限的依赖注入工具。Glowworm
+                                   仅能够在每次请求中根据请求地址，从相似名称的数据脚本文件创建对象；也仅能够将创建的对象注入到请求上下文。相对的，这一基于名称映射的约定不需要任何配置文件或后台代码，这使得在一个分层系统的开发过程中，web
+                                   前端的开发人员可以在不连接后台系统的情况下，简单地为前端页面提供渲染所需的基本测试数据。</p></li>
+                            <li><p>Glowworm 默认支持的数据描述格式包括纯文本、JSON、properties 文件、JSP 以及 MVEL2 脚本。用户也可以向 Glowworm
+                                   挂载自己编制的注入器，并映射到某个特定的扩展名。</p></li>
+                            <li><p>Glowworm 的主要设计目标是方便前端开发者观察页面的渲染效果。利用 Glowworm
+                                   为前端提供来自业务逻辑的真实数据可能会造成一定程度的效率问题——虽然在一个足够简单的系统中你确实可以这么做。</p></li>
+                        </ol>
                     </div>
                 </div>
 
