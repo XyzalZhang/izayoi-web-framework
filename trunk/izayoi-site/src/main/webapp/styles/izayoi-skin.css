@@ -42,6 +42,10 @@ body {
     font-family: tahoma, arial, sans-serif;
 }
 
+.tagline {
+    text-transform: uppercase;
+}
+
 .minor {
     font-weight: normal;
 }
@@ -60,6 +64,14 @@ body > .page > .footer .navi a {
 body > .page > .header .navi a:hover,
 body > .page > .footer .navi a:hover {
     text-decoration: underline;
+}
+
+body > .page > div .block.toolbar ul li {
+    list-style: none;
+}
+
+body > .page > div .block.toolbar ul li a {
+    font-weight: normal;
 }
 
 body > .page > div .block h2 {
@@ -116,11 +128,23 @@ body > .page > .content .block {
     background: transparent url(bg_light.jpg) repeat;
 }
 
+body > .page > div .block.toolbar ul li a {
+    background: transparent url(icons.png) no-repeat 5px -140px;
+    padding-left: 25px;
+    color: #444;
+}
+
+body > .page > div .block.toolbar ul li a:hover {
+    background: transparent url(icons.png) no-repeat 5px -190px;
+    color: black;
+}
+
 body > .page > .content a > .block,
 body > .page > .content .block.dark {
     background: transparent url(bg_dark.jpg) repeat;
 }
 
+body > .page > .content .block.toolbar,
 body > .page > .content .block:hover {
     background: transparent url(bg_light.jpg) repeat;
 }

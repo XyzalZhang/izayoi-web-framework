@@ -41,8 +41,8 @@
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://withinsea.googlecode.com/svn/izayoi/trunk/izayoi-site/</connection>
-        <developerConnection>scm:svn:https://withinsea.googlecode.com/svn/izayoi/trunk/izayoi-site/
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-site/</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-site/
         </developerConnection>
         <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/izayoi-site</url>
     </scm>
