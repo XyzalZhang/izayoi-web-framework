@@ -1,0 +1,94 @@
+<!--
+  ~ The contents of this file are subject to the Mozilla Public License
+  ~ Version 1.1 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS"
+  ~ basis, WITHOUT WARRANTY OF
+  ~
+  ~ ANY KIND, either express or implied. See the License for the specific language governing rights and
+  ~
+  ~ limitations under the License.
+  ~
+  ~ The Original Code is the IZAYOI web framework.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~
+  ~   Mo Chen <withinsea@gmail.com>
+  ~
+  ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
+  ~ the Initial Developer. All Rights Reserved.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- The Basics -->
+    <parent>
+        <groupId>org.withinsea.izayoi</groupId>
+        <artifactId>cortile</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>cortile-core</artifactId>
+    <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+            <version>2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <version>2.0.15</version>
+        </dependency>
+    </dependencies>
+
+    <!-- More Project Information -->
+    <name>cortile-core</name>
+
+    <!-- Build -->
+    <build>
+        <finalName>cortile-${project.version}</finalName>
+    </build>
+
+    <!-- Environment Settings -->
+    <scm>
+        <connection>scm:svn:http://withinsea.googlecode.com/svn/izayoi/trunk/cortile/cortile-core/</connection>
+        <developerConnection>scm:svn:https://withinsea.googlecode.com/svn/izayoi/trunk/cortile/cortile-core/
+        </developerConnection>
+        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-core</url>
+    </scm>
+
+</project>

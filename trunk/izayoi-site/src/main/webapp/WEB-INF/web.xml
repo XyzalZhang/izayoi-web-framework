@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ The contents of this file are subject to the Mozilla Public License
+  ~ Version 1.1 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS"
+  ~ basis, WITHOUT WARRANTY OF
+  ~
+  ~ ANY KIND, either express or implied. See the License for the specific language governing rights and
+  ~
+  ~ limitations under the License.
+  ~
+  ~ The Original Code is the IZAYOI web framework.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~
+  ~   Mo Chen <withinsea@gmail.com>
+  ~
+  ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
+  ~ the Initial Developer. All Rights Reserved.
+  -->
+
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <display-name>izayoi</display-name>
+
+    <filter>
+        <filter-name>glowworm-light</filter-name>
+        <filter-class>org.withinsea.izayoi.glowworm.core.GlowwormLight</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>cortile-mirage</filter-name>
+        <filter-class>org.withinsea.izayoi.cortile.core.CortileMirage</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>glowworm-light</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>cortile-mirage</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>cortile-scenery</servlet-name>
+        <servlet-class>org.withinsea.izayoi.cortile.core.CortileScenery</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>cortile-scenery</servlet-name>
+        <url-pattern>*.html</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>
