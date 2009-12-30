@@ -129,14 +129,23 @@ body > .page > .content .block {
 }
 
 body > .page > div .block.toolbar ul li a {
+    color: #444;
+    background: transparent url(icons.png) no-repeat 5px 10px;
+    padding-left: 25px;
+}
+
+body > .page > div .block.toolbar ul li.download a {
     background: transparent url(icons.png) no-repeat 5px -140px;
     padding-left: 25px;
-    color: #444;
 }
 
 body > .page > div .block.toolbar ul li a:hover {
-    background: transparent url(icons.png) no-repeat 5px -190px;
     color: black;
+    background: transparent url(icons.png) no-repeat 5px -40px;
+}
+
+body > .page > div .block.toolbar ul li.download a:hover {
+    background: transparent url(icons.png) no-repeat 5px -190px;
 }
 
 body > .page > .content a > .block,
@@ -210,6 +219,20 @@ body > .page > div .block .text h4 span.date {
     font-weight: bold;
     padding: 0 10px 1px 10px;
     margin-right: 13px;
+}
+
+body > .page > div .block a.download {
+    display: block;
+    line-height: 30px;
+    height: 30px;
+    color: #444;
+    padding-left: 25px;
+    background: transparent url(icons.png) no-repeat 5px -140px;
+}
+
+body > .page > div .block a.download:hover {
+    background: transparent url(icons.png) no-repeat 5px -190px;
+    color: black;
 }
 
 /*
