@@ -1,0 +1,268 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF
+ *
+ * ANY KIND, either express or implied. See the License for the specific language governing rights and
+ *
+ * limitations under the License.
+ *
+ * The Original Code is the IZAYOI web framework.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ *   Mo Chen <withinsea@gmail.com>
+ *
+ * Portions created by the Initial Developer are Copyright (C) 2009-2010
+ * the Initial Developer. All Rights Reserved.
+ */
+
+/* font-size */
+
+.syntaxhighlighter code {
+    font-size: 12px !important;
+}
+
+body > .page > .header .navi a,
+body > .page > .footer .navi a {
+    font-size: 16px;
+}
+
+body > .page > div .block h2 {
+    font-size: 28px;
+    line-height: 34px;
+    height: 16px;
+}
+
+body > .page > div .block h2 sup {
+    font-size: 9px;
+    line-height: 9px;
+}
+
+body > .page > div .block .text {
+    font-size: 14px;
+    line-height: 1.2em;
+}
+
+body > .page > div .block .text h3 {
+    font-size: 14px;
+    line-height: 1.2em;
+}
+
+body > .page > div .block .text h4 {
+    font-size: 11px;
+    font-weight: normal;
+}
+
+/* size */
+
+html,
+body {
+    width: 100%;
+}
+
+body > .page {
+    width: 960px;
+}
+
+body > .page > .header,
+body > .page > .content {
+    width: 879px;
+}
+
+body > .page > .footer {
+    width: 881px;
+}
+
+body > .page > .header {
+    height: 133px;
+}
+
+body > .page > .footer {
+    height: 100px;
+}
+
+body > .page > .header .logo {
+    width: 417px;
+    height: 54px;
+}
+
+body > .page > .header .logo a {
+    display: block;
+    width: 417px;
+    height: 54px;
+}
+
+body > .page > div .site_navi li.about a {
+    display: block;
+    width: 212px;
+    height: 30px;
+}
+
+body > .page > .content .block {
+    border-width: 2px;
+    border-style: solid;
+    min-height: 50px;
+}
+
+/* flow */
+
+body > .page > .header,
+body > .page > .footer {
+    position: relative;
+}
+
+body > .page > .header > *,
+body > .page > .footer > * {
+    position: absolute;
+}
+
+body > .page > div .navi > ul > li,
+body > .page > div .navi > ul > li {
+    float: left;
+}
+
+body > .page > div .block h2 {
+    float: right;
+}
+
+body > .page > div .block h2 sup {
+    display: block;
+    float: right;
+}
+
+body > .page > div .block h4 img.face {
+    vertical-align: baseline;
+}
+
+/* position */
+
+html,
+body {
+    text-align: center;
+}
+
+body > .page {
+    margin: 0 auto;
+}
+
+body > .page > .header,
+body > .page > .content,
+body > .page > .footer {
+    margin: 0 auto;
+    text-align: left;
+}
+
+body > .page > .header .logo {
+    left: 0;
+    top: 0;
+}
+
+body > .page > .header .site_navi {
+    right: 0;
+    top: 22px;
+}
+
+body > .page > .header .navi {
+    right: 0;
+    top: 63px;
+}
+
+body > .page > .header .breadcrumb {
+    left: 35px;
+    bottom: 0;
+}
+
+body > .page > .header .logo {
+    top: 40px;
+}
+
+body > .page > .footer .navi {
+    right: 3px;
+    top: 0;
+}
+
+body > .page > .footer .site_navi {
+    left: 16px;
+    bottom: 6px;
+}
+
+body > .page > .footer .copyright {
+    right: 12px;
+    bottom: 6px;
+    text-align: right;
+}
+
+/* space */
+
+body > .page > .header,
+body > .page > .footer {
+    margin-bottom: 15px;
+}
+
+body > .page > .footer {
+    margin-top: 10px;
+}
+
+body > .page > div .navi li {
+    margin-left: 8px;
+}
+
+body > .page > .content > .block {
+    margin: 0 0 10px 0;
+    padding: 10px;
+}
+
+body > .page > div .block h2 {
+    padding: 2px 2px 4px 100px;
+    margin: 5px 0 10px 15px;
+}
+
+body > .page > div .block h2 sup {
+    margin-left: 12px;
+}
+
+body > .page > div .block .text {
+    padding-top: 5px;
+    margin: 15px 15% 15px 15px;
+    line-height: 1.2em;
+    font-size: 14px;
+}
+
+body > .page > div .block .text h3 {
+    margin: 25px 15px 10px 0;
+}
+
+body > .page > div .block .text h4 {
+    margin: 20px 0 10px 0;
+}
+
+body > .page > div .block h4 img.face {
+    margin-right: 6px;
+}
+
+body > .page > div .block .text p {
+    margin: 0 15px 15px 5px;
+}
+
+body > .page > div .block .text ol {
+    padding-left: 3em;
+}
+
+body > .page > div .block .text ul {
+    padding-left: 2em;
+}
+
+body > .page > div .block .text ol li {
+    list-style: lower-roman outside none;
+}
+
+body > .page > div .block .text ul li {
+    list-style: outside none;
+}
+

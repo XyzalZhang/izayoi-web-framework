@@ -1,0 +1,169 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF
+ *
+ * ANY KIND, either express or implied. See the License for the specific language governing rights and
+ *
+ * limitations under the License.
+ *
+ * The Original Code is the IZAYOI web framework.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ *   Mo Chen <withinsea@gmail.com>
+ *
+ * Portions created by the Initial Developer are Copyright (C) 2009-2010
+ * the Initial Developer. All Rights Reserved.
+ */
+
+/* hide */
+
+body > .page > .header .logo h1 a,
+body > .page > div .site_navi li.about a {
+    font-size: 0;
+}
+
+/* cursor */
+
+code {
+    cursor: text;
+}
+
+/* text-style */
+
+body > .page > .header li,
+body > .page > .footer li {
+    list-style: none;
+}
+
+body > .page > .header .navi a,
+body > .page > .footer .navi a {
+    font-family: Corbel, arial, sans-serif;
+    text-decoration: none;
+}
+
+body > .page > .header .navi a:hover,
+body > .page > .footer .navi a:hover {
+    text-decoration: underline;
+}
+
+body > .page > div .block h2 {
+    font-family: Kalinga, arial, sans-serif;
+    font-style: italic;
+}
+
+body > .page > div .block .text h4 {
+    font-weight: bold;
+}
+
+/* background color */
+
+body {
+    background: black;
+}
+
+/* background image */
+
+body > .page {
+    background: transparent url(banner.jpg) no-repeat 0 0;
+}
+
+body > .page > .footer {
+    background: transparent url(footer.jpg) no-repeat 0 26px;
+}
+
+body > .page > .header .logo.izayoi {
+    background: transparent url(logo_izayoi.png) no-repeat 0 0;
+}
+
+body > .page > .header .site_navi li.about a {
+    background: transparent url(smalogo_header.png) no-repeat 0 0;
+}
+
+body > .page > .header .site_navi li.about a:hover {
+    background: transparent url(smalogo_header_hover.png) no-repeat 0 0;
+}
+
+body > .page > .footer .site_navi li.about a {
+    background: transparent url(smalogo_footer.png) no-repeat 0 0;
+}
+
+body > .page > .footer .site_navi li.about a:hover {
+    background: transparent url(smalogo_footer_hover.png) no-repeat 0 0;
+}
+
+body > .page > .content .block {
+    background: transparent url(bg_dark.jpg) repeat;
+}
+
+body > .page > .content .block:hover {
+    background: transparent url(bg_light.jpg) repeat;
+}
+
+/* border color */
+
+body > .page > .content .block {
+    border-color: #a8a8a8;
+}
+
+body > .page > div .block h2 {
+    border-bottom: 1px dotted black;
+}
+
+body > .page > div .block h4 img.face {
+    border: 1px solid white;
+}
+
+/* foreground color */
+
+body > .page > .header,
+body > .page > .header a {
+    color: white;
+}
+
+body > .page > .footer,
+body > .page > .footer a {
+    color: white;
+}
+
+body > .page > .content,
+body > .page > .content a {
+    color: black;
+}
+
+body > .page > div .navi a {
+    color: #adacac;
+}
+
+body > .page > div .navi a:hover {
+    color: white;
+}
+
+body > .page > .header .breadcrumb,
+body > .page > .header .breadcrumb a {
+    color: #7183af;
+}
+
+body > .page > .footer .copyright {
+    color: #adacac;
+}
+
+body > .page > .footer .copyright a {
+    color: white;
+}
+
+/* sprits */
+
+/*
+h1,
+body > .page > .header .site_navi a,
+body > .page > .footer .site_navi a {
+    font-size: 0;
+}
+*/
