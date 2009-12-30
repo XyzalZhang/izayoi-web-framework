@@ -51,4 +51,10 @@ $(function () {
             pre.remove();
         }, 'properties');
     });
+
+
+    // table marker
+
+    $('body>iframe').attr('id', 'ad').addClass('ad ads');
+    $('body>script').attr('id', 'ad_script').addClass('ad ads');
 });

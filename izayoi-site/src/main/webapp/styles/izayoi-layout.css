@@ -39,6 +39,11 @@ body > .page > div .block h2 {
     height: 16px;
 }
 
+body > .page > div .block.narrow h2 {
+    font-size: 16px;
+    line-height: 26px;
+}
+
 body > .page > div .block h2 sup {
     font-size: 9px;
     line-height: 9px;
@@ -130,6 +135,20 @@ body > .page > .content a > .block {
     max-height: 50px;
 }
 
+body > .page > div .block.narrow {
+    height: 30px;
+    min-height: 30px;
+}
+
+body > .page > div .block.toolbar ul {
+    height: 30px;
+}
+
+body > .page > div .block.toolbar ul li a {
+    height: 30px;
+    line-height: 30px;
+}
+
 /* flow */
 
 body > .page > .header,
@@ -153,6 +172,14 @@ body > .page > .content .column.left {
 
 body > .page > .content .column.right {
     float: right;
+}
+
+body > .page > div .block.toolbar ul li {
+    float: left;
+}
+
+body > .page > div .block.toolbar ul li a {
+    display: block;
 }
 
 body > .page > div .block h2 {
@@ -246,9 +273,22 @@ body > .page > .content .block {
     padding: 10px;
 }
 
+body > .page > div .block.narrow {
+    padding: 0 10px;
+
+}
+
+body > .page > div .block.toolbar {
+    padding-left: 20px;
+}
+
 body > .page > div .block h2 {
     padding: 2px 2px 4px 80px;
     margin: 5px 0 40px 15px;
+}
+
+body > .page > div .block.narrow h2 {
+    margin: 0 0 10px 15px;
 }
 
 body > .page > div .block h2 sup {
@@ -296,4 +336,8 @@ body > .page > div .block .text ol li {
 
 body > .page > div .block .text ul li {
     list-style: outside none;
+}
+
+body > .page > div .block.toolbar ul li {
+    margin-right: 10px;
 }
