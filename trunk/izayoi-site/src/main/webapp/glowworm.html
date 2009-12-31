@@ -29,7 +29,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="author" content="Mo Chen <withinsea@gmail.com>" />
-    <title>Welcome! | izayoi web framework</title>
+    <title>Glowworm | izayoi web framework</title>
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shCore.css" />
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shThemeDefault.css" />
     <link rel="stylesheet" href="styles/izayoi-common.css" />
@@ -60,7 +60,7 @@
             <div class="navi">
                 <ul>
                     <li><a href="http://code.google.com/p/izayoi-web-framework/downloads">downloads</a></li>
-                    <li><a href="docs/">documentation</a></li>
+                    <li><a href="docs.html">documentation</a></li>
                     <li><a href="http://code.google.com/p/izayoi-web-framework/issues">issues</a></li>
                     <li><a href="http://groups.google.com/group/izayoi-web-framework">discussion</a></li>
                     <li><a href="mailto:izayoi-web-framework@googlegroups.com">mailing list</a></li>
@@ -103,60 +103,28 @@
 
             <hr />
 
-            <div class="block narrow toolbar">
-                <h2>download latest beta</h2>
-                <ul>
-                    <li class="download"><a
-                            href="http://izayoi-web-framework.googlecode.com/files/glowworm-0.1.0-beta.jar">glowworm-0.1.0-beta.jar</a>
-                    </li>
-                    <li class="download"><a
-                            href="http://izayoi-web-framework.googlecode.com/files/glowworm-0.1.0-beta-sources.jar">glowworm-0.1.0-beta-sources.jar</a>
-                    </li>
-                </ul>
+            <div class="column left wide">
+                <div class="block narrow toolbar">
+                    <ul>
+                        <li class="download"><a
+                                href="http://izayoi-web-framework.googlecode.com/files/glowworm-0.1.0-beta.jar">glowworm-0.1.0-beta.jar</a>
+                        </li>
+                        <li class="download"><a
+                                href="http://izayoi-web-framework.googlecode.com/files/glowworm-0.1.0-beta-sources.jar">glowworm-0.1.0-beta-sources.jar</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="column right narrow">
+                <div class="block narrow toolbar">
+                    <ul>
+                        <li><a href="docs.html#glowworm-quick-start">quick start in one minute</a></li>
+                    </ul>
+                </div>
             </div>
 
             <hr />
-
-            <div class="block project glowworm">
-
-                <h2>quick start<sup><br />in one minute</sup></h2>
-
-                <div class="text">
-                    <div>
-                        <h3>Build your first glowworm application:<br />
-                            <sub>(glowworm packages, <a class="external" href="http://java.sun.com/javase">JRE 6+</a>
-                                 and a servlet container like <a class="external" href="http://tomcat.apache.org/">Apache
-                                                                                                                   Tomcat</a>
-                                 are required)</sub>
-                        </h3>
-                        <ul>
-                            <li><h4><span class="minor">Step 1:</span>web.xml</h4>
-                                <pre class="code">
-                                    <code src="codes/glowworm.properties:quickstart.web.xml"></code>
-                                </pre>
-                            </li>
-                            <li><h4><span class="minor">Step 2:</span>index.jsp</h4>
-                                <pre class="code">
-                                    <code src="codes/glowworm.properties:quickstart.index.jsp"></code>
-                                </pre>
-                            </li>
-                            <li><h4><span class="minor">Step 3:</span>index.jsp.gw.json</h4>
-                                <pre class="code">
-                                    <code src="codes/glowworm.properties:quickstart.index.jsp.gw.json"></code>
-                                </pre>
-                            </li>
-                            <li><h4><span class="minor">Done. Browse</span>http://yourhost/index.jsp</h4></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <a class="download"
-                   href="http://izayoi-web-framework.googlecode.com/files/glowworm-quick-start-0.1.0-beta.war">download
-                                                                                                               this
-                                                                                                               demo:
-                                                                                                               glowworm-quick-start-0.1.0-beta.war</a>
-
-            </div>
 
             <div class="block project glowworm">
 
@@ -168,8 +136,8 @@
                             development.</h3>
                         <ol>
                             <li><p>Glowworm 是一个功能非常、非常有限的依赖注入工具。Glowworm
-                                   仅能够在每次请求中根据请求地址，从相似名称的数据脚本文件创建对象；也仅能够将创建的对象注入到请求上下文。相对的，这一基于名称映射的约定不需要任何配置文件或后台代码，这使得在一个分层系统的开发过程中，web
-                                   前端的开发人员可以在不连接后台系统的情况下，简单地为前端页面提供渲染所需的基本测试数据。</p></li>
+                                   仅能够在每次请求中根据请求地址，从相似名称的数据脚本文件创建对象；也仅能够将创建的对象注入到请求上下文。相对的，这一基于名称映射的约定不需要配置或后台编码，这使得 web
+                                   前端的开发人员可以随时简单地为页面提供测试用的渲染数据，而不必等待与之相关的后台系统环境部署完成。</p></li>
                             <li><p>Glowworm 默认支持的数据描述格式包括纯文本、JSON、properties 文件、JSP 以及 MVEL2 脚本。用户也可以向 Glowworm
                                    挂载自己编制的注入器，并映射到某个特定的扩展名。</p></li>
                             <li><p>Glowworm 的主要设计目标是方便前端开发者观察页面的渲染效果。利用 Glowworm
@@ -183,7 +151,7 @@
             <div class="block narrow toolbar">
                 <h2>documentation<sup><br /></sup></h2>
                 <ul>
-                    <li><a href="docs/">read more tutorials about glowworm grammar</a></li>
+                    <li><a href="docs.html#glowworm">read more tutorials about glowworm grammar</a></li>
                 </ul>
             </div>
 
@@ -195,7 +163,7 @@
             <div class="navi">
                 <ul>
                     <li><a href="http://code.google.com/p/izayoi-web-framework/downloads">downloads</a></li>
-                    <li><a href="docs/">documentation</a></li>
+                    <li><a href="docs.html">documentation</a></li>
                     <li><a href="http://code.google.com/p/izayoi-web-framework/issues">issues</a></li>
                     <li><a href="http://groups.google.com/group/izayoi-web-framework">discussion</a></li>
                     <li><a href="mailto:izayoi-web-framework@googlegroups.com">mailing list</a></li>
@@ -210,9 +178,8 @@
             <div class="copyright">
                 <address>
                     copyright &copy; 2009-2010 <a href="mailto:withinsea@gmail.com">Mo Chen</a><br />
-                    licensed under <a href="http://www.mozilla.org/MPL/MPL-1.1.html">the Mozilla Public License
-                                                                                     1.1</a><br />
-                    all rights reserved.
+                    licensed under <a href="http://www.mozilla.org/MPL/MPL-1.1.html">
+                    the Mozilla Public License 1.1</a><br />all rights reserved.
                 </address>
             </div>
         </div>

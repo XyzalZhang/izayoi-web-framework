@@ -149,7 +149,8 @@ body > .page > div .block.toolbar ul li.download a:hover {
 }
 
 body > .page > .content a > .block,
-body > .page > .content .block.dark {
+body > .page > .content .block.dark,
+body > .page > .content .block.dark:hover {
     background: transparent url(bg_dark.jpg) repeat;
 }
 
@@ -212,6 +213,8 @@ body > .page > .footer .copyright a {
 
 /* sprits */
 
+/* widgets */
+
 body > .page > div .block .text h4 span.date {
     color: #392e79;
     border-right: 2px solid #392e79;
@@ -235,10 +238,43 @@ body > .page > div .block a.download:hover {
     color: black;
 }
 
-/*
-h1,
-body > .page > .header .site_navi a,
-body > .page > .footer .site_navi a {
-    font-size: 0;
+body > .page > div .block.catalog {
+    padding: 12px 0;
 }
-*/
+
+body > .page > div .block.catalog ul li a {
+    display: block;
+    height: 25px;
+    line-height: 25px;
+}
+
+body > .page > div .block.catalog ul li a.selected,
+body > .page > div .block.catalog ul li a:hover {
+    background: silver;
+}
+
+body > .page > div .block.catalog ul li a {
+    padding-left: 16px;
+}
+
+body > .page > div .block.catalog ul li li a {
+    padding-left: 32px;
+}
+
+body > .page > div .block.catalog ul li li li a {
+    padding-left: 48px;
+}
+
+body > .page > div .block.catalog ul li a {
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 1px dotted dimgray;
+}
+
+body > .page > div .block.catalog ul li a:last-child {
+    font-weight: normal;
+}
+
+#doc_content .syntaxhighlighter code {
+    font-size: 10px !important;
+}

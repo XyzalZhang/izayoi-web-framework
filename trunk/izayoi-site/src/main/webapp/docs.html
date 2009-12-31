@@ -29,14 +29,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="author" content="Mo Chen <withinsea@gmail.com>" />
-    <title>Cortile | izayoi web framework</title>
+    <title>Documentation | izayoi web framework</title>
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shCore.css" />
     <link rel="stylesheet" href="lib/syntaxhighlighter_2.1.364/styles/shThemeDefault.css" />
     <link rel="stylesheet" href="styles/izayoi-common.css" />
     <link rel="stylesheet" href="styles/izayoi-layout.css" />
     <link rel="stylesheet" href="styles/izayoi-skin.css" />
     <script type="text/javascript" src="lib/jquery-1.3.2.min.js"></script>
-    <script type="text/javascript" src="lib/jquery.dataType.js"></script>
+    <script type="text/javascript" src="lib/jquery.history.js"></script>
     <script type="text/javascript" src="lib/jquery.beautyOfCode.js"></script>
     <script type="text/javascript" src="lib/syntaxhighlighter_2.1.364/scripts/shCore.js"></script>
     <script type="text/javascript" src="lib/syntaxhighlighter_2.1.364/scripts/shBrushPlain.js"></script>
@@ -44,9 +44,10 @@
     <script type="text/javascript" src="lib/syntaxhighlighter_2.1.364/scripts/shBrushJava.js"></script>
     <script type="text/javascript" src="lib/syntaxhighlighter_2.1.364/scripts/shBrushJScript.js"></script>
     <script type="text/javascript" src="scripts/izayoi.js"></script>
+    <script type="text/javascript" src="scripts/docs.js"></script>
 </head>
 <body>
-    <div class="page">
+    <div class="page index">
 
         <div class="header">
             <div class="site_navi">
@@ -68,7 +69,7 @@
             </div>
             <div class="breadcrumb">
                 <a href="index.html">izayoi web framework</a> &gt;
-                <span>cortile</span>
+                <span>documentation</span>
             </div>
         </div>
 
@@ -77,17 +78,18 @@
         <div class="content">
 
             <div class="block narrow tagline">
-                <h2><sup><br />Adjusting art design for a server-side script embedded dynamic page is always a difficult
-                               work... so, just don't do that.</sup></h2>
+                <h2><sup><br />The document is the ladder of the progress of coderkind</sup></h2>
             </div>
 
             <div class="column left half">
-                <div class="block">
-                    <h2>cortile<sup>
-                        html compatible<br />
-                        dynamic page engine
-                    </sup></h2>
-                </div>
+                <a href="cortile.html">
+                    <div class="block">
+                        <h2>cortile<sup>
+                            html compatible<br />
+                            dynamic page engine
+                        </sup></h2>
+                    </div>
+                </a>
             </div>
 
             <div class="column right half">
@@ -103,60 +105,80 @@
 
             <hr />
 
-            <div class="column left wide">
-                <div class="block narrow toolbar">
-                    <ul>
-                        <li class="download">
-                            <a href="http://izayoi-web-framework.googlecode.com/files/cortile-0.1.0-beta.jar">cortile-0.1.0-beta.jar</a>
+            <div class="column left narrow">
+
+                <div class="block narrow">
+                    <h2>docs & tutorials</h2>
+                </div>
+
+                <div class="block dark catalog">
+                    <ul id="doc_catalog">
+                        <li>
+                            <a href="#faq">FAQ</a>
                         </li>
-                        <li class="download">
-                            <a href="http://izayoi-web-framework.googlecode.com/files/cortile-0.1.0-beta-sources.jar">cortile-0.1.0-beta-sources.jar</a>
+                        <li>
+                            <a href="#cortile">cortile</a>
+                            <ul>
+                                <li>
+                                    <a href="#cortile-quick-start">quick start</a>
+                                </li>
+                                <li>
+                                    <a href="#cortile-mode">scenery mode & mirage mode</a>
+                                </li>
+                                <li>
+                                    <a href="#cortile-compilers">compilers</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#cortile-compilers-html">html compiler</a>
+                                        </li>
+                                        <li>
+                                            <a href="#cortile-compilers-eltext">el-text compiler</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#cortile-grammars">grammars</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#cortile-grammars-attr">attr grammars</a>
+                                        </li>
+                                        <li>
+                                            <a href="#cortile-grammars-comment">comment grammars</a>
+                                        </li>
+                                        <li>
+                                            <a href="#cortile-grammars-others">others grammars</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#cortile-config">custom configuration</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#glowworm">glowworm</a>
+                            <ul>
+                                <li>
+                                    <a href="#glowworm-quick-start">quick start</a>
+                                </li>
+                                <li>
+                                    <a href="#glowworm-mapping">mapping</a>
+                                </li>
+                                <li>
+                                    <a href="#glowworm-injectors">injectors</a>
+                                </li>
+                                <li>
+                                    <a href="#glowworm-config">custom configuration</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="column right narrow">
-                <div class="block narrow toolbar">
-                    <ul>
-                        <li><a href="docs.html#cortile-quick-start">quick start in one minute</a></li>
-                    </ul>
+            <div class="column right wide">
+                <div id="doc_content" class="block">
                 </div>
-            </div>
-
-            <hr />
-
-            <div class="block">
-
-                <h2>opinion<sup><br />our goal of design pattern</sup></h2>
-
-                <div class="text">
-                    <div>
-                        <h3>Cortile is a standalone, totally HTML compatible dynamic page engine.</h3>
-                        <ol>
-                            <li><p>Cortile 是单纯的视图层技术。在未经自行扩展的前提下，由 Cortile
-                                   所构建的页面只响应直接发往该页面的请求，并只从请求上下文中取得数据。除最低程度的必要转发外 Cortile
-                                   无法参与请求/响应、业务逻辑及数据交换等后台机制的管理；但另一方面，这种机制也使得任何一个 web 开发框架只要能够结合传统的 JSP 页，就一定可以通过同样的方式结合
-                                   Cortile。</p></li>
-                            <li><p>Cortile 的语法完全基于 HTML 注释与标签属性；这种机制回避了因引入额外标签或非 XML 代码造成的文档 DOM 结构的变化，也就是说，通过
-                                   Cortile 构建的动态页面可以脱离 J2EE 容器，作为静态 HTML 页进行正常的 HTML、CSS、Javascript 编程调试。</p></li>
-                            <li><p>Cortile 直接提供包括 EL 表达式、页面片段递归等在内的一系列语法；对于更加复杂的需求，Cortile 允许用户向编译器挂载自己编制的语法类、EL
-                                   解释器（系统默认使用
-                                   MVEL2 作为 EL　脚本的引擎），或者直接向 Cortile 引擎添加新的编译器实现。</p></li>
-                            <li><p>Cortile 在第一次访问时将页面编译成 JSP，之后向其转发所有发往原页面的请求；这一机制使得 Cortile 能够在仅有 JRE 的场合利用 Servlet
-                                   容器获得尽可能高的运行效率，也使得 Cortile 得以提供一些辅助语法，以允许用户继续利用传统的 JSP
-                                   代码（这并不推荐，但它可以帮助用户顺利过渡）。</p></li>
-                        </ol>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="block narrow toolbar">
-                <h2>documentation<sup><br /></sup></h2>
-                <ul>
-                    <li><a href="docs.html#cortile">read more tutorials about cortile grammar</a></li>
-                </ul>
             </div>
 
         </div>

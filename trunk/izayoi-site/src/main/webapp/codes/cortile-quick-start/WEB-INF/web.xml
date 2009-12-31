@@ -1,0 +1,12 @@
+<web-app>
+    <servlet>
+        <servlet-name>cortile-scenery</servlet-name>
+        <servlet-class>
+            org.withinsea.izayoi.cortile.core.CortileScenery
+        </servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>cortile-scenery</servlet-name>
+        <url-pattern>*.html</url-pattern>
+    </servlet-mapping>
+</web-app>

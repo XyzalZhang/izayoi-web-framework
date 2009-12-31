@@ -149,6 +149,10 @@ body > .page > div .block.toolbar ul li a {
     line-height: 30px;
 }
 
+#doc_content {
+    min-height: 490px;
+}
+
 /* flow */
 
 body > .page > .header,
@@ -284,11 +288,11 @@ body > .page > div .block.toolbar {
 
 body > .page > div .block h2 {
     padding: 2px 2px 4px 80px;
-    margin: 5px 0 40px 15px;
+    margin: 5px 0 10px 15px;
 }
 
 body > .page > div .block.narrow h2 {
-    margin: 0 0 10px 15px;
+    margin: 0 0 0 15px;
 }
 
 body > .page > div .block h2 sup {
@@ -297,7 +301,7 @@ body > .page > div .block h2 sup {
 
 body > .page > div .block .text {
     padding-top: 5px;
-    margin: 15px 15% 15px 15px;
+    margin: 25px 15% 15px 15px;
     line-height: 1.2em;
     font-size: 14px;
 }
@@ -341,3 +345,4 @@ body > .page > div .block .text ul li {
 body > .page > div .block.toolbar ul li {
     margin-right: 10px;
 }
+
