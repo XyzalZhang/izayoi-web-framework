@@ -1,0 +1,43 @@
+import java.util.*;
+
+INJECT_TYPE = "MVEL2";
+
+title = 'glowworm tutorial';
+subtitle = 'datatypes';
+description = 'a tutorial about supported data types in glowworm.';
+requiredJdkVersion = 1.6;
+recommendTypes = java.util.regex.Pattern.compile("JSON|MVEL2");
+time = new Date();
+
+types = [];
+{
+    types.add({
+        'typename': "JSON",
+        'extnames': ['json', 'js'],
+        'deserializer': true
+    });
+
+    types.add({
+        'typename': "Properties",
+        'extnames': ['properties'],
+        'deserializer': true
+    });
+
+    types.add({
+        'typename': "JSP",
+        'extnames': ['jsp'],
+        'deserializer': false
+    });
+
+    types.add({
+        'typename': "MVEL2",
+        'extnames': ['mvel2'],
+        'deserializer': false
+    });
+
+    types.add({
+        'typename': "Text",
+        'extnames': ['txt'],
+        'deserializer': true
+    });
+}
