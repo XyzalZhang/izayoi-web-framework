@@ -48,9 +48,9 @@ public class EntityTrick implements PretreatGrammar, TextGrammar, AttrGrammar, C
     @Override
     @Priority(99)
     public String pretreatCode(DOMCompiler compiler, Compilr.Result result, String code) {
-        String trick = "＆";
+        String trick = "#";
         while (code.indexOf(trick) >= 0) {
-            trick += "＆";
+            trick += "#";
         }
         trick = "_" + trick + "_";
         result.setAttribute(ENTITY_TRICK_ATTR_NAME, trick);

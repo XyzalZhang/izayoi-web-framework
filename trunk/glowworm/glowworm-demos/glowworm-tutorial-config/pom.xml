@@ -30,50 +30,33 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>glowworm</artifactId>
+        <artifactId>glowworm-demos</artifactId>
         <version>0.1.0-beta</version>
     </parent>
-    <artifactId>glowworm-core</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>glowworm-tutorial-config</artifactId>
+    <packaging>war</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            <version>1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-            <version>1.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mvel</groupId>
-            <artifactId>mvel2</artifactId>
-            <version>2.0.15</version>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>glowworm-core</artifactId>
+            <version>0.1.0-beta</version>
         </dependency>
     </dependencies>
 
     <!-- More Project Information -->
-    <name>glowworm-core</name>
-
-    <!-- Build -->
-    <build>
-        <finalName>glowworm-${project.version}</finalName>
-    </build>
+    <name>glowworm-tutorial-config</name>
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-core/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-core/
+        <connection>
+            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-config/
+        </connection>
+        <developerConnection>
+            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-config/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/glowworm/glowworm-core</url>
+        <url>
+            http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-config
+        </url>
     </scm>
 
 </project>
