@@ -32,15 +32,28 @@ $(function () {
         'json': 'javascript',
         'xml': 'xml',
         'html': 'html',
-        'jsp' : 'java'
+        'jsp' : 'java',
+        'properties' : 'plain'
     };
 
+    var breadcrumb = $('.breadcrumb');
     var catalog = $('#doc_catalog');
     var content = $('#doc_content');
 
     var select = function (hash) {
         $('.selected', catalog).removeClass('selected');
-        $('a[href=#' + hash + ']', catalog).addClass('selected');
+        var a = $('a[href=#' + hash + ']', catalog).addClass('selected');
+        var path = [];
+        do {
+            path.push({ text: a.text(), href: a.attr('href') });
+            a = a.parent().parent().parent().find('> a:eq(0)');
+        } while (a.length > 0);
+        breadcrumb.html('<a href="index.html">izayoi web framework</a> &gt;\n' +
+                        '<a href="docs.html">documentation</a> &gt;\n');
+        for (var i = path.length - 1; i > 0; i--) {
+            breadcrumb.html(breadcrumb.html() + '<a href="' + path[i].href + '">' + path[i].text + '</a> &gt;\n');
+        }
+        breadcrumb.html(breadcrumb.html() + '<span>' + path[0].text + '</span>');
     }
 
     var failed = function () {
@@ -71,7 +84,14 @@ $(function () {
                     $('pre.code > code[src]', content).each(function () {
                         var code = $(this), pre = code.parent();
                         var codesrc = code.attr('src');
-                        $.get(codesrc, function (data) {
+                        var xhr = $.get(codesrc, function () {
+                            // godaddy trick start
+                            var data = xhr.responseText;
+                            var loc = data.indexOf('</iframe');
+                            if (loc >= 0) {
+                                data = data.substring(0, loc);
+                            }
+                            // godaddy trick end
                             var content = data.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                             var type = FORMAT_TYPES[codesrc.replace(/^.*\./, '')] || 'plain';
                             $('<pre class="code"><code>' + content + '</code></pre>').insertAfter(pre).beautifyCode(type);

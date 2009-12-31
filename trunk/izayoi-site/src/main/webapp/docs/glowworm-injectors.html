@@ -1,0 +1,112 @@
+<!--
+  ~ The contents of this file are subject to the Mozilla Public License
+  ~ Version 1.1 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS"
+  ~ basis, WITHOUT WARRANTY OF
+  ~
+  ~ ANY KIND, either express or implied. See the License for the specific language governing rights and
+  ~
+  ~ limitations under the License.
+  ~
+  ~ The Original Code is the IZAYOI web framework.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~
+  ~   Mo Chen <withinsea@gmail.com>
+  ~
+  ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
+  ~ the Initial Developer. All Rights Reserved.
+  -->
+
+
+<h2>glowworm injectors</h2>
+
+<div class="text">
+    <div>
+        <h3></h3>
+
+        <p>
+            glowworm 默认支持的数据文件类型共包括 JSON, Properties, JSP, MVEL2 及 Text 五种。glowworm 为每一种支持的类型提供一个 Injector 类；用户也可自己实现
+            Injector 接口以添加新的类型支持。
+        </p>
+
+        <h3>JSON</h3>
+
+        <p>
+            JSON 本身即是一种数据描述格式。Glowworm 将 JSON 文件中的对象直接映射成为简单类型或 Map（对应js对象），List（对应js数组）类型的对象。
+            作为一种可接受的不严谨，Glowworm 按照 js 脚本解析 JSON 文件，因此用户可以在 JSON 中使用 js 的函数或其它代码。<br />
+        </p>
+
+        <p>
+            例如：
+            <pre class="code">
+                <code src="codes/glowworm-tutorial-mapping-injectors/datatypes.jsp.gw-file0.json"></code>
+            </pre>
+        </p>
+
+        <p>
+            Glowworm 将 JSON 映射生成的对象存储为名为 "glowworm"（可在配置中更改）的上下文属性。
+            另外，如果生成的对象是一个 Map，则该 Map 的每一键值对都会被放置到请求上下文中。
+        </p>
+
+        <p>
+            例如，上述 JSON 即可为下面的 JSP 提供渲染数据：
+            <pre class="code">
+                <code src="codes/glowworm-tutorial-mapping-injectors/datatypes.jsp"></code>
+            </pre>
+        </p>
+
+        <h3>Properties</h3>
+
+        <p>
+            Propertis 是 java 的一种 String->String 的简单键值表。Glowworm 读取 Properties，将所有键值对存为一个 Map。余下的处理与 JSON 相同。
+        </p>
+
+        <h3>Text</h3>
+
+        <p>
+            Text 文件被简单地解析为一个字符串，并保存在请求上下文的 glowworm 属性中。
+        </p>
+
+        <h3>JSP</h3>
+
+        <p>
+            JSP 不生成对象。Glowworm 简单地将请求 forward 给它，由 JSP 自行向上下文中添加数据（JSP 对 response 所作的修改则被 Glowworm 丢弃）。这一机制实际上使 JSP
+            格式的数据文件能够书写任何后台逻辑；但毕竟是超出设计范围的用法，并不推荐这样使用。
+        </p>
+
+        <p>
+            如下 JSP 提供了与上述 JSON 完全相同的渲染效果：
+            <pre class="code">
+                <code src="codes/glowworm-tutorial-mapping-injectors/datatypes.jsp.gw.jsp"></code>
+            </pre>
+        </p>
+
+        <h3>MVEL2</h3>
+
+        <p>
+            MVEL2 的机制与 JSP 很类型。Glowworm 构造一个包含 request / session / application 等环境变量的 Map 作为变量空间提供给 MVEL2 解释器；当 mvel2
+            数据脚本运行完毕后，这一 Map 中新增的所有键值对被按名称注入上下文。
+        </p>
+
+        <p>
+            MVEL2 的语法不属于本文档范围，请参考 <a href="http://mvel.codehaus.org/">http://mvel.codehaus.org/</a>。
+        </p>
+
+        <p>
+            如下 MVEL2 提供了与上述 JSON 完全相同的渲染效果：
+            <pre class="code">
+                <code src="codes/glowworm-tutorial-mapping-injectors/datatypes.jsp.gw.mvel2"></code>
+            </pre>
+        </p>
+    </div>
+</div>
+
+<a class="download"
+   href="http://izayoi-web-framework.googlecode.com/files/glowworm-tutorial-mapping-injectors-0.1.0-beta.war">
+    download demo for this tutorial: glowworm-tutorial-mapping-injectors-0.1.0-beta.war
+</a>
