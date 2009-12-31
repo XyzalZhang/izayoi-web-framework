@@ -31,25 +31,25 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi</artifactId>
+        <artifactId>cortile</artifactId>
         <version>0.1.0-beta</version>
     </parent>
-    <artifactId>cortile</artifactId>
+    <artifactId>cortile-demos</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>cortile-core</module>
-        <module>cortile-demos</module>
+        <module>cortile-quick-start</module>
+        <module>cortile-tutorial-grammars</module>
     </modules>
 
     <!-- More Project Information -->
-    <name>cortile</name>
+    <name>cortile-tutorials</name>
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-tutorials/</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-tutorials/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile</url>
+        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-tutorials</url>
     </scm>
 
 </project>

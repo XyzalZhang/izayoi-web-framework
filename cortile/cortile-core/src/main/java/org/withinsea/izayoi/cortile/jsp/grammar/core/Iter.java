@@ -61,7 +61,7 @@ public class Iter implements AttrGrammar {
         String helper = "varstack.put(\"" + iname + "\", (" + iter + ").iterator());";
 
         try {
-            DOMUtils.surround(elem, "<% { varstack.push();" + helper + " %>", "<% varstack.pop(); } %>");
+            DOMUtils.surround(elem, "<% " + helper + " %>", "");
         } catch (Exception e) {
             throw new CortileException(e);
         }

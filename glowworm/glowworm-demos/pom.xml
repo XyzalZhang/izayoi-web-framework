@@ -31,25 +31,27 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi</artifactId>
+        <artifactId>glowworm</artifactId>
         <version>0.1.0-beta</version>
     </parent>
-    <artifactId>cortile</artifactId>
+    <artifactId>glowworm-demos</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>cortile-core</module>
-        <module>cortile-demos</module>
+        <module>glowworm-quick-start</module>
+        <module>glowworm-tutorial-mapping-injectors</module>
+        <module>glowworm-tutorial-config</module>
     </modules>
 
     <!-- More Project Information -->
-    <name>cortile</name>
+    <name>glowworm-tutorials</name>
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-tutorials/
+        </connection>
+        <developerConnection>scm:svn:https:///izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-tutorials/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile</url>
+        <url>http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-tutorials</url>
     </scm>
 
 </project>
