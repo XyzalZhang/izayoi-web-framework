@@ -23,32 +23,38 @@
  */
 
 {
-    INJECT_TYPE: 'JSON (file0)',
+    INJECT_TYPE: 'JSON (file1)',
     title: 'glowworm tutorial',
     subtitle: 'datatypes',
     description: 'a tutorial about supported data types in glowworm.',
     requiredJdkVersion: 1.6,
+    types: [
+        {
+            typename: "JSON",
+            extnames: ['json', 'js'],
+            deserializer: true
+        },
+        {
+            typename: "Properties",
+            extnames: ['properties'],
+            deserializer: true
+        },
+        {
+            typename: "JSP",
+            extnames: ['jsp'],
+            deserializer: false
+        },
+        {
+            typename: "MVEL2",
+            extnames: ['mvel2'],
+            deserializer: false
+        },
+        {
+            typename: "Text",
+            extnames: ['txt'],
+            deserializer: true
+        }
+    ],
     recommendTypes: /JSON|MVEL2/,
-time: new Date(),
-types: [{
-typename: "JSON",
-extnames: ['json', 'js'],
-deserializer: true
-}, {
-typename: "Properties",
-extnames: ['properties'],
-deserializer: true
-}, {
-typename: "JSP",
-extnames: ['jsp'],
-deserializer: false
-}, {
-typename: "MVEL2",
-extnames: ['mvel2'],
-deserializer: false
-}, {
-typename: "Text",
-extnames: ['txt'],
-deserializer: true
-}]
+time: new Date()
 }
