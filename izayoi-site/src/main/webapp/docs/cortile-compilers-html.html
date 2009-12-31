@@ -22,26 +22,41 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
-<h2><sup><br /></sup></h2>
+<h2>cortile html compiler</h2>
 
 <div class="text">
     <div>
-        <h3><br />
-            <sub></sub>
-        </h3>
-        <ul>
-            <li><h4><span class="minor">Step 1:</span>web.xml</h4>
-                <pre class="code">
-                    <code src=""></code>
-                </pre>
-            </li>
-        </ul>
+        <h3></h3>
+
+        <p>
+            Cortile 的主要编译器，也是 Cortile 的第一设计目标，根据嵌入到 html 文件中的特殊属性与注释生成 JSP 代码。
+        </p>
+
+        <p>
+            Cortile HTML 编译器的核心基于 DOM 操作实现。除少量直接针对代码全文的预处理与收尾处理语法外，挂载到 Cortile HTML 编译器上的各种语法的主要实现方式就是对通过解析 HTML 生成的 DOM
+            树进行各种修改调整，将附加的 JSP 代码作为文本类型的结点插入到 DOM 中。在全部语法执行完成后，以一种适合 JSP 的格式化方式将 DOM 输出，就成了作为编译结果使用的 JSP 文档。
+        </p>
+
+        <h3>Expression Language</h3>
+
+        <p>
+            EL 表达式是语法中的特例，在代码中嵌入的形如 ${script} 的段落被作为独立的脚本语言，在运行时解释执行。这牺牲了一定的效率，但大大简化了代码的规模。
+        </p>
+
+        <p>
+            Cortile HTML 模板中所有对上下文变量的处理和输出几乎都基于 EL 运行。
+        </p>
+
+        <h3>EL Interpreter & Varstack</h3>
+
+        <p>
+            EL 需要解释器来运行要；Cortile 使用 MVEL2 作为默认的 EL 解释器。</p>
+
+        <p>
+            在运行时，MVEL2 要求一个 Map 类型的对象作为脚本执行的变量空间来使用，Cortile 编译生成的 JSP 则向其提供一个实现了 Map 接口的，以 Map 为元素类型的堆栈。在 EL 的执行过程中，
+            对每一次 get(key) 的操作，这一称为 Varstack 的变量栈从栈顶开始依次查询每一个 Map，直到发现第一个符合的 key 或触到栈底为止。在 JSP 的开头，Cortile 向变量栈中压入一个包含
+            pageContext, request, session, application 四个对象，varstack 对象自身以及所有的请求参数的 Map，然后用空 Map
+            进行一次压斩；之后在每次循环体的开头与结尾都会再进行一对压栈／弹栈的操作，以便保护循环体外的变量不受循环体内部影响。
+        </p>
     </div>
 </div>
-
-<a class="download"
-   href="http://izayoi-web-framework.googlecode.com/files/">
-    download demo for this tutorial:
-</a>
-
