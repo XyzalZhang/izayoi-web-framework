@@ -23,7 +23,7 @@
   -->
 
 
-<h2>Cortile Landscape</h2>
+<h2>cortile landscape</h2>
 
 <div class="text">
     <div>
@@ -49,7 +49,12 @@
 
         <p>
             这一设计产生重复代码，但它是原始文件在脱离服务器的静态环境中正常调试的必要保证。虽然直接将 CortileScenery 关联到 .properties 文件也可以进行模板的编制，但由于用于 html
-            的注释语法无法在 .properties 文件中被作为注释被忽略；其结果就是当一段 js 代码试图在静态环境下读取 properties 文件的时候，额外的 html 注释就会造成程序运行的失败。
+            的注释语法无法在 .properties 文件中作为注释被忽略；其结果就是当一段 js 代码试图在静态环境下读取 properties 文件的时候，额外的 html 注释就会造成程序运行的失败。
+        </p>
+
+        <p>
+            Mirage Mode 默认使用 ELTextCompiler 编译模板；要换用其它的编译器，需要在 .mirage 后添加 -类型 的后缀；例如，如果希望将 conf.properties 的模板使用默认的
+            HTMLCompiler 进行编译，那么它的模板文件名应为 conf.mirage-html.properties。
         </p>
 
         <p>

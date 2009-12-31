@@ -23,25 +23,21 @@
   -->
 
 
-<h2><sup><br /></sup></h2>
+<h2>cortile compilers</h2>
 
 <div class="text">
     <div>
-        <h3><br />
-            <sub></sub>
-        </h3>
-        <ul>
-            <li><h4><span class="minor">Step 1:</span>web.xml</h4>
-                <pre class="code">
-                    <code src=""></code>
-                </pre>
-            </li>
-        </ul>
+        <h3></h3>
+
+        <p>
+            Cortile 的 compiler 将模板文件编译为 JSP，并返回一套编译结果：包括生成的所有 JSP 文件名与代码、相关联需要同步编译的其它模板文件的地址，
+            以及作为入口的 JSP 地址。Cortile 的编译管理器缓存由 compiler 生成的 JSP 数据，并在之后每一次收到发往模板文件的请求时，都将该请求转往 JSP。
+
+        </p>
+
+        <p>
+            编译管理器也负责监视模板的变化；在收到请求时，Cortile 检查文件的最后修改时间；如果一个模板文件生成的所有 JSP
+            文件中有任何一个的最后修改时间早于模板文件的最后修改时间，则认为模板文件产生了变化，会重新进行一次编译。
+        </p>
     </div>
 </div>
-
-<a class="download"
-   href="http://izayoi-web-framework.googlecode.com/files/">
-    download demo for this tutorial:
-</a>
-
