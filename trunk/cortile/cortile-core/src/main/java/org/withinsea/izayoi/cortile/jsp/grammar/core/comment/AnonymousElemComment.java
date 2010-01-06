@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 
-import org.withinsea.izayoi.commons.xml.HTMLWriter;
+import org.withinsea.izayoi.commons.xml.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;
@@ -44,7 +44,7 @@ public class AnonymousElemComment implements PretreatGrammar {
 
     @Override
     public String pretreatCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
-        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLWriter.ANONYMOUS_TAG_NAME + ">")
-                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLWriter.ANONYMOUS_TAG_NAME + "$1>");
+        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
+                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
     }
 }

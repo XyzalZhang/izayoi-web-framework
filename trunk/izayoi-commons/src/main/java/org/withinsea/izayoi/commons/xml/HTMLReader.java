@@ -50,6 +50,8 @@ import java.util.Map;
  */
 public class HTMLReader extends SAXReader {
 
+    public static final String ANONYMOUS_TAG_NAME = "ANONYMOUS";
+
     public HTMLReader() throws SAXException {
         super(new HTMLDocumentFactory());
     }
@@ -108,6 +110,8 @@ public class HTMLReader extends SAXReader {
             html = hold(html, "&", "AMP", "_");
             html = html.replaceAll("(<script[\\s\\S]*?>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
             html = html.replaceAll("\\s*(//\\s*-->)?\\s*(</script\\s*>)", "\n//-->$2");
+            int start = (html.indexOf("<!DOCTYPE ") < 0) ? 0 : html.indexOf(">", html.indexOf("<!DOCTYPE ")) + 1;
+            html = html.substring(0, start) + "<" + ANONYMOUS_TAG_NAME + ">" + html.substring(start) + "</" + ANONYMOUS_TAG_NAME + ">";
             return html;
         }
 
@@ -143,5 +147,14 @@ public class HTMLReader extends SAXReader {
                 }
             }
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        String xml = "<span c:content=\"${request.remoteAddr}\">localhost</span>";
+
+        Document doc = new HTMLReader().read(new StringReader(xml));
+
+        System.out.println(doc.getRootElement());
     }
 }
