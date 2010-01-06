@@ -108,11 +108,11 @@ public class Iters implements AttrGrammar {
                             elInterpreter.compileEL(split[1]) + ";" +
                             elInterpreter.compileEL(split[2]) + ") {";
                 } else if (el.matches("-?\\d+\\s*\\.\\.\\s*-?\\d+")) {
-                    preScriptlet = preScriptlet + "for (" + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
-                            ".asIterable(" + el.replace("..", ",") + ") {";
+                    preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
+                            ".asIterable(" + el.replace("..", ",") + ")) {";
                 } else {
-                    preScriptlet = preScriptlet + "for (" + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
-                            ".asIterable(" + elInterpreter.compileEL(el) + ") {";
+                    preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
+                            ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
                 }
                 helperScriptlet = "varstack.put(\"" + i + "\", " + i + ");" + helperScriptlet;
                 sufScriptlet = "}" + sufScriptlet;

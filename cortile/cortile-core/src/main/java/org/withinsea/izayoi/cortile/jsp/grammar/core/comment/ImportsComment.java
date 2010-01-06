@@ -25,11 +25,11 @@
 package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.dom.RoundoffGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -37,7 +37,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-28
  * Time: 17:57:38
  */
-public class ImportsComment implements CommentGrammar {
+public class ImportsComment implements RoundoffGrammar, CommentGrammar {
+
+    protected static final String IMPORTS_ATTR_NAME = ImportsComment.class.getCanonicalName() + "_IMPORTS";
 
     protected ELInterpreter elInterpreter;
 
@@ -49,18 +51,30 @@ public class ImportsComment implements CommentGrammar {
     @Override
     @Priority(99)
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        String importsClasses = comment.getText().substring("@imports".length())
+        String imports = result.getAttribute(IMPORTS_ATTR_NAME);
+        imports = (imports == null ? "" : imports + ",") + comment.getText().substring("@imports".length())
                 .trim().replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
-        String elInitScriptlet = elInterpreter.compileInit(
-                "import " + importsClasses.replace(",", "; import ") + ";");
-        if (!importsClasses.equals("")) {
-            try {
-                DOM4JUtils.replaceBy(comment,
-                        "<%@ page import=\"" + importsClasses + "\"%>" +
-                                "<%" + elInitScriptlet + "%>");
-            } catch (Exception e) {
-                throw new CortileException(e);
+        result.setAttribute(IMPORTS_ATTR_NAME, imports);
+    }
+
+    @Override
+    public boolean acceptRoundoff(String code) {
+        return true;
+    }
+
+    @Override
+    public String roundoffCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        String imports = result.getAttribute(IMPORTS_ATTR_NAME);
+        try {
+            if (imports == null || imports.equals("")) {
+                String elInitScriptlet = elInterpreter.compileInit("");
+                return "<%" + elInitScriptlet + "%>" + code;
+            } else {
+                String elInitScriptlet = elInterpreter.compileInit("import " + imports.replace(",", "; import ") + ";");
+                return "<%@ page import=\"" + imports + "\"%><%" + elInitScriptlet + "%>" + code;
             }
+        } catch (Exception e) {
+            throw new CortileException(e);
         }
     }
 
