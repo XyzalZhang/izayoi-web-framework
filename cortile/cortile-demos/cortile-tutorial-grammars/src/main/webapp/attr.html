@@ -32,10 +32,16 @@
 <body>
     <ol>
         <li><h2>For Iteration & Content Attr</h2>
-            <span c:for.i="list" c:content="[${i}]">0</span>
-        </li>
-        <li><h2>For Iteration</h2>
-            <span c:for.i="list" c:content="[${i}]">0</span>
+            <ul>
+                <li c:for.i="list">
+                    <h3>i = <span c:content="[${i}]">[I]</span></h3>
+                    <ul c:with="i_status">
+                        <li>i_status.idx = <span c:content="${idx}">0</span></li>
+                        <li>i_status.odd = <span c:content="${odd}">false</span></li>
+                        <li>i_status.even = <span c:content="${even}">true</span></li>
+                    </ul>
+                </li>
+            </ul>
         </li>
         <li><h2>If</h2>
             no output: <span c:if="1>2">WRONG</span>
@@ -44,7 +50,7 @@
             no output: <span c:mock>NOTHING</span>
         </li>
         <li><h2>Attr attr</h2>
-            strong: <span c:attr:style="font-weight:bold">Text</span>
+            strong: <span c:attr.style="font-weight:bold">Text</span>
         </li>
         <li><h2>Def, Call & Set</h2>
 

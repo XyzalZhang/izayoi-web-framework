@@ -55,8 +55,8 @@ public class With implements AttrGrammar {
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 3).trim() : el;
 
         if (!el.equals("")) {
-            String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + elInterpreter.compileEL(el) + "));";
-            String sufScriptlet = "varstack.pop();";
+            String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + elInterpreter.compileEL(el) + "));varstack.push();";
+            String sufScriptlet = "varstack.pop();varstack.pop();";
             try {
                 DOM4JUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
             } catch (Exception e) {
