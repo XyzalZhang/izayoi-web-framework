@@ -23,69 +23,63 @@
  */
 package org.withinsea.izayoi.commons.servlet;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.util.*;
 
-public class ParamIgnoringHttpServletRequestWrapper extends
-		HttpServletRequestWrapper {
+public class ParamIgnoringHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
-	private Set<String> ignoreParams = new HashSet<String>();
+    protected final Set<String> ignoreParams = new HashSet<String>();
 
-	public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request) {
-		super(request);
-	}
+    public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request) {
+        super(request);
+    }
 
-	public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request,
-			Collection<String> ignoreParams) {
-		this(request);
-		ignoreParams.addAll(ignoreParams);
-	}
+    public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request, String... ignoreParams) {
+        this(request, Arrays.asList(ignoreParams));
+    }
 
-	public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request,
-			String... ignoreParams) {
-		this(request, Arrays.asList(ignoreParams));
-	}
+    public ParamIgnoringHttpServletRequestWrapper(HttpServletRequest request, Collection<String> ignoreParams) {
+        this(request);
+        ignoreParams.addAll(ignoreParams);
+    }
 
+    @Override
     public String getQueryString() {
-		String queryString = "&" + super.getQueryString();
-		for (String ignoreParam : ignoreParams) {
-			queryString = queryString.replaceAll("\\&" + ignoreParam + "=[^\\&]*", "");
-		}
-		return queryString.substring(1);
-	}
-	
-	public String getParameter(String name) {
-		return (ignoreParams.contains(name.toLowerCase())) ? null : super.getParameter(name);
-	}
+        String queryString = "&" + super.getQueryString();
+        for (String ignoreParam : ignoreParams) {
+            queryString = queryString.replaceAll("\\&" + ignoreParam + "=[^\\&]*", "");
+        }
+        return queryString.substring(1);
+    }
 
-	public String[] getParameterValues(String name) {
-		return (ignoreParams.contains(name.toLowerCase())) ? null : super.getParameterValues(name);
-	}
+    @Override
+    public String getParameter(String name) {
+        return (ignoreParams.contains(name.toLowerCase())) ? null : super.getParameter(name);
+    }
 
-	@SuppressWarnings("unchecked")
-	public Map getParameterMap() {
-		Map map = new java.util.HashMap(super.getParameterMap());
-		for (String ignoreParam : ignoreParams) {
-			map.remove(ignoreParam);
-		}
-		return Collections.unmodifiableMap(map);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Enumeration getParameterNames() {
-		return new Vector(getParameterMap().keySet()).elements();
-	}
+    @Override
+    public String[] getParameterValues(String name) {
+        return (ignoreParams.contains(name.toLowerCase())) ? null : super.getParameterValues(name);
+    }
 
-	public Set<String> getIgnoreParams() {
-		return ignoreParams;
-	}
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map getParameterMap() {
+        Map map = new java.util.HashMap(super.getParameterMap());
+        for (String ignoreParam : ignoreParams) {
+            map.remove(ignoreParam);
+        }
+        return Collections.unmodifiableMap(map);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Enumeration getParameterNames() {
+        return new Vector(getParameterMap().keySet()).elements();
+    }
+
+    public Set<String> getIgnoreParams() {
+        return ignoreParams;
+    }
 }

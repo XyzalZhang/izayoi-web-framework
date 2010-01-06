@@ -26,169 +26,89 @@ package org.withinsea.izayoi.commons.json;
 import org.withinsea.izayoi.commons.servlet.ContentWrappingHttpServletResponseWrapper;
 import org.withinsea.izayoi.commons.servlet.ParamIgnoringHttpServletRequestWrapper;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public class JSONPFilter implements Filter {
 
-	protected String jsonp = "callback";
-	protected String[] jsonMimeTypes = new String[] {
-		"application/json",
-		"application/x-json",
-		"text/json",
-		"text/x-json"
-	};
+    protected String jsonp = "callback";
 
-	protected boolean isJsonp(ServletRequest req) {
-		if (req instanceof HttpServletRequest) {
-			return req.getParameterMap().containsKey(jsonp);
-		} else {
-			return false;
-		}
-	}
+    protected String[] jsonMimeTypes = new String[]{
+            "application/json",
+            "application/x-json",
+            "text/json",
+            "text/x-json"
+    };
 
-	protected boolean isJson(ServletRequest req, ServletResponse resp) {
-		String ctype = resp.getContentType();
-		if (ctype == null || ctype.equals("")) {
-			return false;
-		}
-		for (String jsonMimeType : jsonMimeTypes) {
-			if (ctype.indexOf(jsonMimeType) >= 0) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public void init(FilterConfig config) throws ServletException {
+        String jsonp = config.getInitParameter("jsonp");
+        if (jsonp != null && !jsonp.equals("")) {
+            this.jsonp = jsonp;
+        }
+        String jsonMimeTypes = config.getInitParameter("json-mime-types");
+        if (jsonMimeTypes != null) {
+            if (jsonMimeTypes.equals("")) {
+                this.jsonMimeTypes = new String[]{};
+            } else {
+                this.jsonMimeTypes = jsonMimeTypes.trim().split("\\s*,\\s*");
+            }
+        }
+    }
 
-	protected String getCallback(ServletRequest req) {
-		return req.getParameterValues(jsonp)[0];
-	}
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-	public void doFilter(final ServletRequest req, final ServletResponse resp,
-			FilterChain chain) throws IOException, ServletException {
+        if (request instanceof HttpServletRequest && response instanceof HttpServletResponse
+                && request.getParameterMap().containsKey(jsonp)) {
 
-		if (resp instanceof HttpServletResponse && isJsonp(req)) {
-			
-			ParamIgnoringHttpServletRequestWrapper reqw = new ParamIgnoringHttpServletRequestWrapper(
-					(HttpServletRequest) req, jsonp);
-			
-			ContentWrappingHttpServletResponseWrapper respw = new ContentWrappingHttpServletResponseWrapper(
-					(HttpServletResponse) resp) {
-				
-				private boolean wrapContentType = false;
-				
-				public String getContentType() {
-					return wrapContentType ? "text/javascript; charset=utf-8" :
-						super.getContentType();
-				}
+            final HttpServletRequest req = (HttpServletRequest) request;
+            ParamIgnoringHttpServletRequestWrapper reqw = new ParamIgnoringHttpServletRequestWrapper(req, jsonp);
 
-				@Override
-				public byte[] wrap(byte[] content) throws UnsupportedEncodingException {
-					wrapContentType = true;
-					String contentstr = new String(content, getCharacterEncoding());
-					boolean isJson = isJson(req, super.getResponse());
-					return (getCallback(req) + "(" +
-						(isJson ? contentstr : quote(contentstr)) +
-					");").getBytes(getCharacterEncoding());
-				}
-			};
+            final HttpServletResponse resp = (HttpServletResponse) response;
+            ContentWrappingHttpServletResponseWrapper respw = new ContentWrappingHttpServletResponseWrapper(resp) {
 
-			respw.setCharacterEncoding("UTF-8");
-			chain.doFilter(reqw, respw);
-			respw.flushWrapper();
+                @Override
+                public String getContentType() {
+                    return committed ? "text/javascript; charset=utf-8" : super.getContentType();
+                }
 
-		} else {
+                @Override
+                public byte[] wrap(byte[] content) throws UnsupportedEncodingException {
+                    String contentstr = new String(content, getCharacterEncoding());
+                    String json = isJson(super.getResponse()) ? contentstr : JSONUtils.quote(contentstr);
+                    String callback = req.getParameterValues(jsonp)[0];
+                    return (callback + "(" + json + ");").getBytes(getCharacterEncoding());
+                }
 
-			chain.doFilter(req, resp);
+                protected boolean isJson(ServletResponse resp) {
+                    String ctype = resp.getContentType();
+                    if (ctype == null || ctype.equals("")) {
+                        return false;
+                    }
+                    for (String jsonMimeType : jsonMimeTypes) {
+                        if (ctype.indexOf(jsonMimeType) >= 0) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
 
-		}
-	}
+            respw.setCharacterEncoding("UTF-8");
+            chain.doFilter(reqw, respw);
+            respw.flushWrapper();
 
-	public void init(FilterConfig config) throws ServletException {
-		String jsonp = config.getInitParameter("jsonp");
-		String jsonMimeTypes = config.getInitParameter("json-mime-types");
-		if (jsonp != null && !jsonp.equals("")) {
-			this.jsonp = jsonp;
-		}
-		if (jsonMimeTypes != null) {
-			if (jsonMimeTypes.equals("")) {
-				this.jsonMimeTypes = new String [] { };
-			} else {
-				this.jsonMimeTypes = jsonMimeTypes.trim().split("\\s*,\\s*");
-			}
-		}
-	}
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
 
-	public void destroy() {
+    @Override
+    public void destroy() {
+    }
 
-	}
-
-	/**
-	 * from: org.json, org.json.JSONObject.quote(String string)
-	 */
-	private static String quote(String string) {
-		if (string == null || string.length() == 0) {
-			return "\"\"";
-		}
-
-		char b;
-		char c = 0;
-		int i;
-		int len = string.length();
-		StringBuffer sb = new StringBuffer(len + 4);
-		String t;
-
-		sb.append('"');
-		for (i = 0; i < len; i += 1) {
-			b = c;
-			c = string.charAt(i);
-			switch (c) {
-			case '\\':
-			case '"':
-				sb.append('\\');
-				sb.append(c);
-				break;
-			case '/':
-				if (b == '<') {
-					sb.append('\\');
-				}
-				sb.append(c);
-				break;
-			case '\b':
-				sb.append("\\b");
-				break;
-			case '\t':
-				sb.append("\\t");
-				break;
-			case '\n':
-				sb.append("\\n");
-				break;
-			case '\f':
-				sb.append("\\f");
-				break;
-			case '\r':
-				sb.append("\\r");
-				break;
-			default:
-				if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
-						|| (c >= '\u2000' && c < '\u2100')) {
-					t = "000" + Integer.toHexString(c);
-					sb.append("\\u" + t.substring(t.length() - 4));
-				} else {
-					sb.append(c);
-				}
-			}
-		}
-		sb.append('"');
-		return sb.toString();
-	}
 }
