@@ -25,10 +25,10 @@
 package org.withinsea.izayoi.cortile.jsp;
 
 import org.mvel2.MVEL;
+import org.withinsea.izayoi.commons.collection.Varstack;
+import org.withinsea.izayoi.commons.servlet.HttpContextMap;
+import org.withinsea.izayoi.commons.servlet.HttpParameterMap;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
-import org.withinsea.izayoi.cortile.util.HttpContextMap;
-import org.withinsea.izayoi.cortile.util.HttpParameterMap;
-import org.withinsea.izayoi.cortile.util.Varstack;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
@@ -41,26 +41,37 @@ import javax.servlet.jsp.PageContext;
 public class MVEL2ELInterpreter implements ELInterpreter {
 
     @Override
-    public String compileEL(String el) {
-        return MVEL2ELInterpreter.class.getCanonicalName() + ".eval(\"" + el + "\", pageContext)";
+    public String compileInit(String importsEl) {
+        return Varstack.class.getCanonicalName() + " varstack=" +
+                MVEL2ELInterpreter.class.getCanonicalName() + ".varstack(pageContext);" +
+                MVEL2ELInterpreter.class.getCanonicalName() + ".imports(\"" + importsEl + "\", pageContext);";
     }
 
+    @Override
+    public String compileEL(String el) {
+        return MVEL2ELInterpreter.class.getCanonicalName() + ".eval(\"" +
+                el.replace("\n", "").replace("\r", "") + "\", pageContext)";
+    }
+
+    @SuppressWarnings("unused")
+    public static Varstack varstack(PageContext context) {
+        return ELContext.getContext(context).getVarstack();
+    }
+
+    @SuppressWarnings("unused")
     public static Object eval(String el, PageContext context) {
         try {
             ELContext elContext = ELContext.getContext(context);
-            return MVEL.eval(elContext.getImports() + el, elContext.getVarstack());
+            return MVEL.eval(elContext.getImportsEL() + el, elContext.getVarstack());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static void imports(String imports, PageContext context) {
-        ELContext.getContext(context).setImports("import " + imports.replaceAll(",", "; import ") + ";");
-    }
-
-    public static Varstack varstack(PageContext context) {
-        return ELContext.getContext(context).getVarstack();
+    @SuppressWarnings("unused")
+    public static void imports(String importsEl, PageContext context) {
+        ELContext.getContext(context).setImportsEL(importsEl);
     }
 
     protected static class ELContext {
@@ -68,7 +79,7 @@ public class MVEL2ELInterpreter implements ELInterpreter {
         protected static final String EL_CONTEXT_ATTR_NAME = MVEL2ELInterpreter.class.getCanonicalName() + ".EL_CONTEXT";
 
         protected Varstack varstack;
-        protected String imports;
+        protected String importsEl;
 
         public static ELContext getContext(PageContext context) {
 
@@ -99,20 +110,20 @@ public class MVEL2ELInterpreter implements ELInterpreter {
                 }
                 elContext.setVarstack(varstack);
 
-                String imports = "import java.util.*;";
-                elContext.setImports(imports);
+                String imports = "";
+                elContext.setImportsEL(imports);
             }
             context.getRequest().setAttribute(EL_CONTEXT_ATTR_NAME, elContext);
 
             return elContext;
         }
 
-        public String getImports() {
-            return imports;
+        public String getImportsEL() {
+            return importsEl;
         }
 
-        public void setImports(String imports) {
-            this.imports = imports;
+        public void setImportsEL(String importsEl) {
+            this.importsEl = importsEl;
         }
 
         public Varstack getVarstack() {

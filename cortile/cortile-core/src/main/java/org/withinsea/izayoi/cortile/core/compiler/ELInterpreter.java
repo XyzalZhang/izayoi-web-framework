@@ -31,5 +31,7 @@ package org.withinsea.izayoi.cortile.core.compiler;
  */
 public interface ELInterpreter {
 
+    public String compileInit(String initEl);
+
     public String compileEL(String el);
 }

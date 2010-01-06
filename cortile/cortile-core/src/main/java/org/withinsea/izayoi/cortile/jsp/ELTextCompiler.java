@@ -24,11 +24,11 @@
 
 package org.withinsea.izayoi.cortile.jsp;
 
+import org.withinsea.izayoi.cortile.core.compiler.CompilerUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.Grammar;
-import org.withinsea.izayoi.cortile.core.compiler.GrammarUtils;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.grammar.el.EL;
+import org.withinsea.izayoi.cortile.jsp.grammar.core.el.EL;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,25 +40,33 @@ import java.util.Set;
  */
 public class ELTextCompiler implements Compilr {
 
+    protected String encoding;
     protected String targetPath;
 
     protected Map<String, Set<Grammar>> grammars;
 
     @Override
     public String mapEntrancePath(String templatePath) {
-        return "/" + targetPath.trim().replaceAll("^/|/$", "") + templatePath + ".jsp";
+        String folder = "/" + targetPath.trim().replaceAll("^/|/$", "");
+        return folder + templatePath + ".jsp";
     }
 
     @Override
     public Compilr.Result compile(String templatePath, String templateCode) throws CortileException {
+        String jspHeader = "<%@ page pageEncoding=\"" + encoding + "\" %>";
         Result result = new Result(templatePath);
-        for (EL g : GrammarUtils.sortAll(grammars, EL.class, "acceptString")) {
+        for (EL g : CompilerUtils.sortAll(grammars, EL.class, "acceptString")) {
             if (g.acceptString(templateCode)) {
                 templateCode = g.processString(this, result, templateCode);
             }
         }
-        result.getTargets().put(mapEntrancePath(templatePath), templateCode);
+        result.getTargets().put(mapEntrancePath(templatePath), jspHeader + templateCode);
         return result;
+    }
+
+    @SuppressWarnings("unused")
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 
     @SuppressWarnings("unused")

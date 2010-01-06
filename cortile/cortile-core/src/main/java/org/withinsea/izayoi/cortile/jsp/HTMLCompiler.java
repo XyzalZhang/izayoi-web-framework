@@ -26,10 +26,10 @@ package org.withinsea.izayoi.cortile.jsp;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;
+import org.withinsea.izayoi.commons.xml.HTMLReader;
+import org.withinsea.izayoi.commons.xml.HTMLWriter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.io.HTMLReader;
-import org.withinsea.izayoi.cortile.jsp.io.JSPWriter;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -42,6 +42,7 @@ import java.io.StringWriter;
  */
 public class HTMLCompiler extends DOMCompiler {
 
+    protected String encoding;
     protected String targetPath;
 
     @Override
@@ -67,13 +68,21 @@ public class HTMLCompiler extends DOMCompiler {
 
     @Override
     protected String buildTarget(Branch root) throws CortileException {
+        String jspHeader = "<%@ page " +
+                "contentType=\"text/html; charset=" + encoding + "\" " +
+                "pageEncoding=\"" + encoding + "\" %>";
         StringWriter buf = new StringWriter();
         try {
-            new JSPWriter(buf).write(root);
+            new HTMLWriter(buf).write(root);
         } catch (IOException e) {
             throw new CortileException(e);
         }
-        return buf.toString();
+        return jspHeader + buf.toString();
+    }
+
+    @SuppressWarnings("unused")
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 
     @SuppressWarnings("unused")

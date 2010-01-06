@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>glowworm-demos</artifactId>
-        <version>0.1.0-beta</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>glowworm-tutorial-mapping-injectors</artifactId>
     <packaging>war</packaging>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>glowworm-core</artifactId>
-            <version>0.1.0-beta</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

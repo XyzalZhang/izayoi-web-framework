@@ -24,12 +24,14 @@
 
 package org.withinsea.izayoi.glowworm.core.exception;
 
+import org.withinsea.izayoi.commons.exception.IzayoiException;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-25
  * Time: 16:10:02
  */
-public class GlowwormException extends Exception {
+public class GlowwormException extends IzayoiException {
 
     public GlowwormException() {
     }
