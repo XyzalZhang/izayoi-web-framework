@@ -148,13 +148,4 @@ public class HTMLReader extends SAXReader {
             }
         }
     }
-
-    public static void main(String[] args) throws Exception {
-
-        String xml = "<span c:content=\"${request.remoteAddr}\">localhost</span>";
-
-        Document doc = new HTMLReader().read(new StringReader(xml));
-
-        System.out.println(doc.getRootElement());
-    }
 }
