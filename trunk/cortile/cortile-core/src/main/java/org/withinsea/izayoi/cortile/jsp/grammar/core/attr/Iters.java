@@ -86,13 +86,19 @@ public class Iters implements AttrGrammar {
 
         if (!el.equals("")) {
 
+            String preScriptlet = "{ varstack.push();";
+            String helperScriptlet = "";
+            String sufScriptlet = "varstack.pop(); }";
+
             String i = attr.getName().matches("while|until") ? null :
                     attr.getName().replaceFirst("(while|until|for)\\.", "");
-            String preScriptlet = "varstack.push();" + ((i == null) ? "" :
-                    elInterpreter.compileEL("I_idx=0; I_odd=false; I_even=true;".replace("I", i)) + ";");
-            String helperScriptlet = (i == null) ? "" :
-                    elInterpreter.compileEL("I_idx++; I_odd!=I_odd; I_even!=I_even;".replace("I", i)) + ";";
-            String sufScriptlet = "varstack.pop();";
+            if (i != null) {
+                String iStatus = i + "_status";
+                preScriptlet = preScriptlet + "" +
+                        Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
+                        "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
+                helperScriptlet = helperScriptlet + iStatus + ".inc();";
+            }
 
             if (attr.getName().startsWith("while")) {
                 preScriptlet = preScriptlet + "while ((Boolean)" + elInterpreter.compileEL(el) + ") {";
@@ -114,7 +120,7 @@ public class Iters implements AttrGrammar {
                     preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
                             ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
                 }
-                helperScriptlet = "varstack.put(\"" + i + "\", " + i + ");" + helperScriptlet;
+                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
                 sufScriptlet = "}" + sufScriptlet;
             }
 
@@ -134,5 +140,26 @@ public class Iters implements AttrGrammar {
     @SuppressWarnings("unused")
     public void setElInterpreter(ELInterpreter elInterpreter) {
         this.elInterpreter = elInterpreter;
+    }
+
+    public static class Status {
+
+        protected int idx = -1;
+
+        public void inc() {
+            idx++;
+        }
+
+        public int getIdx() {
+            return idx;
+        }
+
+        public boolean getOdd() {
+            return idx % 2 != 0;
+        }
+
+        public boolean getEven() {
+            return idx % 2 == 0;
+        }
     }
 }
