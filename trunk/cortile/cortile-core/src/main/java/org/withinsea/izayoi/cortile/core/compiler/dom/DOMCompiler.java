@@ -110,12 +110,14 @@ public abstract class DOMCompiler implements Compilr {
         for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, CommentGrammar.class, "processComment").entrySet()) {
             for (Comment comment : DOM4JUtils.selectTypedNodes(Comment.class, root)) {
-                for (CommentGrammar cg : groups.getValue()) {
-                    if (cg.acceptComment(comment)) {
-                        cg.processComment(this, result, comment);
-                    }
-                    if (comment.getParent() == null && comment.getDocument() == null) {
-                        break;
+                if (comment.getParent() != null || comment.getDocument() != null) {
+                    for (CommentGrammar cg : groups.getValue()) {
+                        if (cg.acceptComment(comment)) {
+                            cg.processComment(this, result, comment);
+                        }
+                        if (comment.getParent() == null && comment.getDocument() == null) {
+                            break;
+                        }
                     }
                 }
             }
@@ -124,16 +126,18 @@ public abstract class DOMCompiler implements Compilr {
         for (Map.Entry<Integer, Map<String, List<ElementGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, ElementGrammar.class, "processElement").entrySet()) {
             for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
-                String elemNs = elem.getNamespacePrefix();
-                eachGrammar:
-                for (Map.Entry<String, List<ElementGrammar>> e : groups.getValue().entrySet()) {
-                    if (elemNs.equals(e.getKey())) {
-                        for (ElementGrammar eg : e.getValue()) {
-                            if (eg.acceptElement(elem)) {
-                                eg.processElement(this, result, elem);
-                            }
-                            if (elem.getParent() == null && elem.getDocument() == null) {
-                                break eachGrammar;
+                if (elem.getParent() != null || elem.getDocument() != null) {
+                    String elemNs = elem.getNamespacePrefix();
+                    eachGrammar:
+                    for (Map.Entry<String, List<ElementGrammar>> e : groups.getValue().entrySet()) {
+                        if (elemNs.equals(e.getKey())) {
+                            for (ElementGrammar eg : e.getValue()) {
+                                if (eg.acceptElement(elem)) {
+                                    eg.processElement(this, result, elem);
+                                }
+                                if (elem.getParent() == null && elem.getDocument() == null) {
+                                    break eachGrammar;
+                                }
                             }
                         }
                     }
@@ -144,21 +148,25 @@ public abstract class DOMCompiler implements Compilr {
         for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, AttrGrammar.class, "processAttr").entrySet()) {
             for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
-                eachAttr:
-                for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
-                    String attrNs = attr.getNamespacePrefix();
-                    eachGrammar:
-                    for (Map.Entry<String, List<AttrGrammar>> e : groups.getValue().entrySet()) {
-                        if (attrNs.equals(e.getKey())) {
-                            for (AttrGrammar ag : e.getValue()) {
-                                if (ag.acceptAttr(elem, attr)) {
-                                    ag.processAttr(this, result, elem, attr);
-                                }
-                                if (elem.getParent() == null && elem.getDocument() == null) {
-                                    break eachAttr;
-                                }
-                                if (attr.getParent() == null || attr.getDocument() == null) {
-                                    break eachGrammar;
+                if (elem.getParent() != null || elem.getDocument() != null) {
+                    eachAttr:
+                    for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
+                        if (attr.getParent() != null) {
+                            String attrNs = attr.getNamespacePrefix();
+                            eachGrammar:
+                            for (Map.Entry<String, List<AttrGrammar>> e : groups.getValue().entrySet()) {
+                                if (attrNs.equals(e.getKey())) {
+                                    for (AttrGrammar ag : e.getValue()) {
+                                        if (ag.acceptAttr(elem, attr)) {
+                                            ag.processAttr(this, result, elem, attr);
+                                        }
+                                        if (elem.getParent() == null && elem.getDocument() == null) {
+                                            break eachAttr;
+                                        }
+                                        if (attr.getParent() == null) {
+                                            break eachGrammar;
+                                        }
+                                    }
                                 }
                             }
                         }

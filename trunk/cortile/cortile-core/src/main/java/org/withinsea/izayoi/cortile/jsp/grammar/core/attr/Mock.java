@@ -26,10 +26,15 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
+import org.withinsea.izayoi.commons.xml.DOM4JUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -44,8 +49,27 @@ public class Mock implements AttrGrammar {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     @Priority(99)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-        elem.detach();
+        java.util.Set<Node> mocks = new HashSet<Node>();
+        System.out.println(elem);
+        System.out.println(DOM4JUtils.parent(elem));
+        List<Node> siblings = (List<Node>) DOM4JUtils.parent(elem).content();
+        if (attr.getValue().equals("siblings")) {
+            mocks.addAll(siblings);
+        } else if (attr.getValue().equals("neighbors")) {
+            mocks.addAll(siblings);
+            mocks.remove(elem);
+        } else if (attr.getValue().equals("below")) {
+            mocks.addAll(siblings.subList(siblings.indexOf(elem) + 1, siblings.size()));
+        } else if (attr.getValue().equals("toend")) {
+            mocks.addAll(siblings.subList(siblings.indexOf(elem), siblings.size()));
+        } else {
+            mocks.add(elem);
+        }
+        for (Node mock : mocks) {
+            mock.detach();
+        }
     }
 }

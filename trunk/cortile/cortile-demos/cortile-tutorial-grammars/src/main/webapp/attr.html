@@ -33,7 +33,11 @@
     <ol>
         <li><h2>For Iteration & Content Attr</h2>
             <ul>
-                <li c:for.i="list">
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li c:for.i="list" c:mock="neighbors">
                     <h3>i = <span c:content="[${i}]">[I]</span></h3>
                     <ul c:with="i_status">
                         <li>i_status.idx = <span c:content="${idx}">0</span></li>
@@ -41,6 +45,11 @@
                         <li>i_status.even = <span c:content="${even}">true</span></li>
                     </ul>
                 </li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
             </ul>
         </li>
         <li><h2>If</h2>
