@@ -105,7 +105,7 @@ public class HTMLReader extends SAXReader {
         protected final Map<String, String> holders = new HashMap<String, String>();
 
         public String trickBefore(String html) {
-            html = hold(html, "&", "＆", "_");
+            html = hold(html, "&", "AMP", "_");
             html = html.replaceAll("(<script[\\s\\S]*?>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
             html = html.replaceAll("\\s*(//\\s*-->)?\\s*(</script\\s*>)", "\n//-->$2");
             return html;
