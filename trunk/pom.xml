@@ -30,12 +30,13 @@
     <!-- Basics -->
     <groupId>org.withinsea.izayoi</groupId>
     <artifactId>izayoi</artifactId>
-    <version>0.1.0-beta</version>
     <packaging>pom</packaging>
+    <version>0.1.0-SNAPSHOT</version>
     <modules>
+        <module>izayoi-commons</module>
+        <module>izayoi-site</module>
         <module>cortile</module>
         <module>glowworm</module>
-        <module>izayoi-site</module>
     </modules>
 
     <!-- More Project Information -->
@@ -134,7 +135,7 @@
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ftp</artifactId>
+                <artifactId>wagon-file</artifactId>
                 <version>1.0-beta-6</version>
             </extension>
         </extensions>

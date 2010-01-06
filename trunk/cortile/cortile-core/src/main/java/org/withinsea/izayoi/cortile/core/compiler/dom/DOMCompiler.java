@@ -25,11 +25,11 @@
 package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.dom4j.*;
+import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.cortile.core.compiler.CompilerUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.Grammar;
-import org.withinsea.izayoi.cortile.core.compiler.GrammarUtils;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.util.DOMUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public abstract class DOMCompiler implements Compilr {
 
         Result result = new Result(templatePath);
 
-        for (PretreatGrammar pg : GrammarUtils.sortAll(grammars, PretreatGrammar.class, "pretreatCode")) {
+        for (PretreatGrammar pg : CompilerUtils.sortAll(grammars, PretreatGrammar.class, "pretreatCode")) {
             if (pg.acceptPretreat(templateCode)) {
                 templateCode = pg.pretreatCode(this, result, templateCode);
             }
@@ -68,11 +68,11 @@ public abstract class DOMCompiler implements Compilr {
 
         Document doc = parseTemplate(templatePath, templateCode);
 
-        DOMUtils.mergeTexts(doc);
+        DOM4JUtils.mergeTexts(doc);
 
-        for (Map.Entry<Integer, List<TextGrammar>> groups : GrammarUtils.sortAllAsPriorityGroups(
+        for (Map.Entry<Integer, List<TextGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, TextGrammar.class, "processText").entrySet()) {
-            for (Text text : DOMUtils.selectTypedNodes(Text.class, doc)) {
+            for (Text text : DOM4JUtils.selectTypedNodes(Text.class, doc)) {
                 for (TextGrammar tg : groups.getValue()) {
                     if (tg.acceptText(text)) {
                         tg.processText(this, result, text);
@@ -86,7 +86,7 @@ public abstract class DOMCompiler implements Compilr {
 
         compileTo(result, mapTargetPath(result.getTemplatePath()), doc);
 
-        List<RoundoffGrammar> sortedRgs = GrammarUtils.sortAll(grammars, RoundoffGrammar.class, "roundoffGrammar");
+        List<RoundoffGrammar> sortedRgs = CompilerUtils.sortAll(grammars, RoundoffGrammar.class, "roundoffGrammar");
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             for (RoundoffGrammar rg : sortedRgs) {
                 if (rg.acceptRoundoff(e.getValue())) {
@@ -101,9 +101,49 @@ public abstract class DOMCompiler implements Compilr {
     @SuppressWarnings("unchecked")
     public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
 
-        for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : GrammarUtils.sortAsPriorityGroups(
+        for (BranchGrammar bg : CompilerUtils.sortAll(grammars, BranchGrammar.class, "processBranch")) {
+            if (bg.acceptBranch(root)) {
+                bg.processBranch(this, result, root);
+            }
+        }
+
+        for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
+                grammars, CommentGrammar.class, "processComment").entrySet()) {
+            for (Comment comment : DOM4JUtils.selectTypedNodes(Comment.class, root)) {
+                for (CommentGrammar cg : groups.getValue()) {
+                    if (cg.acceptComment(comment)) {
+                        cg.processComment(this, result, comment);
+                    }
+                    if (comment.getParent() == null && comment.getDocument() == null) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, Map<String, List<ElementGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
+                grammars, ElementGrammar.class, "processElement").entrySet()) {
+            for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
+                String elemNs = elem.getNamespacePrefix();
+                eachGrammar:
+                for (Map.Entry<String, List<ElementGrammar>> e : groups.getValue().entrySet()) {
+                    if (elemNs.equals(e.getKey())) {
+                        for (ElementGrammar eg : e.getValue()) {
+                            if (eg.acceptElement(elem)) {
+                                eg.processElement(this, result, elem);
+                            }
+                            if (elem.getParent() == null && elem.getDocument() == null) {
+                                break eachGrammar;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, AttrGrammar.class, "processAttr").entrySet()) {
-            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root)) {
+            for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
                 eachAttr:
                 for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
                     String attrNs = attr.getNamespacePrefix();
@@ -124,46 +164,6 @@ public abstract class DOMCompiler implements Compilr {
                         }
                     }
                 }
-            }
-        }
-
-        for (Map.Entry<Integer, Map<String, List<ElementGrammar>>> groups : GrammarUtils.sortAsPriorityGroups(
-                grammars, ElementGrammar.class, "processElement").entrySet()) {
-            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root)) {
-                String elemNs = elem.getNamespacePrefix();
-                eachGrammar:
-                for (Map.Entry<String, List<ElementGrammar>> e : groups.getValue().entrySet()) {
-                    if (elemNs.equals(e.getKey())) {
-                        for (ElementGrammar eg : e.getValue()) {
-                            if (eg.acceptElement(elem)) {
-                                eg.processElement(this, result, elem);
-                            }
-                            if (elem.getParent() == null && elem.getDocument() == null) {
-                                break eachGrammar;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for (Map.Entry<Integer, List<CommentGrammar>> groups : GrammarUtils.sortAllAsPriorityGroups(
-                grammars, CommentGrammar.class, "processComment").entrySet()) {
-            for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, root)) {
-                for (CommentGrammar cg : groups.getValue()) {
-                    if (cg.acceptComment(comment)) {
-                        cg.processComment(this, result, comment);
-                    }
-                    if (comment.getParent() == null && comment.getDocument() == null) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        for (BranchGrammar bg : GrammarUtils.sortAll(grammars, BranchGrammar.class, "processBranch")) {
-            if (bg.acceptBranch(root)) {
-                bg.processBranch(this, result, root);
             }
         }
 

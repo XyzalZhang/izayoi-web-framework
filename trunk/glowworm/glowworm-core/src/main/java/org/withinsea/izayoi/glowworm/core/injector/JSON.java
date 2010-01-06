@@ -24,8 +24,8 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
+import org.withinsea.izayoi.commons.json.JSONUtils;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.util.JSONUtils;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

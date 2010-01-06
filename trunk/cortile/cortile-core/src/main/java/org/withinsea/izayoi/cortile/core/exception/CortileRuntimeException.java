@@ -24,12 +24,14 @@
 
 package org.withinsea.izayoi.cortile.core.exception;
 
+import org.withinsea.izayoi.commons.exception.IzayoiRuntimeException;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-15
  * Time: 7:19:08
  */
-public class CortileRuntimeException extends RuntimeException {
+public class CortileRuntimeException extends IzayoiRuntimeException {
 
     public CortileRuntimeException() {
     }

@@ -32,7 +32,7 @@
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>glowworm</artifactId>
-        <version>0.1.0-beta</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>glowworm-demos</artifactId>
     <packaging>pom</packaging>

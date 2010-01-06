@@ -24,9 +24,9 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
+import org.withinsea.izayoi.commons.collection.CreationLinkedHashMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.util.CreationLinkedHashMap;
 
 import java.util.HashMap;
 import java.util.HashSet;
