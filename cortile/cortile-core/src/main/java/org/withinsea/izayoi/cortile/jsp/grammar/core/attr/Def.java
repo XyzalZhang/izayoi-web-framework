@@ -27,7 +27,7 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.commons.xml.DOM4JUtils;
-import org.withinsea.izayoi.commons.xml.HTMLWriter;
+import org.withinsea.izayoi.commons.xml.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
@@ -50,7 +50,7 @@ public class Def implements AttrGrammar {
         try {
             String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
             attr.detach();
-            Element range = DOM4JUtils.surroundBy(elem, HTMLWriter.ANONYMOUS_TAG_NAME);
+            Element range = DOM4JUtils.surroundBy(elem, HTMLReader.ANONYMOUS_TAG_NAME);
             compiler.compileTo(result, funcPath, range);
             DOM4JUtils.replaceBy(range, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
         } catch (Exception e) {

@@ -25,7 +25,6 @@
 package org.withinsea.izayoi.commons.xml;
 
 import org.dom4j.Attribute;
-import org.dom4j.Branch;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 
@@ -40,8 +39,6 @@ import java.util.List;
  */
 public class HTMLWriter extends org.dom4j.io.HTMLWriter {
 
-    public static final String ANONYMOUS_TAG_NAME = "ANONYMOUS";
-
     public HTMLWriter(Writer writer) {
         super(writer);
         setEscapeText(false);
@@ -51,7 +48,7 @@ public class HTMLWriter extends org.dom4j.io.HTMLWriter {
     @Override
     protected void writeElement(Element element) throws IOException {
 
-        if (!ANONYMOUS_TAG_NAME.equals(element.getName())) {
+        if (!HTMLReader.ANONYMOUS_TAG_NAME.equals(element.getName())) {
             super.writeElement(element);
             return;
         }

@@ -106,8 +106,9 @@ public class DOM4JUtils {
         append(branch, suffix);
     }
 
+    @SuppressWarnings("unchecked")
     public static void surroundInside(Branch branch, Branch wrapper) throws InvocationTargetException, IllegalAccessException {
-        surroundBy(branch.content(), wrapper);
+        surroundBy((List<Node>) branch.content(), wrapper);
     }
 
     public static void surroundBy(Node node, String prefix, String suffix) throws InvocationTargetException, IllegalAccessException {
@@ -122,7 +123,7 @@ public class DOM4JUtils {
     }
 
     public static Branch surroundBy(Node node, Branch wrapper) throws InvocationTargetException, IllegalAccessException {
-        return surroundBy(Arrays.asList(new Node[]{node}), wrapper);
+        return surroundBy(Arrays.asList(node), wrapper);
     }
 
     public static Branch surroundBy(List<Node> nodes, Branch wrapper) throws InvocationTargetException, IllegalAccessException {
