@@ -29,7 +29,6 @@ import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.parsers.XML11Configuration;
 import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.parser.XMLComponent;
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
@@ -63,8 +62,8 @@ public class HTMLReader extends SAXReader {
             public boolean parse(boolean complete) throws XNIException, IOException {
                 fNonNSScanner = new HTMLDocumentScannerImpl();
                 fNonNSDTDValidator = new XMLDTDValidator();
-                addComponent((XMLComponent) fNonNSScanner);
-                addComponent((XMLComponent) fNonNSDTDValidator);
+                addComponent(fNonNSScanner);
+                addComponent(fNonNSDTDValidator);
                 return super.parse(complete);
             }
         });
@@ -107,7 +106,7 @@ public class HTMLReader extends SAXReader {
         protected final Map<String, String> holders = new HashMap<String, String>();
 
         public String trickBefore(String html) {
-            html = hold(html, "&", "AMP", "_");
+            html = hold(html, "&", "＆", "_");
             html = html.replaceAll("(<script[\\s\\S]*?>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
             html = html.replaceAll("\\s*(//\\s*-->)?\\s*(</script\\s*>)", "\n//-->$2");
             int start = (html.indexOf("<!DOCTYPE ") < 0) ? 0 : html.indexOf(">", html.indexOf("<!DOCTYPE ")) + 1;
