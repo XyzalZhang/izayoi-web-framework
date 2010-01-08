@@ -63,7 +63,8 @@ public class CortileScenery extends HttpServlet implements Filter {
             if (templatePath.endsWith("/") || !manager.exist(templatePath)) {
                 resp.sendError(404, req.getServletPath());
             } else {
-                req.getRequestDispatcher(manager.update(templatePath, type)).forward(req, resp);
+                String targetPath = manager.update(templatePath, type);
+                req.getRequestDispatcher(targetPath).forward(req, resp);
                 resp.setCharacterEncoding(manager.getEncoding());
                 resp.setContentType(servletContext.getMimeType(templatePath) + "; charset=" + manager.getEncoding());
             }

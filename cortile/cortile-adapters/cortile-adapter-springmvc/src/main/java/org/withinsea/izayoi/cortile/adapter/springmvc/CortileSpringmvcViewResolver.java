@@ -71,6 +71,11 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
     }
 
     @Override
+    protected void initApplicationContext() {
+
+    }
+
+    @Override
     protected void initServletContext(final ServletContext servletContext) {
 
         super.initServletContext(servletContext);
