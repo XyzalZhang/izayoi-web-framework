@@ -28,10 +28,7 @@ import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.withinsea.izayoi.cortile.core.CortileMirage;
 import org.withinsea.izayoi.cortile.core.CortileScenery;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -63,14 +60,9 @@ public class CortileSpringmvcView extends AbstractUrlBasedView {
 
         exposeModelAsRequestAttributes(model, request);
 
-        HttpServletRequest req = (getUrl() == null) ? request : new HttpServletRequestWrapper(request) {
-            @Override
-            public String getServletPath() {
-                return getUrl();
-            }
-        };
+        request = (getUrl() == null) ? request : new UrlHttpServletRequestWrapper(request);
 
-        mirage.doFilter(req, response, new FilterChain() {
+        mirage.doFilter(request, response, new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                 scenery.service(request, response);
@@ -92,5 +84,25 @@ public class CortileSpringmvcView extends AbstractUrlBasedView {
 
     public void setScenery(CortileScenery scenery) {
         this.scenery = scenery;
+    }
+
+    protected class UrlHttpServletRequestWrapper extends HttpServletRequestWrapper {
+
+        protected boolean forwarded = false;
+
+        public UrlHttpServletRequestWrapper(HttpServletRequest request) {
+            super(request);
+        }
+
+        @Override
+        public String getServletPath() {
+            return (forwarded) ? super.getServletPath() : getUrl();
+        }
+
+        @Override
+        public RequestDispatcher getRequestDispatcher(String path) {
+            forwarded = true;
+            return super.getRequestDispatcher(path);
+        }
     }
 }
