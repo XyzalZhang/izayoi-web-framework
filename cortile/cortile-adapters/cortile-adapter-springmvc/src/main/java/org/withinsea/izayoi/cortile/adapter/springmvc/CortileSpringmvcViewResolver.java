@@ -42,7 +42,8 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
 
     protected final CortileMirage mirage = new CortileMirage();
     protected final CortileScenery scenery = new CortileScenery();
-    protected final String configPath;
+
+    protected String configPath;
 
     public CortileSpringmvcViewResolver() {
         this(null);
@@ -70,7 +71,7 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
     }
 
     @Override
-    protected void initServletContext(final ServletContext servletContext) {
+    protected void initServletContext(ServletContext servletContext) {
         super.initServletContext(servletContext);
         try {
             mirage.init(servletContext, configPath);
@@ -82,5 +83,9 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
 
     public String getConfigPath() {
         return configPath;
+    }
+
+    public void setConfigPath(String configPath) {
+        this.configPath = configPath;
     }
 }

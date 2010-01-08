@@ -48,6 +48,10 @@ public class CortileSpringmvcView extends AbstractUrlBasedView {
     protected CortileMirage mirage;
     protected CortileScenery scenery;
 
+    public CortileSpringmvcView() {
+        this(null, null, null);
+    }
+
     public CortileSpringmvcView(CortileMirage mirage, CortileScenery scenery) {
         this(mirage, scenery, null);
     }
@@ -74,6 +78,7 @@ public class CortileSpringmvcView extends AbstractUrlBasedView {
                 } catch (CortileException e) {
                     throw new ServletException(e);
                 }
+
             }
         });
     }
