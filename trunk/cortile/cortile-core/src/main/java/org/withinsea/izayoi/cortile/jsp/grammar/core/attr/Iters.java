@@ -120,12 +120,9 @@ public class Iters implements AttrGrammar {
                     preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
                             ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
                 }
-                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
-                sufScriptlet = "}" + sufScriptlet;
+                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");varstack.push();";
+                sufScriptlet = "varstack.pop(); }" + sufScriptlet;
             }
-
-            helperScriptlet = helperScriptlet + "varstack.push();";
-            sufScriptlet = "varstack.pop();" + sufScriptlet;
 
             try {
                 DOM4JUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
