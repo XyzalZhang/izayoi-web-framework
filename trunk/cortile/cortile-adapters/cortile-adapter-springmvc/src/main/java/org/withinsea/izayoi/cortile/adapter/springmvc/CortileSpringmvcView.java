@@ -59,15 +59,18 @@ public class CortileSpringmvcView extends AbstractUrlBasedView {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         exposeModelAsRequestAttributes(model, request);
 
         mirage.doDispatch(request, response, getUrl(), new FilterChain() {
             @Override
-            public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
+            @SuppressWarnings("unchecked")
+            public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                 try {
-                    scenery.doDispatch(request, response, getUrl());
+                    scenery.doDispatch((HttpServletRequest) request, (HttpServletResponse) response, getUrl());
+                } catch (ClassCastException e) {
+                    throw new ServletException("non-HTTP request or response");
                 } catch (CortileException e) {
                     throw new ServletException(e);
                 }
