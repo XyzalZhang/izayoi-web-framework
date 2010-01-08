@@ -51,7 +51,7 @@ public class Set implements AttrGrammar {
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String el = attr.getValue().trim();
-        el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 3).trim() : el;
+        el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
         if (attr.getName().startsWith("set.")) {
             el = attr.getName().substring("set.".length()) + "=" + el;
         }
