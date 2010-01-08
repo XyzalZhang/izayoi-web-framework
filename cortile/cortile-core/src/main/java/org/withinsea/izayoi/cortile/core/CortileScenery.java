@@ -43,33 +43,34 @@ public class CortileScenery extends HttpServlet implements Filter {
 
     protected CompileManager manager;
 
-    protected void init(ServletContext servletContext, String configPath) throws ServletException {
-        try {
-            manager = Config.getCompileManager(servletContext, configPath);
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+    public void init(ServletContext servletContext, String configPath) throws CortileException {
+        manager = Config.getCompileManager(servletContext, configPath);
     }
 
-    protected void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {
+        doDispatch(req, resp, null);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
+
+        requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 
         try {
 
             ServletContext servletContext = req.getSession().getServletContext();
 
-            String templatePath = req.getServletPath();
-            String type = templatePath.replaceAll(".*/", "").replaceAll(".*\\.", "");
+            String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
 
-            if (templatePath.endsWith("/") || !manager.exist(templatePath)) {
+            if (requestPath.endsWith("/") || !manager.exist(requestPath)) {
                 resp.sendError(404, req.getServletPath());
             } else {
-                req.getRequestDispatcher(manager.update(templatePath, type)).forward(req, resp);
+                req.getRequestDispatcher(manager.update(requestPath, type)).forward(req, resp);
                 resp.setCharacterEncoding(manager.getEncoding());
-                resp.setContentType(servletContext.getMimeType(templatePath) + "; charset=" + manager.getEncoding());
+                resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + manager.getEncoding());
             }
 
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new CortileException(e);
         }
     }
 
@@ -78,19 +79,31 @@ public class CortileScenery extends HttpServlet implements Filter {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        init(config.getServletContext(), config.getInitParameter("config-path"));
+        try {
+            init(config.getServletContext(), config.getInitParameter("config-path"));
+        } catch (CortileException e) {
+            throw new ServletException(e);
+        }
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doDispatch(req, resp);
+        try {
+            doDispatch(req, resp, req.getServletPath());
+        } catch (CortileException e) {
+            throw new ServletException(e);
+        }
     }
 
     // as filter
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
+        try {
+            init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
+        } catch (CortileException e) {
+            throw new ServletException(e);
+        }
     }
 
     @Override
@@ -98,7 +111,11 @@ public class CortileScenery extends HttpServlet implements Filter {
         if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse resp = (HttpServletResponse) response;
-            doDispatch(req, resp);
+            try {
+                doDispatch(req, resp);
+            } catch (CortileException e) {
+                throw new ServletException(e);
+            }
         } else {
             chain.doFilter(request, response);
         }

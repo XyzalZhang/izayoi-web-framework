@@ -45,16 +45,18 @@ public class CortileMirage implements Filter {
     protected String mirageSuffix;
     protected CompileManager manager;
 
-    protected void init(ServletContext servletContext, String configPath) throws ServletException {
-        try {
-            mirageSuffix = Config.getConfig(servletContext, configPath).getProperty("cortile.suffix.mirage");
-            manager = Config.getCompileManager(servletContext, configPath);
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+    public void init(ServletContext servletContext, String configPath) throws CortileException {
+        mirageSuffix = Config.getConfig(servletContext, configPath).getProperty("cortile.suffix.mirage");
+        manager = Config.getCompileManager(servletContext, configPath);
     }
 
-    protected void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException {
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
+        doDispatch(req, resp, null, chain);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+
+        requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 
         try {
 
@@ -68,18 +70,17 @@ public class CortileMirage implements Filter {
                 return;
             }
 
-            String path = req.getServletPath();
-            if (path.endsWith("/")) {
+            if (requestPath.endsWith("/")) {
                 chain.doFilter(req, resp);
             }
 
-            String type = path.replaceAll(".*/", "").replaceAll(".*\\.", "");
-            String main = path.substring(0, path.length() - type.length() - 1);
+            String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
+            String main = requestPath.substring(0, requestPath.length() - type.length() - 1);
 
             if (manager.getSupportedTypes().contains(type)) {
                 String templatePath = main + mirageSuffix + "." + type;
                 if (manager.exist(templatePath)) {
-                    req.setAttribute(TRUE_PATH_ATTR_NAME, path);
+                    req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
                     req.getRequestDispatcher(manager.update(templatePath, type)).forward(req, resp);
                     return;
                 }
@@ -89,7 +90,7 @@ public class CortileMirage implements Filter {
                 String typeSuffix = supportedType.equals("") ? "" : "-" + supportedType;
                 String templatePath = main + mirageSuffix + typeSuffix + "." + type;
                 if (manager.exist(templatePath)) {
-                    req.setAttribute(TRUE_PATH_ATTR_NAME, path);
+                    req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
                     req.getRequestDispatcher(manager.update(templatePath, supportedType)).forward(req, resp);
                     return;
                 }
@@ -97,10 +98,8 @@ public class CortileMirage implements Filter {
 
             chain.doFilter(req, resp);
 
-        } catch (IOException e) {
-            throw new ServletException(e);
-        } catch (CortileException e) {
-            throw new ServletException(e);
+        } catch (Exception e) {
+            throw new CortileException(e);
         }
     }
 
@@ -108,7 +107,11 @@ public class CortileMirage implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
+        try {
+            init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     @Override
@@ -116,7 +119,11 @@ public class CortileMirage implements Filter {
         if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse resp = (HttpServletResponse) response;
-            doDispatch(req, resp, chain);
+            try {
+                doDispatch(req, resp, chain);
+            } catch (CortileException e) {
+                throw new ServletException(e);
+            }
         } else {
             chain.doFilter(request, response);
         }
