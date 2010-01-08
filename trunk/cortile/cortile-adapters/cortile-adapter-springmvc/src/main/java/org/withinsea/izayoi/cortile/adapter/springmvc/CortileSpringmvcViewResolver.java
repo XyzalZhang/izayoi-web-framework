@@ -28,16 +28,10 @@ import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.withinsea.izayoi.cortile.core.CortileMirage;
 import org.withinsea.izayoi.cortile.core.CortileScenery;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.core.exception.CortileRuntimeException;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -48,14 +42,14 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
 
     protected final CortileMirage mirage = new CortileMirage();
     protected final CortileScenery scenery = new CortileScenery();
-    protected final Hashtable<String, String> initParams = new Hashtable<String, String>();
+    protected final String configPath;
 
     public CortileSpringmvcViewResolver() {
-        this(Collections.<String, String>emptyMap());
+        this(null);
     }
 
-    public CortileSpringmvcViewResolver(Map<String, String> initParams) {
-        this.initParams.putAll(initParams);
+    public CortileSpringmvcViewResolver(String configPath) {
+        this.configPath = configPath;
     }
 
     @Override
@@ -77,63 +71,16 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
 
     @Override
     protected void initServletContext(final ServletContext servletContext) {
-
         super.initServletContext(servletContext);
-
         try {
-
-            mirage.init(new FilterConfig() {
-
-                @Override
-                public String getFilterName() {
-                    return "cortile-mirage";
-                }
-
-                @Override
-                public ServletContext getServletContext() {
-                    return servletContext;
-                }
-
-                @Override
-                public String getInitParameter(String name) {
-                    return initParams.get(name);
-                }
-
-                @Override
-                public Enumeration getInitParameterNames() {
-                    return initParams.keys();
-                }
-            });
-
-            scenery.init(new ServletConfig() {
-
-                @Override
-                public String getServletName() {
-                    return "cortile-scenery";
-                }
-
-                @Override
-                public ServletContext getServletContext() {
-                    return servletContext;
-                }
-
-                @Override
-                public String getInitParameter(String name) {
-                    return initParams.get(name);
-                }
-
-                @Override
-                public Enumeration getInitParameterNames() {
-                    return initParams.keys();
-                }
-            });
-
-        } catch (ServletException e) {
+            mirage.init(servletContext, configPath);
+            scenery.init(servletContext, configPath);
+        } catch (CortileException e) {
             throw new CortileRuntimeException(e);
         }
     }
 
-    public Hashtable<String, String> getInitParams() {
-        return initParams;
+    public String getConfigPath() {
+        return configPath;
     }
 }
