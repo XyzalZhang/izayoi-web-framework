@@ -26,6 +26,11 @@ package org.withinsea.izayoi.cortile.demo.intergration.springmvc;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -35,8 +40,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class IndexController {
 
+    @Resource
+    UserService userService;
+
+    @Resource
+    PicService picService;
+
+
     @RequestMapping("/index.html")
-    public String index() {
-        return "/index";
+    public ModelAndView index(ModelAndView mv) {
+        mv.addObject(userService);
+        mv.addObject(picService);
+        mv.setViewName("/index");
+        return mv;
     }
+
+    @RequestMapping("/detail.html")
+    public ModelAndView detail(@RequestParam(required = false, defaultValue = "1") Integer id,
+                               ModelAndView mv) {
+        User user = userService.getById(id);
+        mv.addObject("user", user);
+        mv.addObject(picService);
+        mv.setViewName("/detail");
+        return mv;
+    }
+
+    @RequestMapping("/list.html")
+    public ModelAndView list(@RequestParam(required = false, defaultValue = "1") Integer pageNumber,
+                             @RequestParam(required = false, defaultValue = "30") Integer pageSize,
+                             ModelAndView mv) {
+        List<User> userList = userService.findUsers(pageNumber, pageSize);
+        mv.addObject("userList", userList);
+        mv.addObject(picService);
+        mv.setViewName("/list");
+        return mv;
+    }
+
 }

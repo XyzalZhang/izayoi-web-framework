@@ -1,3 +1,4 @@
+
 <!--
   ~ The contents of this file are subject to the Mozilla Public License
   ~ Version 1.1 (the "License"); you may not use this file except in compliance
@@ -22,9 +23,29 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-Hello, <span c:content="${request.remoteAddr}">localhost</span>!
-
 
 <span>用户名称</span>
-<span c:content="${userService.getById(1).name}">王小毛</span>
+<ul>
+    <li c:for.user="${userList}">
+        <span>用户名</span>：<span c:content="${user.name}">王小毛</span>
+    </li>
+    <li c:mock="toend">
+        <span>用户名</span>：<span>王小毛1</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛2</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛3</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛4</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛5</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛</span>
+    </li>
+</ul>
 <hr/>
