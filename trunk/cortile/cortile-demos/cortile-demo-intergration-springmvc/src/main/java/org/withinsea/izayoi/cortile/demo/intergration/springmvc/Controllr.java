@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cortile.demo.intergration.springmvc;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -74,6 +75,12 @@ public class Controllr {
         mv.addObject(picService);
         mv.setViewName("/list");
         return mv;
+    }
+
+    @RequestMapping("/sample.json")
+    @ResponseBody
+    public String json(){
+        return "{}";
     }
 
 }
