@@ -37,9 +37,9 @@
                 <li>LI</li>
                 <li>LI</li>
                 <li>LI</li>
-                <li c:for.i="list" c:mock="neighbors">
+                <li c:for.i="list" c:for-status.i="istat" c:mock="neighbors">
                     <h3>i = <span c:content="[${i}]">[I]</span></h3>
-                    <ul c:with="i_status">
+                    <ul c:with="istat">
                         <li>i_status.idx = <span c:content="${idx}">0</span></li>
                         <li>i_status.odd = <span c:content="${odd}">false</span></li>
                         <li>i_status.even = <span c:content="${even}">true</span></li>
@@ -50,6 +50,18 @@
                 <li>LI</li>
                 <li>LI</li>
                 <li>LI</li>
+            </ul>
+        </li>
+        <li><h2>Content For Iteration</h2>
+            <ul c:for-content.i="list" c:for-status.i="istat">
+                <li c:mock="neighbors">
+                    <h3>i = <span c:content="[${i}]">[I]</span></h3>
+                    <ul c:with="istat">
+                        <li>i_status.idx = <span c:content="${idx}">0</span></li>
+                        <li>i_status.odd = <span c:content="${odd}">false</span></li>
+                        <li>i_status.even = <span c:content="${even}">true</span></li>
+                    </ul>
+                </li>
             </ul>
         </li>
         <li><h2>If</h2>
