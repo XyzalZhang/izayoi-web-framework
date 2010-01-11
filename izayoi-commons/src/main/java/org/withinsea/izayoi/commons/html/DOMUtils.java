@@ -101,14 +101,14 @@ public class DOMUtils {
         return newNode;
     }
 
-    public static void surroundInside(Branch branch, String prefix, String suffix) throws InvocationTargetException, IllegalAccessException {
+    public static void surroundInsideBy(Branch branch, String prefix, String suffix) throws InvocationTargetException, IllegalAccessException {
         prepend(branch, prefix);
         append(branch, suffix);
     }
 
     @SuppressWarnings("unchecked")
-    public static void surroundInside(Branch branch, Branch wrapper) throws InvocationTargetException, IllegalAccessException {
-        surroundBy((List<Node>) branch.content(), wrapper);
+    public static void surroundInsideBy(Branch branch, Branch wrapper) throws InvocationTargetException, IllegalAccessException {
+        surroundBy(new ArrayList<Node>((List<Node>) branch.content()), wrapper);
     }
 
     public static void surroundBy(Node node, String prefix, String suffix) throws InvocationTargetException, IllegalAccessException {

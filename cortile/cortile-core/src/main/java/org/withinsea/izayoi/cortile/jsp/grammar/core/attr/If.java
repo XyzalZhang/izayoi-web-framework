@@ -71,12 +71,6 @@ public class If implements AttrGrammar {
                 } catch (Exception e) {
                     throw new CortileException(e);
                 }
-            } else if (ifname.equals(".content")) {
-                try {
-                    DOMUtils.surroundInside(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
-                } catch (Exception e) {
-                    throw new CortileException(e);
-                }
             } else if (ifname.startsWith(".")) {
                 String ifAttrname = ifname.startsWith(".attr.") ? ifname.substring(".attr.".length()) : ifname.substring(1);
                 for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {

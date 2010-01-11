@@ -69,8 +69,7 @@ public class Iters implements AttrGrammar {
             String type = attrname.startsWith("while") ? "while" :
                     attrname.startsWith("until") ? "until" : "for";
             String subname = attrname.substring(type.length());
-            String subtype = subname.startsWith(".content") ? ".content" :
-                    subname.startsWith(".status") ? ".status" : "";
+            String subtype = subname.startsWith(".status") ? ".status" : "";
             String i = subname.substring(subtype.length()).replaceFirst("\\.", "");
 
             if (subtype.equals(".status")) {
@@ -117,11 +116,7 @@ public class Iters implements AttrGrammar {
             }
 
             try {
-                if (subtype.equals(".content")) {
-                    DOMUtils.surroundInside(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
-                } else {
-                    DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
-                }
+                DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
             } catch (Exception e) {
                 throw new CortileException(e);
             }

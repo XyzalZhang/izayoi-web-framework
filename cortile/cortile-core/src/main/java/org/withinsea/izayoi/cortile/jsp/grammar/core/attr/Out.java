@@ -29,24 +29,31 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-28
- * Time: 21:50:40
+ * Date: 2010-1-11
+ * Time: 15:14:01
  */
-public class Content implements AttrGrammar {
+public class Out implements AttrGrammar {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("content");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.startsWith("attr.") || attrname.equals("content");
     }
 
     @Override
     @Priority(-50)
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) {
-        elem.clearContent();
-        elem.addText(attr.getValue());
+    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        if (attrname.startsWith("attr.")) {
+            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue());
+        } else {
+            elem.clearContent();
+            elem.addText(attr.getValue());
+        }
         attr.detach();
     }
 }
