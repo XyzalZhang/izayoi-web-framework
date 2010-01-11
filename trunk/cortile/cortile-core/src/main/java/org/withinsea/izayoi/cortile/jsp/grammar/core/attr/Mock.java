@@ -69,5 +69,6 @@ public class Mock implements AttrGrammar {
         for (Node mock : mocks) {
             mock.detach();
         }
+        attr.detach();
     }
 }

@@ -123,22 +123,16 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (Map.Entry<Integer, Map<String, List<ElementGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
+        for (Map.Entry<Integer, List<ElementGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, ElementGrammar.class, "processElement").entrySet()) {
             for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
-                    String elemNs = elem.getNamespacePrefix();
-                    eachGrammar:
-                    for (Map.Entry<String, List<ElementGrammar>> e : groups.getValue().entrySet()) {
-                        if (elemNs.equals(e.getKey())) {
-                            for (ElementGrammar eg : e.getValue()) {
-                                if (eg.acceptElement(elem)) {
-                                    eg.processElement(this, result, elem);
-                                }
-                                if (elem.getParent() == null && elem.getDocument() == null) {
-                                    break eachGrammar;
-                                }
-                            }
+                    for (ElementGrammar eg : groups.getValue()) {
+                        if (eg.acceptElement(elem)) {
+                            eg.processElement(this, result, elem);
+                        }
+                        if (elem.getParent() == null && elem.getDocument() == null) {
+                            break;
                         }
                     }
                 }

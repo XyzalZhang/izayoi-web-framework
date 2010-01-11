@@ -37,9 +37,9 @@
                 <li>LI</li>
                 <li>LI</li>
                 <li>LI</li>
-                <li c:for.i="list" c:for-status.i="istat" c:mock="neighbors">
+                <li c:for.i="list" c:for-status.i="istat" c:with="istat" c:mock="neighbors">
                     <h3>i = <span c:content="[${i}]">[I]</span></h3>
-                    <ul c:with="istat">
+                    <ul>
                         <li>i_status.idx = <span c:content="${idx}">0</span></li>
                         <li>i_status.odd = <span c:content="${odd}">false</span></li>
                         <li>i_status.even = <span c:content="${even}">true</span></li>
@@ -53,10 +53,10 @@
             </ul>
         </li>
         <li><h2>Content For Iteration</h2>
-            <ul c:for-content.i="list" c:for-status.i="istat">
+            <ul c:for-content.i="list" c:for-status.i="istat" c:with="istat">
                 <li c:mock="neighbors">
                     <h3>i = <span c:content="[${i}]">[I]</span></h3>
-                    <ul c:with="istat">
+                    <ul>
                         <li>i_status.idx = <span c:content="${idx}">0</span></li>
                         <li>i_status.odd = <span c:content="${odd}">false</span></li>
                         <li>i_status.even = <span c:content="${even}">true</span></li>
@@ -66,6 +66,9 @@
         </li>
         <li><h2>If</h2>
             no output: <span c:if="1>2">WRONG</span>
+        </li>
+        <li><h2>If Content</h2>
+            no output in content: <span c:if-content="1>2">WRONG</span>
         </li>
         <li><h2>Mock</h2>
             no output: <span c:mock>NOTHING</span>
