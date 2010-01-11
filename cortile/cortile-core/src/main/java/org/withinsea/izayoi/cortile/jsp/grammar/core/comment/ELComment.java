@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
@@ -50,9 +50,9 @@ public class ELComment implements CommentGrammar {
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         try {
             if (comment.getText().startsWith("$=")) {
-                DOM4JUtils.replaceBy(comment, "<%=" + elInterpreter.compileEL(comment.getText().substring("$=".length())) + "%>");
+                DOMUtils.replaceBy(comment, "<%=" + elInterpreter.compileEL(comment.getText().substring("$=".length())) + "%>");
             } else if (comment.getText().startsWith("$")) {
-                DOM4JUtils.replaceBy(comment, "<%" + elInterpreter.compileEL(comment.getText().substring("$".length())) + ";%>");
+                DOMUtils.replaceBy(comment, "<%" + elInterpreter.compileEL(comment.getText().substring("$".length())) + ";%>");
             }
         } catch (Exception e) {
             throw new CortileException(e);

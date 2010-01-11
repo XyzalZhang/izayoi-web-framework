@@ -27,7 +27,7 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
@@ -53,9 +53,7 @@ public class Mock implements AttrGrammar {
     @Priority(99)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         java.util.Set<Node> mocks = new HashSet<Node>();
-        System.out.println(elem);
-        System.out.println(DOM4JUtils.parent(elem));
-        List<Node> siblings = (List<Node>) DOM4JUtils.parent(elem).content();
+        List<Node> siblings = (List<Node>) DOMUtils.parent(elem).content();
         if (attr.getValue().equals("siblings")) {
             mocks.addAll(siblings);
         } else if (attr.getValue().equals("neighbors")) {

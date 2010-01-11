@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.xml;
+package org.withinsea.izayoi.commons.html;
 
 import org.dom4j.Branch;
 import org.dom4j.Node;
@@ -40,7 +40,7 @@ import java.util.*;
  * Date: 2009-12-20
  * Time: 16:18:08
  */
-public class DOM4JUtils {
+public class DOMUtils {
 
     protected static final Method ADD_NODE_AT; static {
         try {
@@ -155,17 +155,20 @@ public class DOM4JUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> selectTypedNodes(Class<T> type, Branch root) {
+    public static <T> Collection<T> selectTypedNodes(Class<T> type, Branch root, boolean preorder) {
         Set<T> nodes = new LinkedHashSet<T>();
-        if (type.isInstance(root)) {
+        if (preorder && type.isInstance(root)) {
             nodes.add((T) root);
         }
         for (Node node : (List<Node>) root.content()) {
             if (node instanceof Branch) {
-                nodes.addAll(selectTypedNodes(type, (Branch) node));
+                nodes.addAll(selectTypedNodes(type, (Branch) node, preorder));
             } else if (type.isInstance(node)) {
                 nodes.add((T) node);
             }
+        }
+        if (!preorder && type.isInstance(root)) {
+            nodes.add((T) root);
         }
         return nodes;
     }

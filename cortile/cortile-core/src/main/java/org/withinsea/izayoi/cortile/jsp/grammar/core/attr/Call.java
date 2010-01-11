@@ -26,7 +26,7 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
@@ -49,12 +49,12 @@ public class Call implements AttrGrammar {
         try {
             if (attr.getValue().indexOf(":") < 0) {
                 String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
-                DOM4JUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
+                DOMUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
             } else {
                 String[] value = attr.getValue().split(":");
                 String templatePath = value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0];
                 String funcPath = compiler.mapTargetPath(templatePath, value[1]);
-                DOM4JUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
+                DOMUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
                 result.getRelativeTemplatePaths().add(templatePath);
             }
         } catch (Exception e) {

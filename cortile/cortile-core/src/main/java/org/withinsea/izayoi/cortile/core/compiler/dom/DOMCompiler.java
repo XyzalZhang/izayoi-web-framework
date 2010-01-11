@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.dom4j.*;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.CompilerUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.Grammar;
@@ -68,11 +68,11 @@ public abstract class DOMCompiler implements Compilr {
 
         Document doc = parseTemplate(templatePath, templateCode);
 
-        DOM4JUtils.mergeTexts(doc);
+        DOMUtils.mergeTexts(doc);
 
         for (Map.Entry<Integer, List<TextGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, TextGrammar.class, "processText").entrySet()) {
-            for (Text text : DOM4JUtils.selectTypedNodes(Text.class, doc)) {
+            for (Text text : DOMUtils.selectTypedNodes(Text.class, doc, false)) {
                 for (TextGrammar tg : groups.getValue()) {
                     if (tg.acceptText(text)) {
                         tg.processText(this, result, text);
@@ -109,7 +109,7 @@ public abstract class DOMCompiler implements Compilr {
 
         for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, CommentGrammar.class, "processComment").entrySet()) {
-            for (Comment comment : DOM4JUtils.selectTypedNodes(Comment.class, root)) {
+            for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, root, false)) {
                 if (comment.getParent() != null || comment.getDocument() != null) {
                     for (CommentGrammar cg : groups.getValue()) {
                         if (cg.acceptComment(comment)) {
@@ -125,7 +125,7 @@ public abstract class DOMCompiler implements Compilr {
 
         for (Map.Entry<Integer, Map<String, List<ElementGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, ElementGrammar.class, "processElement").entrySet()) {
-            for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
+            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     String elemNs = elem.getNamespacePrefix();
                     eachGrammar:
@@ -147,7 +147,7 @@ public abstract class DOMCompiler implements Compilr {
 
         for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, AttrGrammar.class, "processAttr").entrySet()) {
-            for (Element elem : DOM4JUtils.selectTypedNodes(Element.class, root)) {
+            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     eachAttr:
                     for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {

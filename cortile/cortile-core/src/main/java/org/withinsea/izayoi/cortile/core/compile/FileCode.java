@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
-import org.apache.commons.io.FileUtils;
+import org.withinsea.izayoi.commons.util.IOUtils;
 import org.withinsea.izayoi.cortile.core.exception.CortileRuntimeException;
 
 import java.io.File;
@@ -67,7 +67,7 @@ public class FileCode implements Code {
 
     public String getCode() {
         try {
-            return FileUtils.readFileToString(getFile(), getEncoding());
+            return IOUtils.toString(getFile(), getEncoding());
         } catch (IOException e) {
             throw new CortileRuntimeException(e);
         }
@@ -75,7 +75,7 @@ public class FileCode implements Code {
 
     public void setCode(String code) {
         try {
-            FileUtils.writeStringToFile(getFile(), code, getEncoding());
+            IOUtils.write(code, getFile(), getEncoding());
         } catch (IOException e) {
             throw new CortileRuntimeException(e);
         }

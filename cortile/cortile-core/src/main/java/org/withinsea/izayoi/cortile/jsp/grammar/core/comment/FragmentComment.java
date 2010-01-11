@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
@@ -47,7 +47,7 @@ public class FragmentComment implements CommentGrammar {
     @Priority(-50)
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         try {
-            DOM4JUtils.replaceBy(comment, comment.getText().substring("=".length()));
+            DOMUtils.replaceBy(comment, comment.getText().substring("=".length()));
         } catch (Exception e) {
             throw new CortileException(e);
         }

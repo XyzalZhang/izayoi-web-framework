@@ -26,8 +26,8 @@ package org.withinsea.izayoi.cortile.jsp;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;
-import org.withinsea.izayoi.commons.xml.HTMLReader;
-import org.withinsea.izayoi.commons.xml.HTMLWriter;
+import org.withinsea.izayoi.commons.html.HTMLReader;
+import org.withinsea.izayoi.commons.html.HTMLWriter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 

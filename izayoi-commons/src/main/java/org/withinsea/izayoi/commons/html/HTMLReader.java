@@ -22,15 +22,15 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.xml;
+package org.withinsea.izayoi.commons.html;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
 import org.apache.xerces.parsers.XML11Configuration;
 import org.apache.xerces.xni.XNIException;
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
+import org.withinsea.izayoi.commons.util.IOUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;

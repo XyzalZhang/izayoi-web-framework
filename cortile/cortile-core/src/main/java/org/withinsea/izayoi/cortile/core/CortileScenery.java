@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.core;
 
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
-import org.withinsea.izayoi.cortile.core.conf.Config;
+import org.withinsea.izayoi.cortile.core.conf.CortileConfig;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import javax.servlet.*;
@@ -41,10 +41,10 @@ import java.io.IOException;
  */
 public class CortileScenery extends HttpServlet implements Filter {
 
-    protected CompileManager manager;
+    protected CortileConfig config;
 
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        manager = Config.getCompileManager(servletContext, configPath);
+        config = new CortileConfig(servletContext, configPath);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {
@@ -52,6 +52,8 @@ public class CortileScenery extends HttpServlet implements Filter {
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
+
+        CompileManager manager = config.getComponent("compileManager");
 
         requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 

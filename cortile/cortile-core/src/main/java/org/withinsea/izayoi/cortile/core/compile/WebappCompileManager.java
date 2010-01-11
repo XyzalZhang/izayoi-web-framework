@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
-import org.withinsea.izayoi.commons.collection.CreationLinkedHashMap;
+import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
@@ -119,9 +119,9 @@ public class WebappCompileManager implements CompileManager {
 
     // cache
 
-    protected final Map<String, Cache> caches = new CreationLinkedHashMap<String, Cache>() {
+    protected final Map<String, Cache> caches = new LazyLinkedHashMap<String, Cache>() {
         @Override
-        protected Cache createValue() {
+        protected Cache createValue(String type) {
             return new Cache();
         }
     };
