@@ -26,7 +26,7 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
@@ -60,7 +60,7 @@ public class Set implements AttrGrammar {
             String preScriptlet = "varstack.push();" + elInterpreter.compileEL(el) + ";";
             String sufScriptlet = "varstack.pop();";
             try {
-                DOM4JUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
             } catch (Exception e) {
                 throw new CortileException(e);
             }

@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compiler;
 
-import org.withinsea.izayoi.commons.collection.CreationLinkedHashMap;
+import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -73,12 +73,12 @@ public class CompilerUtils {
     @SuppressWarnings("unchecked")
     public static <T extends Grammar> Map<Integer, Map<String, List<T>>> sortAsPriorityGroups(
             Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
-        Map<Integer, Map<String, List<T>>> groups = new CreationLinkedHashMap<Integer, Map<String, List<T>>>() {
+        Map<Integer, Map<String, List<T>>> groups = new LazyLinkedHashMap<Integer, Map<String, List<T>>>() {
             @Override
-            protected Map<String, List<T>> createValue() {
-                return new CreationLinkedHashMap<String, List<T>>() {
+            protected Map<String, List<T>> createValue(Integer priority) {
+                return new LazyLinkedHashMap<String, List<T>>() {
                     @Override
-                    protected List<T> createValue() {
+                    protected List<T> createValue(String namespace) {
                         return new ArrayList<T>();
                     }
                 };
@@ -115,9 +115,9 @@ public class CompilerUtils {
     @SuppressWarnings("unchecked")
     public static <T extends Grammar> Map<Integer, List<T>> sortAllAsPriorityGroups(
             Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
-        Map<Integer, List<T>> groups = new CreationLinkedHashMap<Integer, List<T>>() {
+        Map<Integer, List<T>> groups = new LazyLinkedHashMap<Integer, List<T>>() {
             @Override
-            protected List<T> createValue() {
+            protected List<T> createValue(Integer priority) {
                 return new ArrayList<T>();
             }
         };

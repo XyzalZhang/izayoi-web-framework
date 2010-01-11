@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.lang;
+package org.withinsea.izayoi.commons.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

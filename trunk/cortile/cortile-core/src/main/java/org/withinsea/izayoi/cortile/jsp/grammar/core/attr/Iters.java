@@ -26,9 +26,8 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.collection.NumRange;
-import org.withinsea.izayoi.commons.lang.BeanMap;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
+import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
@@ -37,6 +36,7 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -45,31 +45,6 @@ import java.util.Map;
  * Time: 22:14:05
  */
 public class Iters implements AttrGrammar {
-
-    @SuppressWarnings("unused")
-    public static Iterable<Integer> asIterable(int start, int end) {
-        return new NumRange(start, end);
-    }
-
-    @SuppressWarnings("unused")
-    public static Iterable<Integer> asIterable(int start, int end, int step) {
-        return new NumRange(start, end, step);
-    }
-
-    @SuppressWarnings("unused")
-    public static Iterable<?> asIterable(Object obj) {
-        if (obj == null) {
-            return Collections.emptyList();
-        } else if (obj.getClass().isArray()) {
-            return Arrays.asList((Object[]) obj);
-        } else if (obj instanceof Map) {
-            return ((Map<?, ?>) obj).entrySet();
-        } else if (obj instanceof Iterable) {
-            return (Iterable) obj;
-        } else {
-            return Collections.unmodifiableMap(new BeanMap(obj)).entrySet();
-        }
-    }
 
     protected ELInterpreter elInterpreter;
 
@@ -125,7 +100,7 @@ public class Iters implements AttrGrammar {
             }
 
             try {
-                DOM4JUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
             } catch (Exception e) {
                 throw new CortileException(e);
             }
@@ -137,6 +112,31 @@ public class Iters implements AttrGrammar {
     @SuppressWarnings("unused")
     public void setElInterpreter(ELInterpreter elInterpreter) {
         this.elInterpreter = elInterpreter;
+    }
+
+    @SuppressWarnings("unused")
+    public static Iterable<Integer> asIterable(int start, int end) {
+        return new NumRange(start, end);
+    }
+
+    @SuppressWarnings("unused")
+    public static Iterable<Integer> asIterable(int start, int end, int step) {
+        return new NumRange(start, end, step);
+    }
+
+    @SuppressWarnings("unused")
+    public static Iterable<?> asIterable(Object obj) {
+        if (obj == null) {
+            return Collections.emptyList();
+        } else if (obj.getClass().isArray()) {
+            return Arrays.asList((Object[]) obj);
+        } else if (obj instanceof Map) {
+            return ((Map<?, ?>) obj).entrySet();
+        } else if (obj instanceof Iterable) {
+            return (Iterable) obj;
+        } else {
+            return Collections.unmodifiableMap(new BeanMap(obj)).entrySet();
+        }
     }
 
     public static class Status {
@@ -157,6 +157,46 @@ public class Iters implements AttrGrammar {
 
         public boolean getEven() {
             return idx % 2 == 0;
+        }
+    }
+
+    public static class NumRange implements Iterable<Integer> {
+
+        public class NumRangeIterator implements Iterator<Integer> {
+
+            private int count = start;
+
+            public boolean hasNext() {
+                return (step > 0) ? count <= end : count >= end;
+            }
+
+            public Integer next() {
+                int c = count;
+                count += step;
+                return c;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        }
+
+        public Iterator<Integer> iterator() {
+            return new NumRangeIterator();
+        }
+
+        private final int start;
+        private final int end;
+        private final int step;
+
+        public NumRange(int start, int end) {
+            this(start, end, (start <= end) ? 1 : -1);
+        }
+
+        public NumRange(int start, int end, int step) {
+            this.start = start;
+            this.end = end;
+            this.step = step;
         }
     }
 }

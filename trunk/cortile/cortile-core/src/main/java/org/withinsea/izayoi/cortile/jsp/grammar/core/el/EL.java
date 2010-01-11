@@ -28,7 +28,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Comment;
 import org.dom4j.Element;
 import org.dom4j.Text;
-import org.withinsea.izayoi.commons.lang.StringUtils;
+import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.StringGrammar;

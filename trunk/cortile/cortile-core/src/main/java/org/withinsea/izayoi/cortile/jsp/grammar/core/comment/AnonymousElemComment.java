@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 
-import org.withinsea.izayoi.commons.xml.HTMLReader;
+import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;

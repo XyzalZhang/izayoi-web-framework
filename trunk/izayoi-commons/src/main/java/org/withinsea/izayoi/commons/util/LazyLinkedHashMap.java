@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.collection;
+package org.withinsea.izayoi.commons.util;
 
 import java.util.LinkedHashMap;
 
@@ -31,16 +31,16 @@ import java.util.LinkedHashMap;
  * Date: 2009-12-28
  * Time: 14:13:14
  */
-public abstract class CreationLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
+public abstract class LazyLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 
-    protected abstract V createValue();
+    protected abstract V createValue(K k);
 
     @Override
     @SuppressWarnings("unchecked")
     public V get(Object key) {
         if (!containsKey(key)) {
             synchronized (this) {
-                put((K) key, createValue());
+                put((K) key, createValue((K) key));
             }
         }
         return super.get(key);

@@ -24,8 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.withinsea.izayoi.commons.util.IOUtils;
 import org.withinsea.izayoi.glowworm.core.conf.Configurable;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
@@ -152,7 +151,7 @@ public class GlowwormLight implements Filter {
                 String srcFolderPath = folder + gwFolder;
                 for (File f : new File(servletContext.getRealPath(srcFolderPath)).listFiles()) {
                     if (f.getName().matches(regexp)) {
-                        String src = FileUtils.readFileToString(f, encoding);
+                        String src = IOUtils.toString(f, encoding);
                         injectors.get(type).inject(req, resp, srcFolderPath + "/" + f.getName(), src);
                         break injs;
                     }

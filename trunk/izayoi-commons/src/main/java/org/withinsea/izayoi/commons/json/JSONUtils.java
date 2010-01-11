@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.commons.json;
 
-import org.apache.commons.io.IOUtils;
+import org.withinsea.izayoi.commons.util.IOUtils;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;

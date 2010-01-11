@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.core;
 
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
-import org.withinsea.izayoi.cortile.core.conf.Config;
+import org.withinsea.izayoi.cortile.core.conf.CortileConfig;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import javax.servlet.*;
@@ -42,12 +42,10 @@ public class CortileMirage implements Filter {
 
     public static final String TRUE_PATH_ATTR_NAME = CortileMirage.class.getCanonicalName() + ".TRUE_PATH_ATTR_NAME";
 
-    protected String mirageSuffix;
-    protected CompileManager manager;
+    protected CortileConfig config;
 
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        mirageSuffix = Config.getConfig(servletContext, configPath).getProperty("cortile.suffix.mirage");
-        manager = Config.getCompileManager(servletContext, configPath);
+        config = new CortileConfig(servletContext, configPath);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
@@ -55,6 +53,9 @@ public class CortileMirage implements Filter {
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+
+        CompileManager manager = config.getComponent("compileManager");
+        String mirageSuffix = config.getComponent("suffix.mirage");
 
         requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 

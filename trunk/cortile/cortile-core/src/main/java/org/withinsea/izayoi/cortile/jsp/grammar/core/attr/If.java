@@ -26,8 +26,8 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.xml.DOM4JUtils;
-import org.withinsea.izayoi.commons.xml.HTMLDocumentFactory;
+import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
@@ -65,13 +65,13 @@ public class If implements AttrGrammar {
             String ifname = attr.getName().substring("if".length());
             if (ifname.equals("")) {
                 try {
-                    DOM4JUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                    DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
                 } catch (Exception e) {
                     throw new CortileException(e);
                 }
             } else if (ifname.equals(".content")) {
                 try {
-                    DOM4JUtils.surroundInside(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                    DOMUtils.surroundInside(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
                 } catch (Exception e) {
                     throw new CortileException(e);
                 }

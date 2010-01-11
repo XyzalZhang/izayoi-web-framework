@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.collection;
+package org.withinsea.izayoi.commons.el;
 
 import java.util.*;
 

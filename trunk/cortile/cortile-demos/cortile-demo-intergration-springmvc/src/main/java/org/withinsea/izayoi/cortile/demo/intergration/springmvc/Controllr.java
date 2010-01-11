@@ -38,7 +38,7 @@ import java.util.List;
  * Time: 18:53:53
  */
 @Controller
-public class IndexController {
+public class Controllr {
 
     @Resource
     UserService userService;
