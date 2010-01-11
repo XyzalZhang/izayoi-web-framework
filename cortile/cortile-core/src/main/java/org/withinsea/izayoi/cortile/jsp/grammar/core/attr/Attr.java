@@ -39,7 +39,8 @@ public class Attr implements AttrGrammar {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().startsWith("attr.");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.startsWith("attr.");
     }
 
     @Override

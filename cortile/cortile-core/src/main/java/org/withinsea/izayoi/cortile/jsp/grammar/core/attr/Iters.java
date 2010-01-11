@@ -34,10 +34,7 @@ import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -50,11 +47,15 @@ public class Iters implements AttrGrammar {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().matches("while|until|^(while|until|for)\\.\\w+");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.matches("while|until|^(while|until|for)\\.[\\w\\.]+");
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
@@ -65,23 +66,39 @@ public class Iters implements AttrGrammar {
             String helperScriptlet = "";
             String sufScriptlet = "varstack.pop(); }";
 
-            String i = attr.getName().matches("while|until") ? null :
-                    attr.getName().replaceFirst("(while|until|for)\\.", "");
-            if (i != null) {
-                String iStatus = i + "_status";
-                preScriptlet = preScriptlet + "" +
-                        Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
-                        "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
-                helperScriptlet = helperScriptlet + iStatus + ".inc();";
+            String type = attrname.startsWith("while") ? "while" :
+                    attrname.startsWith("until") ? "until" : "for";
+            String subname = attrname.substring(type.length());
+            String subtype = subname.startsWith(".content") ? ".content" :
+                    subname.startsWith(".status") ? ".status" : "";
+            String i = subname.substring(subtype.length()).replaceFirst("\\.", "");
+
+            if (subtype.equals(".status")) {
+                return;
             }
 
-            if (attr.getName().startsWith("while")) {
+            if (i != null) {
+                for (Attribute statusAttr : (List<Attribute>) elem.attributes()) {
+                    String aname = statusAttr.getName().replaceAll("[:_-]", ".");
+                    if (aname.equals(type + ".status." + i)) {
+                        String iStatus = statusAttr.getValue();
+                        preScriptlet = preScriptlet + "" +
+                                Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
+                                "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
+                        helperScriptlet = helperScriptlet + iStatus + ".inc();";
+                        statusAttr.detach();
+                        break;
+                    }
+                }
+            }
+
+            if (attrname.startsWith("while")) {
                 preScriptlet = preScriptlet + "while ((Boolean)" + elInterpreter.compileEL(el) + ") {";
                 sufScriptlet = "}" + sufScriptlet;
-            } else if (attr.getName().startsWith("until")) {
+            } else if (attrname.startsWith("until")) {
                 preScriptlet = preScriptlet + "do {";
                 sufScriptlet = "} while (!((Boolean)" + elInterpreter.compileEL(el) + "));" + sufScriptlet;
-            } else if (attr.getName().startsWith("for")) {
+            } else if (attrname.startsWith("for")) {
                 if (el.split("\\s*;\\s*").length == 3) {
                     String[] split = el.split("\\s*;\\s*");
                     preScriptlet = preScriptlet + "for (" +
@@ -100,7 +117,11 @@ public class Iters implements AttrGrammar {
             }
 
             try {
-                DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                if (subtype.equals(".content")) {
+                    DOMUtils.surroundInside(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                } else {
+                    DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
+                }
             } catch (Exception e) {
                 throw new CortileException(e);
             }

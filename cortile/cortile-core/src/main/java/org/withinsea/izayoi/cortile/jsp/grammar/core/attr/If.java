@@ -54,6 +54,8 @@ public class If implements AttrGrammar {
     @SuppressWarnings("unchecked")
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
 
@@ -62,7 +64,7 @@ public class If implements AttrGrammar {
             String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(attr.getValue()) + ") { varstack.push();";
             String sufScriptlet = "varstack.pop(); }";
 
-            String ifname = attr.getName().substring("if".length());
+            String ifname = attrname.substring("if".length());
             if (ifname.equals("")) {
                 try {
                     DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");

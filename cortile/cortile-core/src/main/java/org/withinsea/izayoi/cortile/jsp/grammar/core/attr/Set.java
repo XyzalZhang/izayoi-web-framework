@@ -44,16 +44,19 @@ public class Set implements AttrGrammar {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("set") || attr.getName().startsWith("set.");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.equals("set") || attrname.startsWith("set.");
     }
 
     @Override
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
-        if (attr.getName().startsWith("set.")) {
-            el = attr.getName().substring("set.".length()) + "=" + el;
+        if (attrname.startsWith("set.")) {
+            el = attrname.substring("set.".length()) + "=" + el;
         }
 
         if (!el.equals("")) {
