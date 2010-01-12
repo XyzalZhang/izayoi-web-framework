@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.commons.html;
 
 import org.apache.xerces.impl.XMLDocumentScannerImpl;
+import org.apache.xerces.impl.XMLEntityScanner;
 import org.apache.xerces.util.XMLSymbols;
 import org.apache.xerces.xni.XMLAttributes;
 import org.apache.xerces.xni.XMLString;
@@ -38,6 +39,26 @@ import java.io.IOException;
  * Time: 14:52:55
  */
 public class HTMLDocumentScannerImpl extends XMLDocumentScannerImpl {
+
+    public static class SpaceBufferEntityScanner extends XMLEntityScanner {
+
+        protected boolean spaceBuffered = false;
+
+        public void bufferOneSpace() throws IOException {
+            spaceBuffered = true;
+        }
+
+        @Override
+        public synchronized boolean skipSpaces() throws IOException {
+            if (spaceBuffered) {
+                super.skipSpaces();
+                spaceBuffered = false;
+                return true;
+            } else {
+                return super.skipSpaces();
+            }
+        }
+    }
 
     @Override
     protected void reportFatalError(String msgId, Object[] args)
@@ -61,6 +82,7 @@ public class HTMLDocumentScannerImpl extends XMLDocumentScannerImpl {
             attributes.setValue(attrIndex, value);
             attributes.setNonNormalizedValue(attrIndex, value);
             attributes.setSpecified(attrIndex, true);
+            ((SpaceBufferEntityScanner) fEntityScanner).bufferOneSpace();
         }
     }
 

@@ -56,7 +56,6 @@ public class CortileConfig extends IzayoiConfig {
 
         container.addComponent("target", container.getComponent("webroot"));
         container.addComponent("elIterpreter", Class.forName(conf.getProperty("class.elInterpreter")));
-        container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager")));
 
         Map<String, Set<Grammar>> grammars = new HashMap<String, Set<Grammar>>();
         {
@@ -68,9 +67,6 @@ public class CortileConfig extends IzayoiConfig {
                         for (String className : trimClassNames(conf.getProperty(propname))) {
                             Class<?> claz = Class.forName(className);
                             if (ClassUtils.isExtendsFrom(claz, Grammar.class)) {
-                                if (container.getComponentAdapter(claz) == null) {
-                                    container.addComponent(claz);
-                                }
                                 grammarGroup.add((Grammar) container.getComponent(claz));
                             }
                         }
@@ -88,9 +84,6 @@ public class CortileConfig extends IzayoiConfig {
                     String type = propname.substring("class.compiler".length()).replaceAll("^\\.", "");
                     Class<?> claz = Class.forName(conf.getProperty(propname));
                     if (ClassUtils.isExtendsFrom(claz, Compilr.class)) {
-                        if (container.getComponentAdapter(claz) == null) {
-                            container.addComponent(claz);
-                        }
                         compilers.put(type, (Compilr) container.getComponent(claz));
                     }
                 }

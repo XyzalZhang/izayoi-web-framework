@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compile;
+package org.withinsea.izayoi.commons.conf;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

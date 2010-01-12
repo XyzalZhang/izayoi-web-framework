@@ -45,7 +45,7 @@ public class Out implements AttrGrammar {
     }
 
     @Override
-    @Priority(-50)
+    @Priority(-99)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         if (attrname.startsWith("attr.")) {

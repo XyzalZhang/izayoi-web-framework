@@ -25,9 +25,10 @@
 package org.withinsea.izayoi.commons.html;
 
 import org.apache.xerces.impl.Constants;
-import org.apache.xerces.impl.dtd.XMLDTDValidator;
+import org.apache.xerces.impl.XMLDocumentScannerImpl;
+import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.XML11Configuration;
-import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.parser.XMLComponent;
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import org.withinsea.izayoi.commons.util.IOUtils;
@@ -58,13 +59,39 @@ public class HTMLReader extends SAXReader {
     @Override
     protected XMLReader createXMLReader() throws SAXException {
         return new org.apache.xerces.parsers.SAXParser(new XML11Configuration() {
+
             @Override
-            public boolean parse(boolean complete) throws XNIException, IOException {
-                fNonNSScanner = new HTMLDocumentScannerImpl();
-                fNonNSDTDValidator = new XMLDTDValidator();
-                addComponent(fNonNSScanner);
-                addComponent(fNonNSDTDValidator);
-                return super.parse(complete);
+            protected void addComponent(XMLComponent component) {
+                if (component.getClass() == XMLDocumentScannerImpl.class) {
+                    fNonNSScanner = new HTMLDocumentScannerImpl();
+                    component = fNonNSScanner;
+                }
+                super.addComponent(component);
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void addCommonComponent(XMLComponent component) {
+                if (component.getClass() == XMLEntityManager.class) {
+                    fEntityManager = new XMLEntityManager() {
+                        @Override
+                        public void setScannerVersion(short version) {
+                            if (version == Constants.XML_VERSION_1_0) {
+                                if (fXML10EntityScanner == null) {
+                                    fXML10EntityScanner = new HTMLDocumentScannerImpl.SpaceBufferEntityScanner();
+                                }
+                                fXML10EntityScanner.reset(fSymbolTable, this, fErrorReporter);
+                                fEntityScanner = fXML10EntityScanner;
+                                fEntityScanner.setCurrentEntity(fCurrentEntity);
+                            } else {
+                                super.setScannerVersion(version);
+                            }
+                        }
+                    };
+                    fProperties.put(ENTITY_MANAGER, fEntityManager);
+                    component = fEntityManager;
+                }
+                super.addCommonComponent(component);
             }
         });
     }
@@ -91,7 +118,7 @@ public class HTMLReader extends SAXReader {
         } catch (IOException e) {
             throw new DocumentException(e);
         }
-        HTMLTricker tricker = new HTMLTricker();
+        Tricker tricker = new Tricker();
         InputSource newIn = new InputSource(new StringReader(tricker.trickBefore(html)));
         {
             newIn.setEncoding(in.getEncoding());
@@ -101,13 +128,13 @@ public class HTMLReader extends SAXReader {
         return tricker.trickAfter(super.read(newIn));
     }
 
-    protected static class HTMLTricker {
+    protected static class Tricker {
 
         protected final Map<String, String> holders = new HashMap<String, String>();
 
         public String trickBefore(String html) {
             html = hold(html, "&", "＆", "_");
-            html = html.replaceAll("(<script[\\s\\S]*?>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
+            html = html.replaceAll("(<script>|<script[^>]*?[^/]>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
             html = html.replaceAll("\\s*(//\\s*-->)?\\s*(</script\\s*>)", "\n//-->$2");
             int start = (html.indexOf("<!DOCTYPE ") < 0) ? 0 : html.indexOf(">", html.indexOf("<!DOCTYPE ")) + 1;
             html = html.substring(0, start) + "<" + ANONYMOUS_TAG_NAME + ">" + html.substring(start) + "</" + ANONYMOUS_TAG_NAME + ">";

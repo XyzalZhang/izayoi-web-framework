@@ -61,7 +61,7 @@ public class If implements AttrGrammar {
 
         if (!el.equals("")) {
 
-            String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(attr.getValue()) + ") { varstack.push();";
+            String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(el) + ") { varstack.push();";
             String sufScriptlet = "varstack.pop(); }";
 
             String ifname = attrname.substring("if".length());

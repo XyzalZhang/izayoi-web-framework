@@ -27,7 +27,6 @@ package org.withinsea.izayoi.glowworm.core.injector;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -36,5 +35,5 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface Injector {
 
-    public void inject(HttpServletRequest request, HttpServletResponse response, String srcPath, String src) throws GlowwormException;
+    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException;
 }

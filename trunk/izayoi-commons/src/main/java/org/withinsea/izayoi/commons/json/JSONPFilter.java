@@ -24,7 +24,7 @@
 package org.withinsea.izayoi.commons.json;
 
 import org.withinsea.izayoi.commons.servlet.ContentWrappingHttpServletResponseWrapper;
-import org.withinsea.izayoi.commons.servlet.ParamIgnoringHttpServletRequestWrapper;
+import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -66,9 +66,11 @@ public class JSONPFilter implements Filter {
                 && request.getParameterMap().containsKey(jsonp)) {
 
             final HttpServletRequest req = (HttpServletRequest) request;
-            ParamIgnoringHttpServletRequestWrapper reqw = new ParamIgnoringHttpServletRequestWrapper(req, jsonp);
-
             final HttpServletResponse resp = (HttpServletResponse) response;
+
+            ParamsAdjustHttpServletRequestWrapper reqw = new ParamsAdjustHttpServletRequestWrapper(req);
+            reqw.ignoreParams(jsonp);
+
             ContentWrappingHttpServletResponseWrapper respw = new ContentWrappingHttpServletResponseWrapper(resp) {
 
                 @Override
@@ -110,5 +112,4 @@ public class JSONPFilter implements Filter {
     @Override
     public void destroy() {
     }
-
 }

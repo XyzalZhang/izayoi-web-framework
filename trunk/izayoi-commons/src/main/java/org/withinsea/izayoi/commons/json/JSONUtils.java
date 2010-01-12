@@ -54,11 +54,9 @@ public class JSONUtils {
         return (T) DESERIALIZER.invokeFunction("deserialize", json);
     }
 
-    public static String quote(String string) {
+    /* from: org.json, org.json.JSONObject.quote(String string) */
 
-        /*
-         * from: org.json, org.json.JSONObject.quote(String string)
-         */
+    public static String quote(String string) {
 
         if (string == null || string.length() == 0) {
             return "\"\"";

@@ -40,12 +40,80 @@ import java.io.IOException;
  */
 public class CortileMirage implements Filter {
 
-    public static final String TRUE_PATH_ATTR_NAME = CortileMirage.class.getCanonicalName() + ".TRUE_PATH_ATTR_NAME";
+    public static class Dispatcher {
 
-    protected CortileConfig config;
+        public static final String TRUE_PATH_ATTR_NAME = CortileMirage.class.getCanonicalName() + ".TRUE_PATH_ATTR_NAME";
+
+        protected ServletContext servletContext;
+        protected CompileManager compileManager;
+        protected String mirageSuffix;
+
+        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+
+            requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
+
+            try {
+
+                String truePath = (String) req.getAttribute(TRUE_PATH_ATTR_NAME);
+                if (truePath != null) {
+                    chain.doFilter(req, resp);
+                    resp.setCharacterEncoding(compileManager.getEncoding());
+                    resp.setContentType(servletContext.getMimeType(truePath) + "; charset=" + compileManager.getEncoding());
+                    return;
+                }
+
+                if (requestPath.endsWith("/")) {
+                    chain.doFilter(req, resp);
+                }
+
+                String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
+                String main = requestPath.substring(0, requestPath.length() - type.length() - 1);
+
+                if (compileManager.getSupportedTypes().contains(type)) {
+                    String templatePath = main + mirageSuffix + "." + type;
+                    if (compileManager.exist(templatePath)) {
+                        req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
+                        req.getRequestDispatcher(compileManager.update(templatePath, type)).forward(req, resp);
+                        return;
+                    }
+                }
+
+                for (String supportedType : compileManager.getSupportedTypes()) {
+                    String typeSuffix = supportedType.equals("") ? "" : "-" + supportedType;
+                    String templatePath = main + mirageSuffix + typeSuffix + "." + type;
+                    if (compileManager.exist(templatePath)) {
+                        req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
+                        req.getRequestDispatcher(compileManager.update(templatePath, supportedType)).forward(req, resp);
+                        return;
+                    }
+                }
+
+                chain.doFilter(req, resp);
+
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+        }
+
+        public void setCompileManager(CompileManager compileManager) {
+            this.compileManager = compileManager;
+        }
+
+        public void setMirageSuffix(String mirageSuffix) {
+            this.mirageSuffix = mirageSuffix;
+        }
+
+        public void setServletContext(ServletContext servletContext) {
+            this.servletContext = servletContext;
+        }
+    }
+
+    // api
+
+    protected Dispatcher dispatcher;
 
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        config = new CortileConfig(servletContext, configPath);
+        dispatcher = new CortileConfig(servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
@@ -53,55 +121,7 @@ public class CortileMirage implements Filter {
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
-
-        CompileManager manager = config.getComponent("compileManager");
-        String mirageSuffix = config.getComponent("suffix.mirage");
-
-        requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
-
-        try {
-
-            ServletContext servletContext = req.getSession().getServletContext();
-            String truePath = (String) req.getAttribute(TRUE_PATH_ATTR_NAME);
-
-            if (truePath != null) {
-                chain.doFilter(req, resp);
-                resp.setCharacterEncoding(manager.getEncoding());
-                resp.setContentType(servletContext.getMimeType(truePath) + "; charset=" + manager.getEncoding());
-                return;
-            }
-
-            if (requestPath.endsWith("/")) {
-                chain.doFilter(req, resp);
-            }
-
-            String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
-            String main = requestPath.substring(0, requestPath.length() - type.length() - 1);
-
-            if (manager.getSupportedTypes().contains(type)) {
-                String templatePath = main + mirageSuffix + "." + type;
-                if (manager.exist(templatePath)) {
-                    req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
-                    req.getRequestDispatcher(manager.update(templatePath, type)).forward(req, resp);
-                    return;
-                }
-            }
-
-            for (String supportedType : manager.getSupportedTypes()) {
-                String typeSuffix = supportedType.equals("") ? "" : "-" + supportedType;
-                String templatePath = main + mirageSuffix + typeSuffix + "." + type;
-                if (manager.exist(templatePath)) {
-                    req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
-                    req.getRequestDispatcher(manager.update(templatePath, supportedType)).forward(req, resp);
-                    return;
-                }
-            }
-
-            chain.doFilter(req, resp);
-
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
+        dispatcher.doDispatch(req, resp, requestPath, chain);
     }
 
     // as filter

@@ -22,20 +22,25 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compile;
+package org.withinsea.izayoi.glowworm.core.inject;
+
+import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 1:30:39
+ * Date: 2010-1-11
+ * Time: 16:57:03
  */
-public interface CodeManager {
+public interface InjectManager {
 
-    public boolean exist(String path);
+    String getEncoding();
 
-    public Code get(String path);
+    Set<String> getSupportedTypes();
 
-    public void update(String path, String code);
+    boolean exist(String dataPath);
 
-    public void delete(String path);
+    void inject(HttpServletRequest req, String dataPath, String asType) throws GlowwormException;
 }

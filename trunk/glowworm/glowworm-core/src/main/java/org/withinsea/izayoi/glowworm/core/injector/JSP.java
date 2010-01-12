@@ -24,12 +24,11 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.withinsea.izayoi.commons.servlet.NulHttpServletResponseWrapper;
+import org.withinsea.izayoi.commons.servlet.MockHttpServletResponse;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -41,9 +40,9 @@ import java.io.IOException;
 public class JSP implements Injector {
 
     @Override
-    public void inject(HttpServletRequest request, HttpServletResponse response, String srcPath, String src) throws GlowwormException {
+    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
         try {
-            request.getRequestDispatcher(srcPath).forward(request, new NulHttpServletResponseWrapper(response));
+            request.getRequestDispatcher(srcPath).forward(request, new MockHttpServletResponse());
         } catch (ServletException e) {
             throw new GlowwormException(e);
         } catch (IOException e) {

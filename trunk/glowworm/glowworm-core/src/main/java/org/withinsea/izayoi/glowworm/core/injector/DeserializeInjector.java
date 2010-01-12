@@ -24,31 +24,27 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.withinsea.izayoi.glowworm.core.conf.Configurable;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-25
  * Time: 18:00:15
  */
-public abstract class DeserializeInjector implements Injector, Configurable {
+public abstract class DeserializeInjector implements Injector {
 
     protected abstract Object deserialize(String src) throws GlowwormException;
 
-    protected Properties conf;
+    protected String globalName;
 
     @Override
-    public void inject(HttpServletRequest request, HttpServletResponse response, String srcPath, String src) throws GlowwormException {
-        String globalName = conf.getProperty("glowworm.globalName");
+    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
         Object obj = deserialize(src);
         if (obj != null && globalName != null && !globalName.equals("")) {
-            request.setAttribute(conf.getProperty("glowworm.globalName"), obj);
+            request.setAttribute(globalName, obj);
         }
         if (obj instanceof Map) {
             @SuppressWarnings("unchecked")
@@ -59,8 +55,7 @@ public abstract class DeserializeInjector implements Injector, Configurable {
         }
     }
 
-    @Override
-    public void setConf(Properties conf) {
-        this.conf = conf;
+    public void setGlobalName(String globalName) {
+        this.globalName = globalName;
     }
 }
