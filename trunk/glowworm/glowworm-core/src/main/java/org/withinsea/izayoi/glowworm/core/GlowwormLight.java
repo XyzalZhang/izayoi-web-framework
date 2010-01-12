@@ -60,7 +60,7 @@ public class GlowwormLight implements Filter {
 
             try {
 
-                // path parameters mapping
+                // template path parameters mapping
 
                 String realRequestPath = requestPath;
                 Map<String, String> appendentParams = new LinkedHashMap<String, String>();
