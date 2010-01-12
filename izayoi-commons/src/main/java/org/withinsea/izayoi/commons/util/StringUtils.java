@@ -72,4 +72,15 @@ public class StringUtils {
 
         return buf.toString();
     }
+
+    public static String join(String splitter, String... strs) {
+        if (strs.length == 0) {
+            return "";
+        }
+        StringBuffer buf = new StringBuffer(strs[0]);
+        for (int i = 1; i < strs.length; i++) {
+            buf.append(splitter).append(strs[i]);
+        }
+        return buf.toString();
+    }
 }

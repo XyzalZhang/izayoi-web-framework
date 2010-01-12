@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
+import org.withinsea.izayoi.commons.conf.CodeManager;
 import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;

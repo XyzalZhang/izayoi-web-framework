@@ -22,16 +22,20 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.conf;
-
-import java.util.Properties;
+package org.withinsea.izayoi.commons.conf;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-26
- * Time: 18:48:18
+ * Date: 2009-12-21
+ * Time: 1:30:39
  */
-public interface Configurable {
+public interface CodeManager {
 
-    public void setConf(Properties conf);
+    public boolean exist(String path);
+
+    public Code get(String path);
+
+    public void update(String path, String code);
+
+    public void delete(String path);
 }

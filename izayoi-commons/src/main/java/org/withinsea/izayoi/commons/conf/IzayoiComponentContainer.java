@@ -47,14 +47,34 @@ class IzayoiComponentContainer extends DefaultPicoContainer {
     }
 
     @Override
+    public <T> T getComponent(final Class<T> componentType) {
+        addComponent(componentType);
+        return super.getComponent(componentType);
+    }
+
+    @Override
     public MutablePicoContainer addComponent(Object componentKey, Object componentImplementationOrInstance, Parameter... parameters) {
         return (componentKey instanceof String)
                 ? addComponent((String) componentKey, componentImplementationOrInstance, parameters)
                 : super.addComponent(componentKey, componentImplementationOrInstance, parameters);
     }
 
+    @Override
+    public MutablePicoContainer addComponent(Object implOrInstance) {
+        return (implOrInstance instanceof Class)
+                ? addComponent((Class<?>) implOrInstance)
+                : super.addComponent(implOrInstance);
+    }
+
     public Object getComponent(String componentKey) {
         return super.getComponent(toInjectName(componentKey));
+    }
+
+    public MutablePicoContainer addComponent(Class<?> impl) {
+        if (getComponentAdapter(impl) == null) {
+            super.addComponent(impl);
+        }
+        return this;
     }
 
     public MutablePicoContainer addComponent(String componentKey, Object componentImplementationOrInstance, Parameter... parameters) {

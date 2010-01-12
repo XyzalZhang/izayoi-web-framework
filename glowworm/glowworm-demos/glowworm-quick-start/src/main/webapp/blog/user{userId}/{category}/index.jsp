@@ -1,4 +1,4 @@
-<!--
+<%--
   ~ The contents of this file are subject to the Mozilla Public License
   ~ Version 1.1 (the "License"); you may not use this file except in compliance
   ~ with the License. You may obtain a copy of the License at
@@ -20,16 +20,9 @@
   ~
   ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
   ~ the Initial Developer. All Rights Reserved.
-  -->
+  --%>
 
-Hello, <span c:content="${request.remoteAddr}">localhost</span>!
+<h1>user (id=<%= request.getParameter("userId") %>)'s Blog</h1>
 
-<!--%
-    java.util.Map<String, Object> blog = new java.util.HashMap<String, Object>();
-    blog.put("highlight", false);
-    blog.put("lowlight", true);
-    request.setAttribute("blog", blog);
--->
-<div c:if="${blog.highlight}">ABC</div>
-<div c:if="blog.lowlight">DEF</div>
-
+<h2>category: <%= request.getParameter("category") %>
+</h2>

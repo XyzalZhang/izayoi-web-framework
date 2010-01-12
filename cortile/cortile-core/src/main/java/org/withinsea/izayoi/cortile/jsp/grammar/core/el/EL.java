@@ -48,6 +48,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     protected ELInterpreter elInterpreter;
 
     @Override
+    @Priority(-50)
     public boolean acceptString(String str) {
         return true;
     }
@@ -63,6 +64,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     }
 
     @Override
+    @Priority(-50)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         attr.setValue(compileEmbeddedELs(attr.getValue()));
     }
@@ -73,6 +75,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     }
 
     @Override
+    @Priority(-50)
     public void processText(DOMCompiler compiler, Compilr.Result result, Text text) throws CortileException {
         text.setText(compileEmbeddedELs(text.getText()));
     }
@@ -83,6 +86,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     }
 
     @Override
+    @Priority(-50)
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         comment.setText(compileEmbeddedELs(comment.getText()));
     }

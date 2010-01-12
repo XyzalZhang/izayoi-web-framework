@@ -22,10 +22,10 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compile;
+package org.withinsea.izayoi.commons.conf;
 
+import org.withinsea.izayoi.commons.exception.IzayoiRuntimeException;
 import org.withinsea.izayoi.commons.util.IOUtils;
-import org.withinsea.izayoi.cortile.core.exception.CortileRuntimeException;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class FileCode implements Code {
         try {
             return IOUtils.toString(getFile(), getEncoding());
         } catch (IOException e) {
-            throw new CortileRuntimeException(e);
+            throw new IzayoiRuntimeException(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class FileCode implements Code {
         try {
             IOUtils.write(code, getFile(), getEncoding());
         } catch (IOException e) {
-            throw new CortileRuntimeException(e);
+            throw new IzayoiRuntimeException(e);
         }
     }
 

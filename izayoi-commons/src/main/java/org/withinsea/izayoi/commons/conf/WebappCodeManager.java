@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compile;
+package org.withinsea.izayoi.commons.conf;
 
 import java.io.File;
 

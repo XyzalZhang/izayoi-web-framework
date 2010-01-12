@@ -41,10 +41,47 @@ import java.io.IOException;
  */
 public class CortileScenery extends HttpServlet implements Filter {
 
-    protected CortileConfig config;
+    public static class Dispatcher {
+
+        protected ServletContext servletContext;
+        protected CompileManager compileManager;
+
+        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
+
+            requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
+
+            try {
+
+                String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
+
+                if (requestPath.endsWith("/") || !compileManager.exist(requestPath)) {
+                    resp.sendError(404, req.getServletPath());
+                } else {
+                    req.getRequestDispatcher(compileManager.update(requestPath, type)).forward(req, resp);
+                    resp.setCharacterEncoding(compileManager.getEncoding());
+                    resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + compileManager.getEncoding());
+                }
+
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+        }
+
+        public void setCompileManager(CompileManager compileManager) {
+            this.compileManager = compileManager;
+        }
+
+        public void setServletContext(ServletContext servletContext) {
+            this.servletContext = servletContext;
+        }
+    }
+
+    // api
+
+    protected Dispatcher dispatcher;
 
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        config = new CortileConfig(servletContext, configPath);
+        dispatcher = new CortileConfig(servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {
@@ -52,28 +89,7 @@ public class CortileScenery extends HttpServlet implements Filter {
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
-
-        CompileManager manager = config.getComponent("compileManager");
-
-        requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
-
-        try {
-
-            ServletContext servletContext = req.getSession().getServletContext();
-
-            String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
-
-            if (requestPath.endsWith("/") || !manager.exist(requestPath)) {
-                resp.sendError(404, req.getServletPath());
-            } else {
-                req.getRequestDispatcher(manager.update(requestPath, type)).forward(req, resp);
-                resp.setCharacterEncoding(manager.getEncoding());
-                resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + manager.getEncoding());
-            }
-
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
+        dispatcher.doDispatch(req, resp, requestPath);
     }
 
     // as servlet

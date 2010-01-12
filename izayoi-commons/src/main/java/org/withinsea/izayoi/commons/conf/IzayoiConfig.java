@@ -59,6 +59,11 @@ public class IzayoiConfig {
     }
 
     @SuppressWarnings("unchecked")
+    public final <T> T getComponent(Class<T> claz) {
+        return getContainer().getComponent(claz);
+    }
+
+    @SuppressWarnings("unchecked")
     protected final IzayoiComponentContainer getContainer() {
         Map<String, IzayoiComponentContainer> containers = (Map<String, IzayoiComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR_NAME);
         if (containers == null) {
@@ -119,6 +124,7 @@ public class IzayoiConfig {
         container.addComponent("servletContext", servletContext);
         container.addComponent("conf", conf);
         container.addComponent("webroot", new File(servletContext.getRealPath("/").replace("%20", " ")));
+        container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager")));
     }
 
     protected static String getNamespace(Class<?> claz) {
