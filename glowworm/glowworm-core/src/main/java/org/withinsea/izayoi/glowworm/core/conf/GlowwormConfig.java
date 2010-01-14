@@ -66,9 +66,6 @@ public class GlowwormConfig extends IzayoiConfig {
                         @SuppressWarnings("unchecked")
                         Class<?> claz = Class.forName(conf.getProperty(name));
                         if (ClassUtils.isExtendsFrom(claz, Injector.class)) {
-                            if (container.getComponentAdapter(claz) == null) {
-                                container.addComponent(claz);
-                            }
                             unsortedInjectors.put(type, (Injector) container.getComponent(claz));
                         }
 

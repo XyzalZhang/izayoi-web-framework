@@ -149,6 +149,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
+    @Deprecated
     public void setStatus(int sc, String sm) {
         this.status = sc;
     }
@@ -193,11 +194,13 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     @Override
+    @Deprecated
     public String encodeUrl(String url) {
         return encodeURL(url);
     }
 
     @Override
+    @Deprecated
     public String encodeRedirectUrl(String url) {
         return encodeURL(url);
     }

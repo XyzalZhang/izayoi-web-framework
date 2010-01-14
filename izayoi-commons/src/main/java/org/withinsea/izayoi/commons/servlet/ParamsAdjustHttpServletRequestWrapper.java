@@ -50,23 +50,30 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
         this.uriEncoding = uriEncoding;
     }
 
-    public void clear() {
+    public void reset() {
         ignoreParams.clear();
         appendentParams.clear();
     }
 
     public void ignoreParams(String... names) {
-        ignoreParams.addAll(Arrays.asList(names));
+        ignoreParams(Arrays.asList(names));
+    }
+
+    public void ignoreParams(Collection<String> names) {
+        ignoreParams.addAll(names);
     }
 
     public void appendParam(String name, String... values) {
-        if (values.length == 0) {
+        appendParam(name, Arrays.asList(values));
+    }
+
+    public void appendParam(String name, Collection<String> values) {
+        if (values.isEmpty()) {
             return;
         }
+        @SuppressWarnings("unchecked")
         List<String> params = appendentParams.containsKey(name) ? Arrays.asList(appendentParams.get(name)) : new ArrayList();
-        for (String value : values) {
-            params.add(value);
-        }
+        params.addAll(values);
         appendentParams.put(name, params.toArray(new String[params.size()]));
     }
 
