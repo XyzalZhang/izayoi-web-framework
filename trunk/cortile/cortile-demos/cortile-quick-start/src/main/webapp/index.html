@@ -23,13 +23,3 @@
   -->
 
 Hello, <span c:content="${request.remoteAddr}">localhost</span>!
-
-<!--%
-    java.util.Map<String, Object> blog = new java.util.HashMap<String, Object>();
-    blog.put("highlight", false);
-    blog.put("lowlight", true);
-    request.setAttribute("blog", blog);
--->
-<div c:if="${blog.highlight}">ABC</div>
-<div c:if="blog.lowlight">DEF</div>
-
