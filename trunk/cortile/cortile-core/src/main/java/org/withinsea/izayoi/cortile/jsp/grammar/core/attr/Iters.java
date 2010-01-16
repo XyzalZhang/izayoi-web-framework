@@ -59,67 +59,69 @@ public class Iters implements AttrGrammar {
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
+        if (el.equals("") || el.indexOf("${") > 0 || el.matches(".*[^\\\\]}.*")) {
+            throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
+        }
 
-        if (!el.equals("")) {
+        String preScriptlet = "{ varstack.push();";
+        String helperScriptlet = "";
+        String sufScriptlet = "varstack.pop(); }";
 
-            String preScriptlet = "{ varstack.push();";
-            String helperScriptlet = "";
-            String sufScriptlet = "varstack.pop(); }";
+        String type = attrname.startsWith("while") ? "while" :
+                attrname.startsWith("until") ? "until" : "for";
+        String subname = attrname.substring(type.length());
+        String subtype = subname.startsWith(".status") ? ".status" : "";
+        String i = subname.substring(subtype.length()).replaceFirst("\\.", "");
 
-            String type = attrname.startsWith("while") ? "while" :
-                    attrname.startsWith("until") ? "until" : "for";
-            String subname = attrname.substring(type.length());
-            String subtype = subname.startsWith(".status") ? ".status" : "";
-            String i = subname.substring(subtype.length()).replaceFirst("\\.", "");
+        if (subtype.equals(".status")) {
+            return;
+        }
 
-            if (subtype.equals(".status")) {
-                return;
-            }
-
-            if (i != null) {
-                for (Attribute statusAttr : (List<Attribute>) elem.attributes()) {
-                    String aname = statusAttr.getName().replaceAll("[:_-]", ".");
-                    if (aname.equals(type + ".status." + i)) {
-                        String iStatus = statusAttr.getValue();
-                        preScriptlet = preScriptlet + "" +
-                                Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
-                                "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
-                        helperScriptlet = helperScriptlet + iStatus + ".inc();";
-                        statusAttr.detach();
-                        break;
-                    }
+        if (i != null) {
+            for (Attribute statusAttr : (List<Attribute>) elem.attributes()) {
+                String aname = statusAttr.getName().replaceAll("[:_-]", ".");
+                if (aname.equals(type + ".status." + i)) {
+                    String iStatus = statusAttr.getValue();
+                    preScriptlet = preScriptlet + "" +
+                            Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
+                            "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
+                    helperScriptlet = helperScriptlet + iStatus + ".inc();";
+                    statusAttr.detach();
+                    break;
                 }
             }
+        }
 
-            if (attrname.startsWith("while")) {
-                preScriptlet = preScriptlet + "while ((Boolean)" + elInterpreter.compileEL(el) + ") {";
-                sufScriptlet = "}" + sufScriptlet;
-            } else if (attrname.startsWith("until")) {
-                preScriptlet = preScriptlet + "do {";
-                sufScriptlet = "} while (!((Boolean)" + elInterpreter.compileEL(el) + "));" + sufScriptlet;
-            } else if (attrname.startsWith("for")) {
-                if (el.split("\\s*;\\s*").length == 3) {
-                    String[] split = el.split("\\s*;\\s*");
-                    preScriptlet = preScriptlet + "for (" +
-                            elInterpreter.compileEL(i + "=" + split[0]) + ";" +
-                            elInterpreter.compileEL(split[1]) + ";" +
-                            elInterpreter.compileEL(split[2]) + ") {";
-                } else if (el.matches("-?\\d+\\s*\\.\\.\\s*-?\\d+")) {
-                    preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
-                            ".asIterable(" + el.replace("..", ",") + ")) {";
-                } else {
-                    preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
-                            ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
-                }
-                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");varstack.push();";
-                sufScriptlet = "varstack.pop(); }" + sufScriptlet;
+        if (attrname.startsWith("while")) {
+            preScriptlet = preScriptlet + "while ((Boolean)" + elInterpreter.compileEL(el) + ") {";
+            sufScriptlet = "}" + sufScriptlet;
+        } else if (attrname.startsWith("until")) {
+            preScriptlet = preScriptlet + "do {";
+            sufScriptlet = "} while (!((Boolean)" + elInterpreter.compileEL(el) + "));" + sufScriptlet;
+        } else if (attrname.startsWith("for")) {
+            if (el.split("\\s*;\\s*").length == 3) {
+                String[] split = el.split("\\s*;\\s*");
+                preScriptlet = preScriptlet + "for (" +
+                        elInterpreter.compileEL(i + "=(" + split[0] + ")") + ";" +
+                        "(Boolean) " + elInterpreter.compileEL(split[1]) + ";" +
+                        elInterpreter.compileEL(split[2]) + ") {";
+            } else if (el.matches("-?\\d+\\s*\\.\\.\\s*-?\\d+")) {
+                preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
+                        ".asIterable(" + el.replace("..", ",") + ")) {";
+                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
+            } else {
+                preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
+                        ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
+                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
             }
+            helperScriptlet = helperScriptlet + "varstack.push();";
+            sufScriptlet = "varstack.pop(); }" + sufScriptlet;
+        }
 
-            try {
-                DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
-            } catch (Exception e) {
-                throw new CortileException(e);
-            }
+        try {
+            DOMUtils.surroundBy(elem, "<%" + preScriptlet + helperScriptlet + "%>", "<%" + sufScriptlet + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
         }
 
         attr.detach();
