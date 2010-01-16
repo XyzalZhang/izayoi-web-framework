@@ -84,6 +84,22 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
+        for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
+                grammars, CommentGrammar.class, "processComment").entrySet()) {
+            for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, doc, false)) {
+                if (comment.getParent() != null || comment.getDocument() != null) {
+                    for (CommentGrammar cg : groups.getValue()) {
+                        if (cg.acceptComment(comment)) {
+                            cg.processComment(this, result, comment);
+                        }
+                        if (comment.getParent() == null && comment.getDocument() == null) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         compileTo(result, mapTargetPath(result.getTemplatePath()), doc);
 
         List<RoundoffGrammar> sortedRgs = CompilerUtils.sortAll(grammars, RoundoffGrammar.class, "roundoffGrammar");
@@ -100,22 +116,6 @@ public abstract class DOMCompiler implements Compilr {
 
     @SuppressWarnings("unchecked")
     public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
-
-        for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
-                grammars, CommentGrammar.class, "processComment").entrySet()) {
-            for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, root, false)) {
-                if (comment.getParent() != null || comment.getDocument() != null) {
-                    for (CommentGrammar cg : groups.getValue()) {
-                        if (cg.acceptComment(comment)) {
-                            cg.processComment(this, result, comment);
-                        }
-                        if (comment.getParent() == null && comment.getDocument() == null) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
 
         for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
                 grammars, AttrGrammar.class, "processAttr").entrySet()) {
