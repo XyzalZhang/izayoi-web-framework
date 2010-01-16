@@ -59,6 +59,7 @@ public class CortileConfig extends IzayoiConfig {
 
         Map<String, Set<Grammar>> grammars = new LinkedHashMap<String, Set<Grammar>>();
         {
+            grammars.put("", Collections.<Grammar>emptySet());
             for (String propname : conf.stringPropertyNames()) {
                 if (propname.startsWith("class.grammars")) {
                     String namespace = propname.substring("class.grammars".length()).replaceAll("^\\.", "");
@@ -77,7 +78,7 @@ public class CortileConfig extends IzayoiConfig {
         }
         container.addComponent("grammars", grammars);
 
-        Map<String, Compilr> compilers = new HashMap<String, Compilr>();
+        Map<String, Compilr> compilers = new LinkedHashMap<String, Compilr>();
         {
             for (String propname : conf.stringPropertyNames()) {
                 if (propname.startsWith("class.compiler")) {
