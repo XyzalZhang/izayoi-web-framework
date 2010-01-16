@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
@@ -45,33 +46,33 @@ public class Set implements AttrGrammar {
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
-        return attrname.equals("set") || attrname.startsWith("set.");
+        return attrname.startsWith("set.");
     }
 
     @Override
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
-        // TODO: c:set.href="blahblah ${xx}"
-
         String attrname = attr.getName().replaceAll("[:_-]", ".");
+        String var = attrname.substring("set.".length());
+        String value = attr.getValue();
 
-        String el = attr.getValue().trim();
-        el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
-        if (attrname.startsWith("set.")) {
-            el = attrname.substring("set.".length()) + "=" + el;
-        }
-
-        if (!el.equals("")) {
-            String preScriptlet = "varstack.push();" + elInterpreter.compileEL(el) + ";";
-            String sufScriptlet = "varstack.pop();";
-            try {
-                DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
-            } catch (Exception e) {
-                throw new CortileException(e);
-            }
+        String preScriptlet = "varstack.push();varstack.put(\"" + var + "\", " + compileEmbeddedELs(value) + ");varstack.push();";
+        String sufScriptlet = "varstack.pop();varstack.pop();";
+        try {
+            DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
         }
 
         attr.detach();
+    }
+
+    protected String compileEmbeddedELs(String text) {
+        return "\"" + StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
+            public String replace(String... groups) {
+                return "\"+" + elInterpreter.compileEL(groups[1].replace("\\}", "}")) + "+ \"";
+            }
+        }) + "\"";
     }
 
     @SuppressWarnings("unused")

@@ -53,15 +53,16 @@ public class With implements AttrGrammar {
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
+        if (el.equals("") || el.indexOf("${") > 0 || el.matches(".*[^\\\\]}.*")) {
+            throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
+        }
 
-        if (!el.equals("")) {
-            String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + elInterpreter.compileEL(el) + "));varstack.push();";
-            String sufScriptlet = "varstack.pop();varstack.pop();";
-            try {
-                DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
-            } catch (Exception e) {
-                throw new CortileException(e);
-            }
+        String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + elInterpreter.compileEL(el) + "));varstack.push();";
+        String sufScriptlet = "varstack.pop();varstack.pop();";
+        try {
+            DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
         }
 
         attr.detach();

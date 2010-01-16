@@ -47,37 +47,37 @@ public class If implements AttrGrammar {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().startsWith("if");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.equals("if") || attrname.startsWith("if.");
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
-        String attrname = attr.getName().replaceAll("[:_-]", ".");
-
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
+        if (el.equals("") || el.indexOf("${") > 0 || el.matches(".*[^\\\\]}.*")) {
+            throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
+        }
 
-        if (!el.equals("")) {
+        String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(el) + ") { varstack.push();";
+        String sufScriptlet = "varstack.pop(); }";
 
-            String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(el) + ") { varstack.push();";
-            String sufScriptlet = "varstack.pop(); }";
-
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        if (attrname.equals("if")) {
+            try {
+                DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+        } else {
             String ifname = attrname.substring("if".length());
-            if (ifname.equals("")) {
-                try {
-                    DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
-                } catch (Exception e) {
-                    throw new CortileException(e);
-                }
-            } else if (ifname.startsWith(".")) {
-                String ifAttrname = ifname.startsWith(".attr.") ? ifname.substring(".attr.".length()) : ifname.substring(1);
-                for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {
-                    if (ifAttr.getName().equals(ifAttrname)) {
-                        ifAttr.setPrefix("<%" + preScriptlet + "%>");
-                        ifAttr.setSuffix("<%" + sufScriptlet + "%>");
-                    }
+            String ifAttrname = ifname.startsWith("attr.") ? ifname.substring("attr.".length()) : ifname;
+            for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {
+                if (ifAttr.getName().equals(ifAttrname)) {
+                    ifAttr.setPrefix("<%" + preScriptlet + "%>");
+                    ifAttr.setSuffix("<%" + sufScriptlet + "%>");
                 }
             }
         }
