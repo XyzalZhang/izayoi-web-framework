@@ -56,8 +56,17 @@ public class Set implements AttrGrammar {
         String var = attrname.substring("set.".length());
         String value = attr.getValue();
 
-        String preScriptlet = "varstack.push();varstack.put(\"" + var + "\", " + compileEmbeddedELs(value) + ");varstack.push();";
+        String preScriptlet = "varstack.push();";
+        if (!(value.startsWith("${") && value.endsWith("}")) || value.substring(2, value.length() - 1).indexOf("${") > 0) {
+            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compileEmbeddedELs(value) + ");";
+        } else {
+            String el = value.substring(2, value.length() - 1).trim();
+            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + elInterpreter.compileEL(el) + ");";
+        }
+        preScriptlet = preScriptlet + "varstack.push();";
+
         String sufScriptlet = "varstack.pop();varstack.pop();";
+
         try {
             DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
         } catch (Exception e) {
