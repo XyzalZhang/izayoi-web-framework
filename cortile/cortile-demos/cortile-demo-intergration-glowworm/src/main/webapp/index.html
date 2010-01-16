@@ -1,7 +1,7 @@
 <img src="${album.src}" title="${album.title}" />
 
 <ul>
-    <li c:for.userAlbum="userAlbumList">
+    <li c:for.userAlbum="${userAlbumList}">
         <a href="/room/album/edit.html?id=${userAlbum.id}"
            c:attr.title="${userAlbum.id}" class="edit">修改</a>
     </li>

@@ -55,7 +55,7 @@ public class ELTextCompiler implements Compilr {
     public Compilr.Result compile(String templatePath, String templateCode) throws CortileException {
         String jspHeader = "<%@ page pageEncoding=\"" + encoding + "\" %>";
         Result result = new Result(templatePath);
-        for (EL g : CompilerUtils.sortAll(grammars, EL.class, "acceptString")) {
+        for (EL g : CompilerUtils.sort(grammars, EL.class, "acceptString")) {
             if (g.acceptString(templateCode)) {
                 templateCode = g.processString(this, result, templateCode);
             }

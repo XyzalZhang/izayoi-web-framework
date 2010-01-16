@@ -60,7 +60,7 @@ public abstract class DOMCompiler implements Compilr {
 
         Result result = new Result(templatePath);
 
-        for (PretreatGrammar pg : CompilerUtils.sortAll(grammars, PretreatGrammar.class, "pretreatCode")) {
+        for (PretreatGrammar pg : CompilerUtils.sort(grammars, PretreatGrammar.class, "pretreatCode")) {
             if (pg.acceptPretreat(templateCode)) {
                 templateCode = pg.pretreatCode(this, result, templateCode);
             }
@@ -70,8 +70,8 @@ public abstract class DOMCompiler implements Compilr {
 
         DOMUtils.mergeTexts(doc);
 
-        for (Map.Entry<Integer, List<TextGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
-                grammars, TextGrammar.class, "processText").entrySet()) {
+        for (Map.Entry<Integer, List<TextGrammar>> groups :
+                CompilerUtils.sortAsGroups(grammars, TextGrammar.class, "processText").entrySet()) {
             for (Text text : DOMUtils.selectTypedNodes(Text.class, doc, false)) {
                 for (TextGrammar tg : groups.getValue()) {
                     if (tg.acceptText(text)) {
@@ -84,8 +84,8 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
-                grammars, CommentGrammar.class, "processComment").entrySet()) {
+        for (Map.Entry<Integer, List<CommentGrammar>> groups :
+                CompilerUtils.sortAsGroups(grammars, CommentGrammar.class, "processComment").entrySet()) {
             for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, doc, false)) {
                 if (comment.getParent() != null || comment.getDocument() != null) {
                     for (CommentGrammar cg : groups.getValue()) {
@@ -102,7 +102,7 @@ public abstract class DOMCompiler implements Compilr {
 
         compileTo(result, mapTargetPath(result.getTemplatePath()), doc);
 
-        List<RoundoffGrammar> sortedRgs = CompilerUtils.sortAll(grammars, RoundoffGrammar.class, "roundoffGrammar");
+        List<RoundoffGrammar> sortedRgs = CompilerUtils.sort(grammars, RoundoffGrammar.class, "roundoffGrammar");
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             for (RoundoffGrammar rg : sortedRgs) {
                 if (rg.acceptRoundoff(e.getValue())) {
@@ -117,27 +117,26 @@ public abstract class DOMCompiler implements Compilr {
     @SuppressWarnings("unchecked")
     public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
 
-        for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
-                grammars, AttrGrammar.class, "processAttr").entrySet()) {
+        for (Map.Entry<Integer, List<CompilerUtils.NamespacedWrapper<AttrGrammar>>> group :
+                CompilerUtils.sortAsNamespacedGroups(grammars, AttrGrammar.class, "processAttr").entrySet()) {
             for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     eachAttr:
                     for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
                         if (attr.getParent() != null) {
                             String attrNs = attr.getNamespacePrefix();
-                            eachGrammar:
-                            for (Map.Entry<String, List<AttrGrammar>> e : groups.getValue().entrySet()) {
-                                if (e.getKey().equals("") || e.getKey().equals(attrNs)) {
-                                    for (AttrGrammar ag : e.getValue()) {
-                                        if (ag.acceptAttr(elem, attr)) {
-                                            ag.processAttr(this, result, elem, attr);
-                                        }
-                                        if (elem.getParent() == null && elem.getDocument() == null) {
-                                            break eachAttr;
-                                        }
-                                        if (attr.getParent() == null) {
-                                            break eachGrammar;
-                                        }
+                            for (CompilerUtils.NamespacedWrapper<AttrGrammar> w : group.getValue()) {
+                                String agNs = w.getNamespace();
+                                AttrGrammar ag = w.getGrammar();
+                                if (agNs.equals("") || agNs.equals(attrNs)) {
+                                    if (ag.acceptAttr(elem, attr)) {
+                                        ag.processAttr(this, result, elem, attr);
+                                    }
+                                    if (elem.getParent() == null && elem.getDocument() == null) {
+                                        break eachAttr;
+                                    }
+                                    if (attr.getParent() == null) {
+                                        break;
                                     }
                                 }
                             }
@@ -147,8 +146,8 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (Map.Entry<Integer, List<ElementGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
-                grammars, ElementGrammar.class, "processElement").entrySet()) {
+        for (Map.Entry<Integer, List<ElementGrammar>> groups :
+                CompilerUtils.sortAsGroups(grammars, ElementGrammar.class, "processElement").entrySet()) {
             for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     for (ElementGrammar eg : groups.getValue()) {
@@ -163,7 +162,7 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (BranchGrammar bg : CompilerUtils.sortAll(grammars, BranchGrammar.class, "processBranch")) {
+        for (BranchGrammar bg : CompilerUtils.sort(grammars, BranchGrammar.class, "processBranch")) {
             if (bg.acceptBranch(root)) {
                 bg.processBranch(this, result, root);
             }

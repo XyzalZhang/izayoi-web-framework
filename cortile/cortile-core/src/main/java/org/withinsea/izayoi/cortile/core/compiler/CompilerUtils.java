@@ -50,51 +50,10 @@ public class CompilerUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Grammar> Map<String, List<T>> sort(
-            Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
-        Map<String, List<T>> sorted = new LinkedHashMap<String, List<T>>();
-        for (Map.Entry<String, Set<Grammar>> e : grammars.entrySet()) {
-            List<T> gs = new ArrayList<T>();
-            for (Grammar g : e.getValue()) {
-                if (claz.isInstance(g)) {
-                    gs.add((T) g);
-                }
-            }
-            Collections.sort(gs, new Comparator<Grammar>() {
-                public int compare(Grammar g1, Grammar g2) {
-                    return getPriority(g2, sortMethod) - getPriority(g1, sortMethod);
-                }
-            });
-            sorted.put(e.getKey(), gs);
-        }
-        return sorted;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Grammar> Map<Integer, Map<String, List<T>>> sortAsPriorityGroups(
-            Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
-        Map<Integer, Map<String, List<T>>> groups = new LazyLinkedHashMap<Integer, Map<String, List<T>>>() {
-            @Override
-            protected Map<String, List<T>> createValue(Integer priority) {
-                return new LazyLinkedHashMap<String, List<T>>() {
-                    @Override
-                    protected List<T> createValue(String namespace) {
-                        return new ArrayList<T>();
-                    }
-                };
-            }
-        };
-        for (Map.Entry<String, List<T>> e : sort(grammars, claz, sortMethod).entrySet()) {
-            for (T grammar : e.getValue()) {
-                groups.get(getPriority(grammar, sortMethod)).get(e.getKey()).add(grammar);
-            }
-        }
-        return groups;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Grammar> List<T> sortAll(
-            Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
+    public static <T extends Grammar> List<T> sort(
+            Map<String, Set<Grammar>> grammars,
+            Class<T> claz,
+            final String sortMethod) {
         Set<T> all = new LinkedHashSet<T>();
         for (Set<Grammar> gs : grammars.values()) {
             for (Grammar g : gs) {
@@ -113,17 +72,68 @@ public class CompilerUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Grammar> Map<Integer, List<T>> sortAllAsPriorityGroups(
-            Map<String, Set<Grammar>> grammars, Class<T> claz, final String sortMethod) {
+    public static <T extends Grammar> Map<Integer, List<T>> sortAsGroups(
+            Map<String, Set<Grammar>> grammars,
+            Class<T> claz,
+            final String sortMethod) {
         Map<Integer, List<T>> groups = new LazyLinkedHashMap<Integer, List<T>>() {
             @Override
             protected List<T> createValue(Integer priority) {
                 return new ArrayList<T>();
             }
         };
-        for (T grammar : sortAll(grammars, claz, sortMethod)) {
+        for (T grammar : sort(grammars, claz, sortMethod)) {
             groups.get(getPriority(grammar, sortMethod)).add(grammar);
         }
         return groups;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Grammar> Map<Integer, List<NamespacedWrapper<T>>> sortAsNamespacedGroups(
+            Map<String, Set<Grammar>> grammars,
+            Class<T> claz,
+            final String sortMethod) {
+        List<NamespacedWrapper<T>> sortedWrappers = new LinkedList<NamespacedWrapper<T>>();
+        for (String namespace : grammars.keySet()) {
+            for (Grammar g : grammars.get(namespace)) {
+                if (claz.isInstance(g)) {
+                    sortedWrappers.add(new NamespacedWrapper<T>((T) g, namespace));
+                }
+            }
+        }
+        Collections.sort(sortedWrappers, new Comparator<NamespacedWrapper<T>>() {
+            public int compare(NamespacedWrapper<T> w1, NamespacedWrapper<T> w2) {
+                return getPriority(w2.getGrammar(), sortMethod) - getPriority(w1.getGrammar(), sortMethod);
+            }
+        });
+        Map<Integer, List<NamespacedWrapper<T>>> groups = new LazyLinkedHashMap<Integer, List<NamespacedWrapper<T>>>() {
+            @Override
+            protected List<NamespacedWrapper<T>> createValue(Integer priority) {
+                return new ArrayList<NamespacedWrapper<T>>();
+            }
+        };
+        for (NamespacedWrapper<T> ngw : sortedWrappers) {
+            groups.get(getPriority(ngw.getGrammar(), sortMethod)).add(ngw);
+        }
+        return groups;
+    }
+
+    public static class NamespacedWrapper<T extends Grammar> {
+
+        protected final T grammar;
+        protected final String namespace;
+
+        public NamespacedWrapper(T grammar, String namespace) {
+            this.grammar = grammar;
+            this.namespace = namespace;
+        }
+
+        public T getGrammar() {
+            return grammar;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
     }
 }

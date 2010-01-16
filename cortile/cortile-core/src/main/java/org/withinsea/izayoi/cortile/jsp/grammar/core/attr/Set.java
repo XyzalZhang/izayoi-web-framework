@@ -51,6 +51,8 @@ public class Set implements AttrGrammar {
     @Override
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
+        // TODO: c:set.href="blahblah ${xx}"
+
         String attrname = attr.getName().replaceAll("[:_-]", ".");
 
         String el = attr.getValue().trim();
