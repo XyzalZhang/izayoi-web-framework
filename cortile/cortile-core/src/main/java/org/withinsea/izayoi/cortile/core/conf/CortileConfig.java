@@ -57,7 +57,7 @@ public class CortileConfig extends IzayoiConfig {
         container.addComponent("target", container.getComponent("webroot"));
         container.addComponent("elIterpreter", Class.forName(conf.getProperty("class.elInterpreter")));
 
-        Map<String, Set<Grammar>> grammars = new HashMap<String, Set<Grammar>>();
+        Map<String, Set<Grammar>> grammars = new LinkedHashMap<String, Set<Grammar>>();
         {
             for (String propname : conf.stringPropertyNames()) {
                 if (propname.startsWith("class.grammars")) {

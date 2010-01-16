@@ -64,7 +64,7 @@ public class GlowwormLight implements Filter {
 
                 String realRequestPath = requestPath;
                 Map<String, String> appendentParams = new LinkedHashMap<String, String>();
-                String templateRequestPath = matchPathTemplate(appendentParams, webroot, "/", requestPath.substring(1));
+                String templateRequestPath = matchPathTemplate(appendentParams, webroot, "/", requestPath.substring(1)).replaceAll("^/+", "/");
                 if (templateRequestPath != null) {
                     requestPath = templateRequestPath;
                     if (!appendentParams.isEmpty()) {
@@ -229,7 +229,6 @@ public class GlowwormLight implements Filter {
             } catch (GlowwormException e) {
                 throw new ServletException(e);
             }
-            chain.doFilter(req, resp);
         } else {
             chain.doFilter(request, response);
         }

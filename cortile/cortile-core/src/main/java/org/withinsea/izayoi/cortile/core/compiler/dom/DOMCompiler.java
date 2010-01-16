@@ -101,12 +101,6 @@ public abstract class DOMCompiler implements Compilr {
     @SuppressWarnings("unchecked")
     public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
 
-        for (BranchGrammar bg : CompilerUtils.sortAll(grammars, BranchGrammar.class, "processBranch")) {
-            if (bg.acceptBranch(root)) {
-                bg.processBranch(this, result, root);
-            }
-        }
-
         for (Map.Entry<Integer, List<CommentGrammar>> groups : CompilerUtils.sortAllAsPriorityGroups(
                 grammars, CommentGrammar.class, "processComment").entrySet()) {
             for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, root, false)) {
@@ -117,6 +111,36 @@ public abstract class DOMCompiler implements Compilr {
                         }
                         if (comment.getParent() == null && comment.getDocument() == null) {
                             break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
+                grammars, AttrGrammar.class, "processAttr").entrySet()) {
+            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
+                if (elem.getParent() != null || elem.getDocument() != null) {
+                    eachAttr:
+                    for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
+                        if (attr.getParent() != null) {
+                            String attrNs = attr.getNamespacePrefix();
+                            eachGrammar:
+                            for (Map.Entry<String, List<AttrGrammar>> e : groups.getValue().entrySet()) {
+                                if (e.getKey().equals("") || e.getKey().equals(attrNs)) {
+                                    for (AttrGrammar ag : e.getValue()) {
+                                        if (ag.acceptAttr(elem, attr)) {
+                                            ag.processAttr(this, result, elem, attr);
+                                        }
+                                        if (elem.getParent() == null && elem.getDocument() == null) {
+                                            break eachAttr;
+                                        }
+                                        if (attr.getParent() == null) {
+                                            break eachGrammar;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -139,33 +163,9 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> groups : CompilerUtils.sortAsPriorityGroups(
-                grammars, AttrGrammar.class, "processAttr").entrySet()) {
-            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
-                if (elem.getParent() != null || elem.getDocument() != null) {
-                    eachAttr:
-                    for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
-                        if (attr.getParent() != null) {
-                            String attrNs = attr.getNamespacePrefix();
-                            eachGrammar:
-                            for (Map.Entry<String, List<AttrGrammar>> e : groups.getValue().entrySet()) {
-                                if (attrNs.equals(e.getKey())) {
-                                    for (AttrGrammar ag : e.getValue()) {
-                                        if (ag.acceptAttr(elem, attr)) {
-                                            ag.processAttr(this, result, elem, attr);
-                                        }
-                                        if (elem.getParent() == null && elem.getDocument() == null) {
-                                            break eachAttr;
-                                        }
-                                        if (attr.getParent() == null) {
-                                            break eachGrammar;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        for (BranchGrammar bg : CompilerUtils.sortAll(grammars, BranchGrammar.class, "processBranch")) {
+            if (bg.acceptBranch(root)) {
+                bg.processBranch(this, result, root);
             }
         }
 

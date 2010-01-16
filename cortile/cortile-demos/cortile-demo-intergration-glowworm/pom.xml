@@ -22,7 +22,6 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -34,24 +33,35 @@
         <artifactId>cortile</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>cortile-demos</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>cortile-quick-start</module>
-        <module>cortile-tutorial-grammars</module>
-        <module>cortile-demo-intergration-glowworm</module>
-        <module>cortile-demo-intergration-springmvc</module>
-    </modules>
+    <artifactId>cortile-demo-intergration-glowworm</artifactId>
+    <packaging>war</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>cortile-core</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>glowworm-core</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
     <!-- More Project Information -->
-    <name>cortile-tutorials</name>
+    <name>cortile-demo-intergration-glowworm</name>
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/
+        <connection>
+            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-demo-intergration-glowworm/
+        </connection>
+        <developerConnection>
+            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-demo-intergration-glowworm/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-demos</url>
+        <url>
+            http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-demos/cortile-demo-intergration-glowworm
+        </url>
     </scm>
 
 </project>
