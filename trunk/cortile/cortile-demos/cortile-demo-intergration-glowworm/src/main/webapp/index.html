@@ -7,6 +7,9 @@
     </li>
 </ul>
 
-<div c:set.href="blahblah.html?title=${album.title}">
-    <a c:for.i="i=4; i<10; i++" href="${href}">LINK ${i}</a>
-</div>
+<ul c:set.a="${album}">
+    <li c:for.i="i=4; i<10; i++" c:for-status.i="iStat"
+        c:set.href="blahblah.html?title=${iStat.idx}">
+        <a href="${href}">LINK ${i} ${a.title}</a>
+    </li>
+</ul>
