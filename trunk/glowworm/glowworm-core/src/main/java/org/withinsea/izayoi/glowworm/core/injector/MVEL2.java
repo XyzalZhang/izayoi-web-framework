@@ -25,9 +25,9 @@
 package org.withinsea.izayoi.glowworm.core.injector;
 
 import org.mvel2.MVEL;
-import org.withinsea.izayoi.commons.el.Varstack;
 import org.withinsea.izayoi.commons.servlet.HttpContextMap;
 import org.withinsea.izayoi.commons.servlet.HttpParameterMap;
+import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
