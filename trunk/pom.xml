@@ -27,10 +27,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <packageOutputDirectory>${project.build.directory}</packageOutputDirectory>
-    </properties>
-
     <!-- Basics -->
     <groupId>org.withinsea.izayoi</groupId>
     <artifactId>izayoi</artifactId>
@@ -93,22 +89,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>${packageOutputDirectory}</outputDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>${packageOutputDirectory}</outputDirectory>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>${packageOutputDirectory}</outputDirectory>
-                </configuration>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -204,5 +185,38 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+    <profiles>
+        <profile>
+            <id>global-package-output-directory</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>packageOutputDirectory</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
