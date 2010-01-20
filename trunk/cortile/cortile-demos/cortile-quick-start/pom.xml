@@ -55,7 +55,7 @@
             scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-quick-start/
         </developerConnection>
         <url>
-            http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-demos/cortile-quick-start
+            http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-demos/cortile-quick-start
         </url>
     </scm>
 

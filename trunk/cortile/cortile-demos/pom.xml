@@ -51,7 +51,7 @@
         <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/</connection>
         <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-demos</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-demos</url>
     </scm>
 
 </project>

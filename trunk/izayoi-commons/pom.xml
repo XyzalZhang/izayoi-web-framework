@@ -82,7 +82,7 @@
         <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/</connection>
         <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/glowworm/izayoi-commons</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/glowworm/izayoi-commons</url>
     </scm>
 
 </project>
