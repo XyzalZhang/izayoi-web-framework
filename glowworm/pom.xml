@@ -48,7 +48,7 @@
         <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/</connection>
         <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/
         </developerConnection>
-        <url>http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/glowworm</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/glowworm</url>
     </scm>
 
 </project>

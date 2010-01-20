@@ -60,7 +60,7 @@
             scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-tutorial-grammars/
         </developerConnection>
         <url>
-            http://code.google.com/p/withinsea/source/browse#svn/izayoi/trunk/cortile/cortile-demos/cortile-tutorial-grammars
+            http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-demos/cortile-tutorial-grammars
         </url>
     </scm>
 
