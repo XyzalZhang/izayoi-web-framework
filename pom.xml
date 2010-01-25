@@ -22,37 +22,170 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- The Basics -->
-    <parent>
-        <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi-base</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-    </parent>
-    <artifactId>izayoi</artifactId>
+    <!-- Basics -->
+    <groupId>org.withinsea.izayoi</groupId>
+    <artifactId>izayoi-base</artifactId>
     <packaging>pom</packaging>
-    <modules>
-        <module>izayoi-base</module>
-        <module>izayoi-commons</module>
-        <module>izayoi-site</module>
-        <module>cortile</module>
-        <module>glowworm</module>
-    </modules>
+    <version>0.1.0</version>
 
     <!-- More Project Information -->
-    <name>izayoi</name>
+    <name>izayoi-base</name>
+    <url>http://withinsea.org/izayoi/</url>
+    <inceptionYear>2009</inceptionYear>
+    <licenses>
+        <license>
+            <name>The Mozilla Public License, Version 1.1</name>
+            <url>http://www.mozilla.org/MPL/MPL-1.1.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>Mo Chen (withinsea@gmail.com)</name>
+        <url>http://withinsea.org/</url>
+    </organization>
+    <developers>
+        <developer>
+            <id>withinsea</id>
+            <name>Mo Chen</name>
+            <email>withinsea@gmail.com</email>
+            <organization>Mo Chen (withinsea@gmail.com)</organization>
+            <organizationUrl>http://withinsea.org/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+    <contributors />
+
+    <!-- Build Settings -->
+    <build>
+        <defaultGoal>package</defaultGoal>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <locale>en_US</locale>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <arguments>-DperformRelease=true</arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <updateReleaseInfo>true</updateReleaseInfo>
+                </configuration>
+            </plugin>
+        </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+        </extensions>
+    </build>
+    <reporting />
 
     <!-- Environment Settings -->
+    <issueManagement>
+        <system>googlecode</system>
+        <url>http://code.google.com/p/withinsea/issues/list</url>
+    </issueManagement>
+    <ciManagement />
+    <mailingLists />
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile</url>
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/izayoi-base-0.1.0</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/izayoi-base-0.1.0</developerConnection>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/izayoi-base-0.1.0</url>
     </scm>
+    <prerequisites />
+    <pluginRepositories />
+    <distributionManagement>
+        <repository>
+            <id>withinsea-repo-maven2-releases</id>
+            <name>withinsea maven2 releases repository</name>
+            <url>ftp://ftp.withinsea.org/repo.withinsea.org/htdocs/maven2/releases</url>
+            <layout>default</layout>
+        </repository>
+        <snapshotRepository>
+            <id>withinsea-repo-maven2-snapshots</id>
+            <name>withinsea maven2 snapshots repository</name>
+            <url>ftp://ftp.withinsea.org/repo.withinsea.org/htdocs/maven2/snapshots</url>
+            <layout>default</layout>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>global-package-output-directory</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>packageOutputDirectory</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${packageOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
