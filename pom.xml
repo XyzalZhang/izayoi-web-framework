@@ -29,18 +29,12 @@
 
     <!-- Basics -->
     <groupId>org.withinsea.izayoi</groupId>
-    <artifactId>izayoi</artifactId>
+    <artifactId>izayoi-base</artifactId>
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
-    <modules>
-        <module>izayoi-commons</module>
-        <module>izayoi-site</module>
-        <module>cortile</module>
-        <module>glowworm</module>
-    </modules>
 
     <!-- More Project Information -->
-    <name>izayoi</name>
+    <name>izayoi-base</name>
     <url>http://withinsea.org/izayoi/</url>
     <inceptionYear>2009</inceptionYear>
     <licenses>
@@ -145,42 +139,18 @@
         <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk</url>
     </scm>
     <prerequisites/>
-    <repositories>
-        <repository>
-            <id>withinsea-repo-maven2-releases</id>
-            <name>withinsea maven2 releases repository</name>
-            <url>http://repo.withinsea.org/maven2/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>withinsea-repo-maven2-snapshots</id>
-            <name>withinsea maven2 snapshots repository</name>
-            <url>http://repo.withinsea.org/maven2/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
     <pluginRepositories/>
     <distributionManagement>
         <repository>
             <id>withinsea-repo-maven2-releases</id>
             <name>withinsea maven2 releases repository</name>
-            <url>ftp://repo.withinsea.org/maven2/releases</url>
+            <url>ftp://ftp.withinsea.org/repo.withinsea.org/htdocs/maven2/releases</url>
             <layout>default</layout>
         </repository>
         <snapshotRepository>
             <id>withinsea-repo-maven2-snapshots</id>
             <name>withinsea maven2 snapshots repository</name>
-            <url>ftp://repo.withinsea.org/maven2/snapshots</url>
+            <url>ftp://ftp.withinsea.org/repo.withinsea.org/htdocs/maven2/snapshots</url>
             <layout>default</layout>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
