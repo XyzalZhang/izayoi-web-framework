@@ -22,8 +22,7 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +30,7 @@
     <groupId>org.withinsea.izayoi</groupId>
     <artifactId>izayoi-base</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <!-- More Project Information -->
     <name>izayoi-base</name>
@@ -62,7 +61,7 @@
             <timezone>+8</timezone>
         </developer>
     </developers>
-    <contributors/>
+    <contributors />
 
     <!-- Build Settings -->
     <build>
@@ -124,22 +123,22 @@
             </extension>
         </extensions>
     </build>
-    <reporting/>
+    <reporting />
 
     <!-- Environment Settings -->
     <issueManagement>
         <system>googlecode</system>
         <url>http://code.google.com/p/withinsea/issues/list</url>
     </issueManagement>
-    <ciManagement/>
-    <mailingLists/>
+    <ciManagement />
+    <mailingLists />
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/</developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk</url>
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/izayoi-base-0.1.0</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/izayoi-base-0.1.0</developerConnection>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/izayoi-base-0.1.0</url>
     </scm>
-    <prerequisites/>
-    <pluginRepositories/>
+    <prerequisites />
+    <pluginRepositories />
     <distributionManagement>
         <repository>
             <id>withinsea-repo-maven2-releases</id>
