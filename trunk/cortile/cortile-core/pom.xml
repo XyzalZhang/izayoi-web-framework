@@ -27,14 +27,15 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- The Basics -->    
+    <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>izayoi-base</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-    </parent>            
+        <version>0.1.0</version>
+    </parent>
     <artifactId>cortile-core</artifactId>
     <packaging>jar</packaging>
+    <version>0.1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
@@ -77,11 +78,6 @@
 
     <!-- More Project Information -->
     <name>cortile-core</name>
-
-    <!-- Build -->
-    <build>
-        <finalName>cortile-${project.version}</finalName>
-    </build>
 
     <!-- Environment Settings -->
     <scm>

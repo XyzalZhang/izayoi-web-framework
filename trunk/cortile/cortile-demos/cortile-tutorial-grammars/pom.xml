@@ -35,6 +35,7 @@
     </parent>
     <artifactId>cortile-tutorial-grammars</artifactId>
     <packaging>war</packaging>
+    <version>0.1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
