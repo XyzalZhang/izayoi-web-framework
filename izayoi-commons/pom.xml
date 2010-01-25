@@ -34,7 +34,7 @@
     </parent>
     <artifactId>izayoi-commons</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -79,10 +79,10 @@
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/izayoi-commons-0.1.0</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/izayoi-commons-0.1.0
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/
         </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/izayoi-commons-0.1.0</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/izayoi-commons</url>
     </scm>
 
 </project>
