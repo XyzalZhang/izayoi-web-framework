@@ -36,6 +36,7 @@
     </parent>
     <artifactId>cortile-adapters</artifactId>
     <packaging>pom</packaging>
+    <version>0.1.0-SNAPSHOT</version>
     <modules>
         <module>cortile-adapter-springmvc</module>
     </modules>
