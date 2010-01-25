@@ -86,11 +86,13 @@ $(function () {
                         var codesrc = code.attr('src');
                         var xhr = $.get(codesrc, function () {
                             // godaddy trick start
-                            var data = xhr.responseText;
-                            var loc = data.indexOf('</iframe');
-                            if (loc >= 0) {
-                                data = data.substring(0, loc);
-                            }
+                            /*
+                             var data = xhr.responseText;
+                             var loc = data.indexOf('</iframe');
+                             if (loc >= 0) {
+                             data = data.substring(0, loc);
+                             }
+                             */
                             // godaddy trick end
                             var content = data.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                             var type = FORMAT_TYPES[codesrc.replace(/^.*\./, '')] || 'plain';
