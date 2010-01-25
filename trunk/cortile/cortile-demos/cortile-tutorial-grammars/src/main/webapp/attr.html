@@ -31,15 +31,32 @@
 </head>
 <body>
     <ol>
+        <li><h2>Def, Call & Set</h2>
+
+            <div c:set.f="new java.io.File(application.getRealPath('/'))">
+                <h3 c:content="[${f.name}]">[BASE]</h3>
+                <ul c:def="dir">
+                    <li c:for.f="f.listFiles()">
+                        <div c:if="f.isDirectory()">
+                            <span c:content="[${f.name}]">[DIR]</span>
+                            <ul c:call="dir"></ul>
+                        </div>
+                        <div c:if="!f.isDirectory()">
+                            <span c:content="${f.name}">file</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </li>
         <li><h2>For Iteration & Content Attr</h2>
             <ul>
                 <li>LI</li>
                 <li>LI</li>
                 <li>LI</li>
                 <li>LI</li>
-                <li c:for.i="list" c:for-status.i="istat" c:with="istat" c:mock="neighbors">
+                <li c:for.i="list" c:for-status.i="istat" c:mock="neighbors">
                     <h3>i = <span c:content="[${i}]">[I]</span></h3>
-                    <ul>
+                    <ul c:with="istat">
                         <li>i_status.idx = <span c:content="${idx}">0</span></li>
                         <li>i_status.odd = <span c:content="${odd}">false</span></li>
                         <li>i_status.even = <span c:content="${even}">true</span></li>
@@ -75,23 +92,6 @@
         </li>
         <li><h2>Attr attr</h2>
             strong: <span c:attr.style="font-weight:bold">Text</span>
-        </li>
-        <li><h2>Def, Call & Set</h2>
-
-            <div c:set.f="new java.io.File(application.getRealPath('/'))">
-                <h3 c:content="[${f.name}]">[BASE]</h3>
-                <ul c:def="dir">
-                    <li c:for.f="f.listFiles()">
-                        <div c:if="f.isDirectory()">
-                            <span c:content="[${f.name}]">[DIR]</span>
-                            <ul c:call="dir"></ul>
-                        </div>
-                        <div c:if="!f.isDirectory()">
-                            <span c:content="${f.name}">file</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </li>
     </ol>
 </body>

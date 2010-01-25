@@ -30,7 +30,7 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi</artifactId>
+        <artifactId>izayoi-base</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>izayoi-commons</artifactId>
@@ -82,7 +82,7 @@
         <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/</connection>
         <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/
         </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/glowworm/izayoi-commons</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/izayoi-commons</url>
     </scm>
 
 </project>

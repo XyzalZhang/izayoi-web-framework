@@ -31,7 +31,7 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi</artifactId>
+        <artifactId>izayoi-base</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>cortile</artifactId>
