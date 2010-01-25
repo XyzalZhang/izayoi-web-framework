@@ -30,7 +30,7 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>glowworm</artifactId>
+        <artifactId>izayoi-base</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>glowworm-tutorial-config</artifactId>
