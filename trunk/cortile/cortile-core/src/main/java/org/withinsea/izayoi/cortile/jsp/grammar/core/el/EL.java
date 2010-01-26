@@ -55,7 +55,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
 
     @Override
     public String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException {
-        return compileEmbeddedELs(str);
+        return compileEmbeddedELs(str, false);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-        attr.setValue(compileEmbeddedELs(attr.getValue()));
+        attr.setValue(compileEmbeddedELs(attr.getValue(), true));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processText(DOMCompiler compiler, Compilr.Result result, Text text) throws CortileException {
-        text.setText(compileEmbeddedELs(text.getText()));
+        text.setText(compileEmbeddedELs(text.getText(), false));
     }
 
     @Override
@@ -88,19 +88,32 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        comment.setText(compileEmbeddedELs(comment.getText()));
+        comment.setText(compileEmbeddedELs(comment.getText(), false));
     }
 
-    protected String compileEmbeddedELs(String text) {
-        return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
-            public String replace(String... groups) {
-                return "<%=" + elInterpreter.compileEL(groups[1].replace("\\}", "}")) + "%>";
-            }
-        });
+    protected String compileEmbeddedELs(String text, boolean escape) {
+        return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}",
+                escape ? new StringUtils.Replace() {
+                    @Override
+                    public String replace(String... groups) {
+                        return "<%=" + EL.class.getCanonicalName() + ".escapeAttrValue(" +
+                                elInterpreter.compileEL(groups[1].replace("\\}", "}")) + ")%>";
+                    }
+                } : new StringUtils.Replace() {
+                    @Override
+                    public String replace(String... groups) {
+                        return "<%=" + elInterpreter.compileEL(groups[1].replace("\\}", "}")) + "%>";
+                    }
+                }
+        );
     }
 
     @SuppressWarnings("unused")
     public void setElInterpreter(ELInterpreter elInterpreter) {
         this.elInterpreter = elInterpreter;
+    }
+
+    public static String escapeAttrValue(Object value) {
+        return (value == null) ? "null" : value.toString().replace("\"", "&quot;");
     }
 }
