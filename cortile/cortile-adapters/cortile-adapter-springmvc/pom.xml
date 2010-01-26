@@ -34,7 +34,7 @@
     </parent>
     <artifactId>cortile-adapter-springmvc</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
@@ -61,10 +61,10 @@
 
     <!-- Environment Settings -->
     <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/cortile-adapter-springmvc-0.1.0</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/cortile-adapter-springmvc-0.1.0
+        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-core/</connection>
+        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-core/
         </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/cortile-adapter-springmvc-0.1.0</url>
+        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-core</url>
     </scm>
     <repositories>
         <repository>
