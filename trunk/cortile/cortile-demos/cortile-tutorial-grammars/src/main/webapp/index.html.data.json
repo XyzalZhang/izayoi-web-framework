@@ -23,5 +23,6 @@
  */
 
 {
-    meta: "{ name: \"Name\" }"
+    meta: "{ name: \"Name\" }",
+    nulflag: null
 }
