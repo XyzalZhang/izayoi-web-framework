@@ -29,6 +29,7 @@ import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +41,7 @@ import java.util.Set;
 public class WebappInjectManager implements InjectManager {
 
     protected String encoding;
+    protected String dataObjectName;
     protected CodeManager codeManager;
     protected Map<String, Injector> injectors;
 
@@ -59,8 +61,24 @@ public class WebappInjectManager implements InjectManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void inject(HttpServletRequest req, String dataPath, String asType) throws GlowwormException {
-        injectors.get(asType).inject(req, dataPath, codeManager.get(dataPath).getCode());
+        Object ret = injectors.get(asType).inject(req, dataPath, codeManager.get(dataPath).getCode());
+        if (ret != null && dataObjectName != null && !dataObjectName.equals("")) {
+            if (ret instanceof Map) {
+                Object dataObject = req.getAttribute(dataObjectName);
+                if (dataObject == null || !(dataObject instanceof Map)) {
+                    dataObject = new LinkedHashMap<String, Object>();
+                    req.setAttribute(dataObjectName, dataObject);
+                }
+                ((Map<String, Object>) dataObject).putAll((Map<String, Object>) ret);
+                for (Map.Entry<String, ?> e : ((Map<String, ?>) ret).entrySet()) {
+                    req.setAttribute(e.getKey(), e.getValue());
+                }
+            } else {
+                req.setAttribute(dataObjectName, ret);
+            }
+        }
     }
 
     // dependency
@@ -78,5 +96,10 @@ public class WebappInjectManager implements InjectManager {
     @SuppressWarnings("unused")
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    @SuppressWarnings("unused")
+    public void setDataObjectName(String dataObjectName) {
+        this.dataObjectName = dataObjectName;
     }
 }

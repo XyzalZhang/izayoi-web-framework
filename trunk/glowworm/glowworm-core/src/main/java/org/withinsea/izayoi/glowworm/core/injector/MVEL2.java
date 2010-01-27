@@ -45,7 +45,7 @@ import java.util.Map;
 public class MVEL2 implements Injector {
 
     @Override
-    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
+    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
 
         HttpParameterMap paramMap = new HttpParameterMap(request);
         HttpContextMap contextMap = new HttpContextMap(request);
@@ -75,5 +75,7 @@ public class MVEL2 implements Injector {
                 request.setAttribute(e.getKey(), e.getValue());
             }
         }
+
+        return varstack;
     }
 }
