@@ -35,5 +35,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface Injector {
 
-    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException;
+    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException;
 }

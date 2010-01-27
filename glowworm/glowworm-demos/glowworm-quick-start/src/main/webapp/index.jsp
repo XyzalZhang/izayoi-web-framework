@@ -22,4 +22,9 @@
   ~ the Initial Developer. All Rights Reserved.
   --%>
 
-Hello, <%= request.getAttribute("user") %>!
+<h3><%= request.getAttribute("project") %>
+</h3>
+
+<p>Hello, <%= request.getAttribute("user") %>!</p>
+
+<a href="blog/user1337/develop/index.jsp">blog/user1337/develop/index.jsp</a>

@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-commons</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -68,13 +68,5 @@
 
     <!-- More Project Information -->
     <name>glowworm-core</name>
-
-    <!-- Environment Settings -->
-    <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-core/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-core/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/glowworm/glowworm-core</url>
-    </scm>
 
 </project>

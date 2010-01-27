@@ -40,7 +40,7 @@ import java.io.IOException;
 public class JSP implements Injector {
 
     @Override
-    public void inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
+    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
         try {
             request.getRequestDispatcher(srcPath).forward(request, new MockHttpServletResponse());
         } catch (ServletException e) {
@@ -48,5 +48,6 @@ public class JSP implements Injector {
         } catch (IOException e) {
             throw new GlowwormException(e);
         }
+        return null;
     }
 }
