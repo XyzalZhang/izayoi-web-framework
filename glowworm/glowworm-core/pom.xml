@@ -34,7 +34,7 @@
     </parent>
     <artifactId>glowworm-core</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
@@ -68,4 +68,10 @@
     <!-- More Project Information -->
     <name>glowworm-core</name>
 
+
+  <scm>
+    <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/glowworm-core-0.1.1</connection>
+    <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/glowworm-core-0.1.1</developerConnection>
+    <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/glowworm-core-0.1.1</url>
+  </scm>
 </project>
