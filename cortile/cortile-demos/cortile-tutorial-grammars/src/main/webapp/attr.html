@@ -33,7 +33,7 @@
     <ol>
         <li><h2>Def, Call & Set</h2>
 
-            <div c:set.f="new java.io.File(application.getRealPath('/'))">
+            <div c:set.f="${new java.io.File(application.getRealPath('/'))}">
                 <h3 c:content="[${f.name}]">[BASE]</h3>
                 <ul c:def="dir">
                     <li c:for.f="f.listFiles()">

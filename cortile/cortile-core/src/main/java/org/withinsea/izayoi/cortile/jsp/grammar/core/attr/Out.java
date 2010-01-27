@@ -49,11 +49,18 @@ public class Out implements AttrGrammar {
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         if (attrname.startsWith("attr.")) {
-            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue());
+            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue()
+                    .replace("<%=", "<%=" + Out.class.getCanonicalName() + ".escapeAttrValue(")
+                    .replace("%>", ")%>")
+            );
         } else {
             elem.clearContent();
             elem.addText(attr.getValue());
         }
         attr.detach();
+    }
+
+    public static String escapeAttrValue(Object value) {
+        return (value == null) ? "null" : value.toString().replace("\"", "&quot;");
     }
 }
