@@ -38,6 +38,17 @@ public class StringUtils {
         public String replace(String... groups);
     }
 
+    public static interface Transform {
+        public String transform(String str);
+    }
+
+    protected static final Transform RET_TRANSFORM = new Transform() {
+        @Override
+        public String transform(String str) {
+            return str;
+        }
+    };
+
     public static String replaceAll(String str, String regexp, String replace) {
         return str.replaceAll(regexp, replace);
     }
@@ -51,6 +62,15 @@ public class StringUtils {
     }
 
     public static String replaceAll(String str, String regexp, int flags, Replace replace) {
+        return replaceAll(str, regexp, flags, replace, RET_TRANSFORM);
+    }
+
+    public static String replaceAll(String str, String regexp, Replace replace, Transform transformElse) {
+        return replaceAll(str, regexp, 0, replace, transformElse);
+    }
+
+    public static String replaceAll(String str, String regexp, int flags,
+                                    Replace replaceGroups, Transform transformElse) {
 
         StringBuffer buf = new StringBuffer();
 
@@ -64,11 +84,14 @@ public class StringUtils {
             for (int i = 1; i <= count; i++) {
                 groups[i] = matcher.group(i);
             }
-            String replacement = replace.replace(groups);
-            matcher.appendReplacement(buf, "");
-            buf.append(replacement);
+            StringBuffer tbuf = new StringBuffer();
+            matcher.appendReplacement(tbuf, "");
+            buf.append(transformElse.transform(tbuf.toString()));
+            buf.append(replaceGroups.replace(groups));
         }
-        matcher.appendTail(buf);
+        StringBuffer tbuf = new StringBuffer();
+        matcher.appendTail(tbuf);
+        buf.append(transformElse.transform(tbuf.toString()));
 
         return buf.toString();
     }
