@@ -40,12 +40,4 @@
     <!-- More Project Information -->
     <name>izayoi-site</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-site/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-site/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/izayoi-site</url>
-    </scm>
-
 </project>

@@ -79,7 +79,7 @@ public class Controllr {
 
     @RequestMapping("/sample.json")
     @ResponseBody
-    public String json(){
+    public String json() {
         return "{}";
     }
 

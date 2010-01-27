@@ -44,12 +44,4 @@
     <!-- More Project Information -->
     <name>cortile-adapters</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-adapters/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-adapters/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-adapters</url>
-    </scm>
-
 </project>

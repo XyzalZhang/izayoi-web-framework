@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-commons</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -78,13 +78,5 @@
 
     <!-- More Project Information -->
     <name>cortile-core</name>
-
-    <!-- Environment Settings -->
-    <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-core/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-core/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-core</url>
-    </scm>
 
 </project>
