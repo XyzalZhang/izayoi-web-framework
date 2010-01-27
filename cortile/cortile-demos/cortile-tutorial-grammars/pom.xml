@@ -52,17 +52,4 @@
     <!-- More Project Information -->
     <name>cortile-tutorial-grammars</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>
-            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-tutorial-grammars/
-        </connection>
-        <developerConnection>
-            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-tutorial-grammars/
-        </developerConnection>
-        <url>
-            http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-demos/cortile-tutorial-grammars
-        </url>
-    </scm>
-
 </project>

@@ -47,17 +47,4 @@
     <!-- More Project Information -->
     <name>cortile-quick-start</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>
-            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-quick-start/
-        </connection>
-        <developerConnection>
-            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/cortile/cortile-demos/cortile-quick-start/
-        </developerConnection>
-        <url>
-            http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/cortile/cortile-demos/cortile-quick-start
-        </url>
-    </scm>
-
 </project>

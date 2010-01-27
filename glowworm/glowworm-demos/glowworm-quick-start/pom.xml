@@ -47,17 +47,4 @@
     <!-- More Project Information -->
     <name>glowworm-quick-start</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>
-            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-quick-start/
-        </connection>
-        <developerConnection>
-            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-quick-start/
-        </developerConnection>
-        <url>
-            http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-quick-start
-        </url>
-    </scm>
-
 </project>

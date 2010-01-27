@@ -47,17 +47,4 @@
     <!-- More Project Information -->
     <name>glowworm-tutorial-injectors</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>
-            scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-mapping-injectors/
-        </connection>
-        <developerConnection>
-            scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-mapping-injectors/
-        </developerConnection>
-        <url>
-            http://izayoi-web-framework.googlecode.com/svn/trunk/glowworm/glowworm-demos/glowworm-tutorial-mapping-injectors
-        </url>
-    </scm>
-
 </project>
