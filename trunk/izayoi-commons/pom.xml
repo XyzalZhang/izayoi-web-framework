@@ -22,8 +22,7 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,7 +34,7 @@
     </parent>
     <artifactId>izayoi-commons</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -78,12 +77,10 @@
     <!-- More Project Information -->
     <name>izayoi-commons</name>
 
-    <!-- Environment Settings -->
-    <scm>
-        <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/</connection>
-        <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/trunk/izayoi-commons/
-        </developerConnection>
-        <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/trunk/izayoi-commons</url>
-    </scm>
 
+  <scm>
+    <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/izayoi-commons-0.1.1</connection>
+    <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/izayoi-commons-0.1.1</developerConnection>
+    <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/izayoi-commons-0.1.1</url>
+  </scm>
 </project>
