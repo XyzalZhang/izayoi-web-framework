@@ -64,7 +64,8 @@ public class MVEL2ELInterpreter implements ELInterpreter {
             ELContext elContext = ELContext.getContext(context);
             return MVEL.eval(elContext.getImportsEL() + el, elContext.getVarstack());
         } catch (Exception e) {
-            e.printStackTrace();
+            // temporary silent exception stack trace
+            // TODO: log this exception
             return null;
         }
     }

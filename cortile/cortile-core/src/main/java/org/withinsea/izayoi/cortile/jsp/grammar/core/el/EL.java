@@ -95,7 +95,9 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
         return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             @Override
             public String replace(String... groups) {
-                return "<%=" + elInterpreter.compileEL(groups[1].replace("\\}", "}")) + "%>";
+                return "<%=" + EL.class.getCanonicalName() + ".ifNull(" +
+                        elInterpreter.compileEL(groups[1].replace("\\}", "}")) +
+                        ", \"\")%>";
             }
         });
     }
@@ -103,5 +105,9 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @SuppressWarnings("unused")
     public void setElInterpreter(ELInterpreter elInterpreter) {
         this.elInterpreter = elInterpreter;
+    }
+
+    public static Object ifNull(Object value, Object defaultValue) {
+        return (value == null) ? defaultValue : value;
     }
 }
