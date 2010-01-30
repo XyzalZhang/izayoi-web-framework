@@ -31,8 +31,8 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>glowworm</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <artifactId>izayoi-base</artifactId>
+        <version>0.1.0</version>
     </parent>
     <artifactId>glowworm-demos</artifactId>
     <packaging>pom</packaging>
@@ -44,6 +44,6 @@
     </modules>
 
     <!-- More Project Information -->
-    <name>glowworm-tutorials</name>
+    <name>glowworm-demos</name>
 
 </project>

@@ -22,6 +22,7 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -33,18 +34,14 @@
         <artifactId>izayoi-base</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>glowworm-tutorial-mapping-injectors</artifactId>
-    <packaging>war</packaging>
+    <artifactId>glowworm-adapters</artifactId>
+    <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
-    <dependencies>
-        <dependency>
-            <groupId>org.withinsea.izayoi</groupId>
-            <artifactId>glowworm-core</artifactId>
-            <version>0.1.3-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>glowworm-adapter-springmvc</module>
+    </modules>
 
     <!-- More Project Information -->
-    <name>glowworm-tutorial-injectors</name>
+    <name>glowworm-adapters</name>
 
 </project>
