@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.json;
+package org.withinsea.izayoi.commons.js;
 
 import org.withinsea.izayoi.commons.util.IOUtils;
 
@@ -36,22 +36,28 @@ import javax.script.ScriptException;
  * Date: 2009-12-28
  * Time: 8:11:47
  */
-public class JSONUtils {
+public class JSUtils {
 
-    protected static final Invocable DESERIALIZER; static {
+    protected static final Invocable JS2JAVA; static {
         try {
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
-            String script = IOUtils.toString(JSONUtils.class.getResourceAsStream("json-deserializer.js"), "UTF-8");
+            String script = IOUtils.toString(JSUtils.class.getResourceAsStream("js2java.js"), "UTF-8");
             engine.eval(script);
-            DESERIALIZER = (Invocable) engine;
+            JS2JAVA = (Invocable) engine;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T deserialize(String json) throws ScriptException, NoSuchMethodException {
-        return (T) DESERIALIZER.invokeFunction("deserialize", json);
+    public static <T> T js2java(Object jsObj) throws ScriptException, NoSuchMethodException {
+        return (T) JS2JAVA.invokeFunction("js2java", jsObj);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T json2java(String json) throws ScriptException, NoSuchMethodException {
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
+        return (T) js2java(engine.eval("(" + json + ")"));
     }
 
     /* from: org.json, org.json.JSONObject.quote(String string) */

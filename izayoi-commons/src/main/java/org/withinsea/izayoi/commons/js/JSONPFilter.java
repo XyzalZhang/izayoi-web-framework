@@ -21,7 +21,8 @@
  * Portions created by the Initial Developer are Copyright (C) 2009-2010
  * the Initial Developer. All Rights Reserved.
  */
-package org.withinsea.izayoi.commons.json;
+
+package org.withinsea.izayoi.commons.js;
 
 import org.withinsea.izayoi.commons.servlet.ContentWrappingHttpServletResponseWrapper;
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
@@ -81,7 +82,7 @@ public class JSONPFilter implements Filter {
                 @Override
                 public byte[] wrap(byte[] content) throws UnsupportedEncodingException {
                     String contentstr = new String(content, getCharacterEncoding());
-                    String json = isJson(super.getResponse()) ? contentstr : JSONUtils.quote(contentstr);
+                    String json = isJson(super.getResponse()) ? contentstr : JSUtils.quote(contentstr);
                     String callback = req.getParameterValues(jsonp)[0];
                     return (callback + "(" + json + ");").getBytes(getCharacterEncoding());
                 }
