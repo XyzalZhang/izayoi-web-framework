@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.glowworm.core.injector;
 
 import org.withinsea.izayoi.commons.servlet.MockHttpServletResponse;
+import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.ServletException;
@@ -40,7 +41,8 @@ import java.io.IOException;
 public class JSP implements Injector {
 
     @Override
-    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
+    public Object inject(Dependency dependency, HttpServletRequest request,
+                         String srcPath, String src) throws GlowwormException {
         try {
             request.getRequestDispatcher(srcPath).forward(request, new MockHttpServletResponse());
         } catch (ServletException e) {

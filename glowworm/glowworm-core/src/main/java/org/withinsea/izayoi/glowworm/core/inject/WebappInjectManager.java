@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.glowworm.core.inject;
 
 import org.withinsea.izayoi.commons.conf.CodeManager;
+import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
@@ -62,22 +63,50 @@ public class WebappInjectManager implements InjectManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void inject(HttpServletRequest req, String dataPath, String asType) throws GlowwormException {
-        Object ret = injectors.get(asType).inject(req, dataPath, codeManager.get(dataPath).getCode());
+    public void inject(Dependency dependency,
+                       HttpServletRequest request, Scope scope,
+                       String dataPath, String asType) throws GlowwormException {
+        Object ret = injectors.get(asType).inject(dependency, request, dataPath, codeManager.get(dataPath).getCode());
         if (ret != null && dataObjectName != null && !dataObjectName.equals("")) {
             if (ret instanceof Map) {
-                Object dataObject = req.getAttribute(dataObjectName);
+                Object dataObject = getAttribute(request, scope, dataObjectName);
                 if (dataObject == null || !(dataObject instanceof Map)) {
                     dataObject = new LinkedHashMap<String, Object>();
-                    req.setAttribute(dataObjectName, dataObject);
+                    setAttribute(request, scope, dataObjectName, dataObject);
                 }
                 ((Map<String, Object>) dataObject).putAll((Map<String, Object>) ret);
                 for (Map.Entry<String, ?> e : ((Map<String, ?>) ret).entrySet()) {
-                    req.setAttribute(e.getKey(), e.getValue());
+                    setAttribute(request, scope, e.getKey(), e.getValue());
                 }
             } else {
-                req.setAttribute(dataObjectName, ret);
+                setAttribute(request, scope, dataObjectName, ret);
             }
+        }
+    }
+
+    protected static Object getAttribute(HttpServletRequest request, Scope scope, String name) {
+        switch (scope) {
+            case APPLICATION:
+                return request.getSession().getServletContext().getAttribute(name);
+            case SESSION:
+                return request.getSession().getAttribute(name);
+            case REQUEST:
+                return request.getAttribute(name);
+        }
+        return null;
+    }
+
+    protected static void setAttribute(HttpServletRequest request, Scope scope, String name, Object value) {
+        switch (scope) {
+            case APPLICATION:
+                request.getSession().getServletContext().setAttribute(name, value);
+                break;
+            case SESSION:
+                request.getSession().setAttribute(name, value);
+                break;
+            case REQUEST:
+                request.setAttribute(name, value);
+                break;
         }
     }
 

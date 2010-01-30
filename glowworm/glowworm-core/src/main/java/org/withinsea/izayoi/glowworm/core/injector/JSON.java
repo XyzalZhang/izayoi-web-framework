@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.withinsea.izayoi.commons.json.JSONUtils;
+import org.withinsea.izayoi.commons.js.JSUtils;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 /**
@@ -38,7 +38,7 @@ public class JSON extends DeserializeInjector {
     @Override
     protected Object deserialize(String src) throws GlowwormException {
         try {
-            return JSONUtils.deserialize(src);
+            return JSUtils.json2java(src);
         } catch (Exception e) {
             throw new GlowwormException(e);
         }

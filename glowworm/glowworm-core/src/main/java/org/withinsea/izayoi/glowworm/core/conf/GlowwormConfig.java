@@ -84,6 +84,7 @@ public class GlowwormConfig extends IzayoiConfig {
         }
         container.addComponent("injectors", injectors);
 
-        container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager")));
+        container.addComponent("dependencyManager", Class.forName(conf.getProperty("class.dependencyManager").trim()));
+        container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager").trim()));
     }
 }

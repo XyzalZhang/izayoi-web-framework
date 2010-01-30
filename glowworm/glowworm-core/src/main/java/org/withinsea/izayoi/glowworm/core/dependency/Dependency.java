@@ -22,30 +22,14 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
-
-import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-
-import javax.servlet.http.HttpServletRequest;
+package org.withinsea.izayoi.glowworm.core.dependency;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-27
- * Time: 10:25:15
+ * Date: 2010-1-29
+ * Time: 15:48:38
  */
-public abstract class DeserializeInjector implements Injector {
+public interface Dependency {
 
-    protected abstract Object deserialize(String src) throws GlowwormException;
-
-//    @Override
-//    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
-//        return deserialize(src);
-//    }
-
-    @Override
-    public Object inject(Dependency dependency, HttpServletRequest request,
-                         String srcPath, String src) throws GlowwormException {
-        return deserialize(src);
-    }
+    public Object getBean(String name);
 }

@@ -24,41 +24,51 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.mvel2.MVEL;
+import org.withinsea.izayoi.commons.js.JSUtils;
 import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 18:00:15
+ * Date: 2010-1-29
+ * Time: 16:53:13
  */
-@SuppressWarnings("unused")
-public class MVEL2 implements Injector {
+public class JS implements Injector {
 
-    protected static Pattern IS_FUNC = Pattern.compile("^def(\\s+\\w+)?\\s*\\([\\s\\S]*");
+    protected static Pattern IS_FUNC = Pattern.compile("^function(\\s+\\w+)?\\s*\\([\\s\\S]*");
 
     @Override
     public Object inject(Dependency dependency, HttpServletRequest request,
                          String srcPath, String src) throws GlowwormException {
 
         src = src.trim().replaceAll("^\\(", "").replaceAll("\\}\\s*\\)$", "}").trim();
-        Map<String, Object> args = new HashMap<String, Object>();
+        Object[] args;
 
-        if (IS_FUNC.matcher(src).matches()) {
+        if (!IS_FUNC.matcher(src).matches()) {
+            src = "function () {" + src + "}";
+            args = new Object[]{};
+        } else {
             String argsList = src.substring(src.indexOf("(") + 1, src.indexOf(")")).trim();
             String[] argNames = "".equals(argsList) ? new String[]{} : argsList.split("[,\\s]+");
-            for (String argName : argNames) {
-                args.put(argName, dependency.getBean(argName));
+            args = new Object[argNames.length];
+            for (int i = 0; i < argNames.length; i++) {
+                args[i] = dependency.getBean(argNames[i]);
             }
-            src = src.substring(src.indexOf("{") + 1, src.lastIndexOf("}"));
         }
 
-        return MVEL.eval(src, args);
+        try {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
+            Object thiz = engine.eval("({ func: " + src + " })");
+            Invocable invoke = (Invocable) engine;
+            return JSUtils.js2java(invoke.invokeMethod(thiz, "func", args));
+        } catch (Exception e) {
+            throw new GlowwormException(e);
+        }
     }
 }
