@@ -22,9 +22,7 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,18 +32,45 @@
         <artifactId>izayoi-base</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>izayoi</artifactId>
-    <packaging>pom</packaging>
-    <version>0.1.0-SNAPSHOT</version>
-    <modules>
-        <module>izayoi-base</module>
-        <module>izayoi-commons</module>
-        <module>izayoi-site</module>
-        <module>cortile</module>
-        <module>glowworm</module>
-    </modules>
+    <artifactId>glowworm-core</artifactId>
+    <packaging>jar</packaging>
+    <version>0.1.2</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>izayoi-commons</artifactId>
+            <version>0.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.1_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.picocontainer</groupId>
+            <artifactId>picocontainer</artifactId>
+            <version>2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <version>2.0.15</version>
+        </dependency>
+    </dependencies>
 
     <!-- More Project Information -->
-    <name>izayoi</name>
+    <name>glowworm-core</name>
 
+  <scm>
+    <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/glowworm-core-0.1.2</connection>
+    <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/glowworm-core-0.1.2</developerConnection>
+    <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/glowworm-core-0.1.2</url>
+  </scm>
 </project>
