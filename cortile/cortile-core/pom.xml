@@ -34,7 +34,7 @@
     </parent>
     <artifactId>cortile-core</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.3</version>
+    <version>0.1.4-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
@@ -77,10 +77,4 @@
 
     <!-- More Project Information -->
     <name>cortile-core</name>
-
-  <scm>
-    <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/cortile-core-0.1.3</connection>
-    <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/cortile-core-0.1.3</developerConnection>
-    <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/cortile-core-0.1.3</url>
-  </scm>
 </project>
