@@ -33,14 +33,15 @@
         <artifactId>izayoi-base</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>glowworm-core</artifactId>
+    <artifactId>glowworm-adapter-springmvc</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
-            <artifactId>izayoi-commons</artifactId>
+            <artifactId>glowworm-core</artifactId>
             <version>0.1.2-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -49,23 +50,24 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-            <version>1.0.1</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>3.0.0.RELEASE</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.picocontainer</groupId>
-            <artifactId>picocontainer</artifactId>
-            <version>2.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mvel</groupId>
-            <artifactId>mvel2</artifactId>
-            <version>2.0.15</version>
         </dependency>
     </dependencies>
 
     <!-- More Project Information -->
-    <name>glowworm-core</name>
+    <name>glowworm-adapter-springmvc</name>
+
+    <!-- Environment Settings -->
+    <repositories>
+        <repository>
+            <id>springframework-release</id>
+            <name>springframework-release</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+            <releases/>
+        </repository>
+    </repositories>
+
 </project>

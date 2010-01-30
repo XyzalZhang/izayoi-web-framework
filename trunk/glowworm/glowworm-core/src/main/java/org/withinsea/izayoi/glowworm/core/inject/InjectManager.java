@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.inject;
 
+import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,11 +37,19 @@ import java.util.Set;
  */
 public interface InjectManager {
 
+    public static enum Scope {
+        APPLICATION,
+        SESSION,
+        REQUEST
+    }
+
     String getEncoding();
 
     Set<String> getSupportedTypes();
 
     boolean exist(String dataPath);
 
-    void inject(HttpServletRequest req, String dataPath, String asType) throws GlowwormException;
+    void inject(Dependency dependency,
+                HttpServletRequest request, Scope scope,
+                String dataPath, String asType) throws GlowwormException;
 }
