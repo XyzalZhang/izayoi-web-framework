@@ -1,0 +1,5 @@
+def (userService) {
+    return {
+        'users': userService.find()
+    };
+}
