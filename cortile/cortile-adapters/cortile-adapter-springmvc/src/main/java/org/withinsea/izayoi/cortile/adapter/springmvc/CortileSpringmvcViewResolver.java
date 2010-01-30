@@ -55,7 +55,8 @@ public class CortileSpringmvcViewResolver extends UrlBasedViewResolver {
 
     @Override
     protected AbstractUrlBasedView buildView(String viewName) throws Exception {
-        CortileSpringmvcView view = new CortileSpringmvcView(mirage, scenery, getPrefix() + viewName + getSuffix());
+        String path = "/" + getPrefix() + viewName + getSuffix();
+        CortileSpringmvcView view = new CortileSpringmvcView(mirage, scenery, path.replaceAll("^/+", "/"));
         String contentType = getContentType();
         if (contentType != null) {
             view.setContentType(contentType);
