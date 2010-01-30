@@ -31,8 +31,8 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>cortile</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <artifactId>izayoi-base</artifactId>
+        <version>0.1.0</version>
     </parent>
     <artifactId>cortile-adapters</artifactId>
     <packaging>pom</packaging>

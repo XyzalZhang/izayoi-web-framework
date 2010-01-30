@@ -30,16 +30,22 @@
     <title>Cortile Grammars Tutorial</title>
 </head>
 <body>
+
     <h3>attr quote:</h3>
 
     <div id="metaTest" meta="{ name: 'unknown' }" c:attr.meta="${meta}">
         ${meta}
     </div>
+
     <h3>null boolean</h3>
 
     <div c:if="${!isdef null}">
         Nulflag ok
     </div>
+
+    <h3>null object</h3>
+    [${undefinedObject}]
+
     <h3>tutorials:</h3>
     <ol>
         <li><a href="comment.html">Comment Grammars</a></li>
