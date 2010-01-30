@@ -34,7 +34,7 @@
     </parent>
     <artifactId>glowworm-adapter-springmvc</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
@@ -68,11 +68,4 @@
             <releases />
         </repository>
     </repositories>
-
-
-  <scm>
-    <connection>scm:svn:http://izayoi-web-framework.googlecode.com/svn/tags/glowworm-adapter-springmvc-0.1.0</connection>
-    <developerConnection>scm:svn:https://izayoi-web-framework.googlecode.com/svn/tags/glowworm-adapter-springmvc-0.1.0</developerConnection>
-    <url>http://code.google.com/p/izayoi-web-framework/source/browse#svn/tags/glowworm-adapter-springmvc-0.1.0</url>
-  </scm>
 </project>
