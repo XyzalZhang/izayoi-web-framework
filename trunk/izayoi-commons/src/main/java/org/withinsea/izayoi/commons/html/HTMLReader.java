@@ -28,9 +28,15 @@ import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLDocumentScannerImpl;
 import org.apache.xerces.impl.XMLEntityManager;
 import org.apache.xerces.parsers.XML11Configuration;
+import org.apache.xerces.xni.Augmentations;
+import org.apache.xerces.xni.QName;
+import org.apache.xerces.xni.XMLAttributes;
+import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.parser.XMLComponent;
 import org.dom4j.*;
+import org.dom4j.io.SAXContentHandler;
 import org.dom4j.io.SAXReader;
+import org.withinsea.izayoi.commons.exception.IzayoiRuntimeException;
 import org.withinsea.izayoi.commons.util.IOUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -39,6 +45,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +65,7 @@ public class HTMLReader extends SAXReader {
 
     @Override
     protected XMLReader createXMLReader() throws SAXException {
+
         return new org.apache.xerces.parsers.SAXParser(new XML11Configuration() {
 
             @Override
@@ -93,7 +101,44 @@ public class HTMLReader extends SAXReader {
                 }
                 super.addCommonComponent(component);
             }
-        });
+
+        }) {
+
+            @Override
+            public void emptyElement(org.apache.xerces.xni.QName element, XMLAttributes attributes, Augmentations augs)
+                    throws XNIException {
+                startElement(element, attributes, augs);
+                endElement(new QName(element.prefix, element.localpart, element.rawname,
+                        "{EMPTY}" + (element.uri != null ? element.uri : "")), augs);
+            }
+        };
+    }
+
+    @Override
+    protected SAXContentHandler createContentHandler(XMLReader reader) {
+        return new SAXContentHandler(getDocumentFactory(), getDispatchHandler()) {
+            @Override
+            public void endElement(String namespaceURI, String localName, String qName)
+                    throws SAXException {
+                if (namespaceURI.startsWith("{EMPTY}")) {
+                    namespaceURI = namespaceURI.substring("{EMPTY}".length());
+                } else {
+                    try {
+                        Field fTextInTextBuffer = SAXContentHandler.class.getDeclaredField("textInTextBuffer");
+                        fTextInTextBuffer.setAccessible(true);
+                        if (!(Boolean) fTextInTextBuffer.get(this)) {
+                            Field fTextBuffer = SAXContentHandler.class.getDeclaredField("textBuffer");
+                            fTextBuffer.setAccessible(true);
+                            fTextBuffer.set(this, new StringBuffer());
+                            completeCurrentTextNode();
+                        }
+                    } catch (Exception e) {
+                        throw new IzayoiRuntimeException(e);
+                    }
+                }
+                super.endElement(namespaceURI, localName, qName);
+            }
+        };
     }
 
     @Override
