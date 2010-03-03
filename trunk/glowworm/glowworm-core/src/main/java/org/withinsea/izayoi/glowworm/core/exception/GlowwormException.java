@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.exception;
 
-import org.withinsea.izayoi.commons.exception.IzayoiException;
+import org.withinsea.izayoi.core.exception.IzayoiException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

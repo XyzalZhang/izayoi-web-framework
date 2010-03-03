@@ -22,9 +22,14 @@
   ~ the Initial Developer. All Rights Reserved.
   --%>
 
-<h3><%= request.getAttribute("project") %>
-</h3>
+<h1>${project}</h1>
 
 <p>Hello, <%= request.getAttribute("user") %>!</p>
 
-<a href="blog/user1337/develop/index.jsp">blog/user1337/develop/index.jsp</a>
+<ul>
+    <li><a href="dependency.jsp">dependency.jsp</a></li>
+    <li><a href="blog/user1337/develop/index.jsp">blog/user1337/develop/index.jsp</a></li>
+    <li><a href="script.jsp.data.groovy">script.jsp (groovy)</a></li>
+    <li><a href="script.jsp.data.mvel2">script.jsp (mvel2)</a></li>
+    <li><a href="script.jsp.data.rb">script.jsp (ruby)</a></li>
+</ul>

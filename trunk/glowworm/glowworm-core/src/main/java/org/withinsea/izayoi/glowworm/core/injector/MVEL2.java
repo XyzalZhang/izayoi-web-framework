@@ -25,40 +25,19 @@
 package org.withinsea.izayoi.glowworm.core.injector;
 
 import org.mvel2.MVEL;
-import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-25
  * Time: 18:00:15
  */
-@SuppressWarnings("unused")
-public class MVEL2 implements Injector {
-
-    protected static Pattern IS_FUNC = Pattern.compile("^def(\\s+\\w+)?\\s*\\([\\s\\S]*");
+public class MVEL2 extends ScriptInjector {
 
     @Override
-    public Object inject(Dependency dependency, HttpServletRequest request,
-                         String srcPath, String src) throws GlowwormException {
-
-        src = src.trim().replaceAll("^\\(", "").replaceAll("\\}\\s*\\)$", "}").trim();
-        Map<String, Object> args = new HashMap<String, Object>();
-
-        if (IS_FUNC.matcher(src).matches()) {
-            String argsList = src.substring(src.indexOf("(") + 1, src.indexOf(")")).trim();
-            String[] argNames = "".equals(argsList) ? new String[]{} : argsList.split("[,\\s]+");
-            for (String argName : argNames) {
-                args.put(argName, dependency.getBean(argName));
-            }
-            src = src.substring(src.indexOf("{") + 1, src.lastIndexOf("}"));
-        }
-
-        return MVEL.eval(src, args);
+    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
+        return MVEL.eval(src, new DependencyBindings(dependencyManager, request));
     }
 }

@@ -33,5 +33,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface DependencyManager {
 
-    public Dependency getDependeny(HttpServletRequest request);
+    public Object getBean(HttpServletRequest request, String name);
 }

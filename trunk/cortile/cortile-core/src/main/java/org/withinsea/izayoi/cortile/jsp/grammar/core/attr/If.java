@@ -72,7 +72,7 @@ public class If implements AttrGrammar {
                 throw new CortileException(e);
             }
         } else {
-            String ifname = attrname.substring("if".length());
+            String ifname = attrname.substring("if.".length());
             String ifAttrname = ifname.startsWith("attr.") ? ifname.substring("attr.".length()) : ifname;
             for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {
                 if (ifAttr.getName().equals(ifAttrname)) {

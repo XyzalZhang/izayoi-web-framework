@@ -37,6 +37,7 @@
         <filter-name>glowworm-light</filter-name>
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
     <welcome-file-list>

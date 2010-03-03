@@ -1,0 +1,11 @@
+import java.util.*;
+
+return {
+        "info" : {
+            "list": new ArrayList().getClass().getCanonicalName(),
+            "request": request.toString(),
+            "demoBean": demoBean.toString(),
+            "demoEjb": demoEjb.toString(),
+            "demoEjbCDINamed": demoEjbCDINamed.toString()
+        }
+};

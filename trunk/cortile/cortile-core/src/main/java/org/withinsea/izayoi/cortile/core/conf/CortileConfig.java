@@ -25,8 +25,8 @@
 package org.withinsea.izayoi.cortile.core.conf;
 
 import org.picocontainer.MutablePicoContainer;
-import org.withinsea.izayoi.commons.conf.IzayoiConfig;
 import org.withinsea.izayoi.commons.util.ClassUtils;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.Grammar;
 
@@ -67,7 +67,8 @@ public class CortileConfig extends IzayoiConfig {
                     {
                         for (String className : trimClassNames(conf.getProperty(propname))) {
                             Class<?> claz = Class.forName(className);
-                            if (ClassUtils.isExtendsFrom(claz, Grammar.class)) {
+//                            if (ClassUtils.isExtendsFrom(claz, Grammar.class)) {
+                            if (Grammar.class.isAssignableFrom(claz)) {
                                 grammarGroup.add((Grammar) container.getComponent(claz));
                             }
                         }
@@ -84,7 +85,8 @@ public class CortileConfig extends IzayoiConfig {
                 if (propname.startsWith("class.compiler")) {
                     String type = propname.substring("class.compiler".length()).replaceAll("^\\.", "");
                     Class<?> claz = Class.forName(conf.getProperty(propname));
-                    if (ClassUtils.isExtendsFrom(claz, Compilr.class)) {
+//                    if (ClassUtils.isExtendsFrom(claz, Compilr.class)) {
+                    if (Compilr.class.isAssignableFrom(claz)) {
                         compilers.put(type, (Compilr) container.getComponent(claz));
                     }
                 }

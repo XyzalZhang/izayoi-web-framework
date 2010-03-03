@@ -24,7 +24,6 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.withinsea.izayoi.glowworm.core.dependency.Dependency;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +35,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface Injector {
 
-//    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException;
-
-    public Object inject(Dependency dependency, HttpServletRequest request,
-                         String srcPath, String src) throws GlowwormException;
+    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException;
 }

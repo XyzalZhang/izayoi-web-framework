@@ -25,8 +25,7 @@
 package org.withinsea.izayoi.glowworm.core.conf;
 
 import org.picocontainer.MutablePicoContainer;
-import org.withinsea.izayoi.commons.conf.IzayoiConfig;
-import org.withinsea.izayoi.commons.util.ClassUtils;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
 import javax.servlet.ServletContext;
@@ -56,6 +55,8 @@ public class GlowwormConfig extends IzayoiConfig {
 
         super.initComponents(container, servletContext, conf);
 
+        container.addComponent("dependencyManager", Class.forName(conf.getProperty("class.dependencyManager").trim()));
+
         Map<String, Injector> injectors = new LinkedHashMap<String, Injector>();
         {
             Map<String, Injector> unsortedInjectors = new HashMap<String, Injector>();
@@ -65,10 +66,10 @@ public class GlowwormConfig extends IzayoiConfig {
                     try {
                         @SuppressWarnings("unchecked")
                         Class<?> claz = Class.forName(conf.getProperty(name));
-                        if (ClassUtils.isExtendsFrom(claz, Injector.class)) {
+//                        if (ClassUtils.isExtendsFrom(claz, Injector.class)) {
+                        if (Injector.class.isAssignableFrom(claz)) {
                             unsortedInjectors.put(type, (Injector) container.getComponent(claz));
                         }
-
                     } catch (Exception e) {
                         throw new ServletException(e);
                     }
@@ -83,8 +84,6 @@ public class GlowwormConfig extends IzayoiConfig {
             injectors.putAll(unsortedInjectors);
         }
         container.addComponent("injectors", injectors);
-
-        container.addComponent("dependencyManager", Class.forName(conf.getProperty("class.dependencyManager").trim()));
         container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager").trim()));
     }
 }

@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.exception;
 
-import org.withinsea.izayoi.commons.exception.IzayoiRuntimeException;
+import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

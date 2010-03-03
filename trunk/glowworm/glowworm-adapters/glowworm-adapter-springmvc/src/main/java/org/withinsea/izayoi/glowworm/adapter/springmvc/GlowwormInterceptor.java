@@ -24,13 +24,13 @@
 
 package org.withinsea.izayoi.glowworm.adapter.springmvc;
 
+import org.picocontainer.MutablePicoContainer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 import org.withinsea.izayoi.glowworm.core.GlowwormLight;
-import org.withinsea.izayoi.glowworm.core.dependency.ContextDependencyManager;
+import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfig;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormRuntimeException;
 
@@ -38,7 +38,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -47,27 +49,55 @@ import java.util.Map;
  */
 public class GlowwormInterceptor extends HandlerInterceptorAdapter implements ApplicationContextAware {
 
+    // impl
+
+    protected ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    // glowworm
+
     protected final String configPath;
 
-    protected final Map<ServletContext, GlowwormLight> lights = new LazyLinkedHashMap<ServletContext, GlowwormLight>() {
-        @Override
+    protected final Map<ServletContext, GlowwormLight> lights = new LinkedHashMap<ServletContext, GlowwormLight>() {
+
+        public GlowwormLight get(ServletContext key) {
+            if (!containsKey(key)) {
+                synchronized (this) {
+                    put(key, createValue(key));
+                }
+            }
+            return super.get(key);
+        }
+
         protected GlowwormLight createValue(ServletContext servletContext) {
+
             GlowwormLight light = new GlowwormLight() {
                 @Override
-                public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws GlowwormException {
-                    dispatcher.doDispatch(new ApplicationContextServletDependency(req), req, resp, requestPath, chain);
+                public void init(ServletContext servletContext, String configPath) throws GlowwormException {
+                    dispatcher = new GlowwormConfig(servletContext, configPath) {
+                        @Override
+                        protected void initComponents(MutablePicoContainer container, ServletContext servletContext, Properties conf) throws Exception {
+                            conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.glowworm.adapter.springmvc.SpringWebContextDependencyManager");
+                            super.initComponents(container, servletContext, conf);
+                            container.addComponent("applicationContext", applicationContext);
+                        }
+                    }.getComponent(Dispatcher.class);
                 }
             };
+
             try {
                 light.init(servletContext, configPath);
             } catch (GlowwormException e) {
                 throw new GlowwormRuntimeException(e);
             }
+
             return light;
         }
     };
-
-    protected ApplicationContext applicationContext;
 
     public GlowwormInterceptor() {
         this(null);
@@ -77,30 +107,7 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
         this.configPath = configPath;
     }
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        FlagChain chain = new FlagChain();
-        lights.get(request.getSession().getServletContext()).doDispatch(request, response, chain);
-        return chain.isFlag();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    protected class ApplicationContextServletDependency extends ContextDependencyManager.DependencyImpl {
-
-        public ApplicationContextServletDependency(HttpServletRequest request) {
-            super(request);
-        }
-
-        @Override
-        public Object getBean(String name) {
-            Object obj = super.getBean(name);
-            return (obj != null) ? obj : applicationContext.getBean(name);
-        }
-    }
+    // interceptor
 
     protected static class FlagChain implements FilterChain {
 
@@ -114,5 +121,12 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
         public boolean isFlag() {
             return flag;
         }
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        FlagChain chain = new FlagChain();
+        lights.get(request.getSession().getServletContext()).doDispatch(request, response, chain);
+        return chain.isFlag();
     }
 }
