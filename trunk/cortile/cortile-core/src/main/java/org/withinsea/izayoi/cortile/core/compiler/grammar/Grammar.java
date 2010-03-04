@@ -22,18 +22,26 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.cortile.core.compiler.grammar;
 
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 15:29:06
+ * Date: 2009-12-16
+ * Time: 4:15:18
  */
-public interface StringGrammar extends Grammar {
+public interface Grammar {
 
-    public boolean acceptString(String str);
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(value = {ElementType.METHOD})
+    public @interface Priority {
 
-    public abstract String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException;
+        public static final int DEFAULT_PRIORITY = 0;
+
+        int value();
+    }
 }

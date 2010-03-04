@@ -72,7 +72,11 @@ public interface Compilr {
         }
     }
 
-    public String mapEntrancePath(String templatePath);
+    String mapEntrancePath(String templatePath);
 
-    public Result compile(String templatePath, String templateCode) throws CortileException;
+    Result compile(String templatePath, String templateCode) throws CortileException;
+
+    String compileELInit(String classes);
+
+    String compileEL(String el);
 }

@@ -24,8 +24,6 @@
 
 package org.withinsea.izayoi.core.dependency;
 
-import org.withinsea.izayoi.commons.util.Varstack;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -35,5 +33,5 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface DependencyManager {
 
-    public Varstack getDependency(HttpServletRequest request);
+    Object getBean(HttpServletRequest request, String name);
 }

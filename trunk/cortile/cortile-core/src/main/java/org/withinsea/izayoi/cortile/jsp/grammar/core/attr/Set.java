@@ -29,7 +29,6 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -40,8 +39,6 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Time: 23:09:11
  */
 public class Set implements AttrGrammar {
-
-    protected ELInterpreter elInterpreter;
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -58,10 +55,10 @@ public class Set implements AttrGrammar {
 
         String preScriptlet = "varstack.push();";
         if (!(value.startsWith("${") && value.endsWith("}")) || value.substring(2, value.length() - 1).indexOf("${") > 0) {
-            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compileEmbeddedELs(value) + ");";
+            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compileEmbeddedELs(compiler, value) + ");";
         } else {
             String el = value.substring(2, value.length() - 1).trim();
-            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + elInterpreter.compileEL(el) + ");";
+            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compiler.compileEL(el) + ");";
         }
         preScriptlet = preScriptlet + "varstack.push();";
 
@@ -76,16 +73,12 @@ public class Set implements AttrGrammar {
         attr.detach();
     }
 
-    protected String compileEmbeddedELs(String text) {
+    protected String compileEmbeddedELs(final Compilr compiler, String text) {
         return "\"" + StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             public String replace(String... groups) {
-                return "\"+" + elInterpreter.compileEL(groups[1].replace("\\}", "}")) + "+ \"";
+                return "\"+" + compiler.compileEL(groups[1].replace("\\}", "}")) + "+ \"";
             }
         }) + "\"";
     }
 
-    @SuppressWarnings("unused")
-    public void setElInterpreter(ELInterpreter elInterpreter) {
-        this.elInterpreter = elInterpreter;
-    }
 }

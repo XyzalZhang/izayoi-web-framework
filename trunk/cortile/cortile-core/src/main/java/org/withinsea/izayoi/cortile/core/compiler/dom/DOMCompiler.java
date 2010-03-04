@@ -26,22 +26,20 @@ package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.dom4j.*;
 import org.withinsea.izayoi.commons.html.DOMUtils;
-import org.withinsea.izayoi.cortile.core.compiler.CompilerUtils;
-import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.Grammar;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarUtils;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 4:06:20
  */
-public abstract class DOMCompiler implements Compilr {
+public abstract class DOMCompiler extends GrammarCompiler {
 
     protected abstract Document parseTemplate(String templatePath, String templateCode) throws CortileException;
 
@@ -53,14 +51,12 @@ public abstract class DOMCompiler implements Compilr {
         return mapTargetPath(path, null);
     }
 
-    protected Map<String, Set<Grammar>> grammars;
-
     @Override
     public Result compile(String templatePath, String templateCode) throws CortileException {
 
         Result result = new Result(templatePath);
 
-        for (PretreatGrammar pg : CompilerUtils.sort(grammars, PretreatGrammar.class, "pretreatCode")) {
+        for (PretreatGrammar pg : GrammarUtils.sort(grammars, PretreatGrammar.class, "pretreatCode")) {
             if (pg.acceptPretreat(templateCode)) {
                 templateCode = pg.pretreatCode(this, result, templateCode);
             }
@@ -71,7 +67,7 @@ public abstract class DOMCompiler implements Compilr {
         DOMUtils.mergeTexts(doc);
 
         for (Map.Entry<Integer, List<TextGrammar>> groups :
-                CompilerUtils.sortAsGroups(grammars, TextGrammar.class, "processText").entrySet()) {
+                GrammarUtils.sortAsGroups(grammars, TextGrammar.class, "processText").entrySet()) {
             for (Text text : DOMUtils.selectTypedNodes(Text.class, doc, false)) {
                 for (TextGrammar tg : groups.getValue()) {
                     if (tg.acceptText(text)) {
@@ -85,7 +81,7 @@ public abstract class DOMCompiler implements Compilr {
         }
 
         for (Map.Entry<Integer, List<CommentGrammar>> groups :
-                CompilerUtils.sortAsGroups(grammars, CommentGrammar.class, "processComment").entrySet()) {
+                GrammarUtils.sortAsGroups(grammars, CommentGrammar.class, "processComment").entrySet()) {
             for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, doc, false)) {
                 if (comment.getParent() != null || comment.getDocument() != null) {
                     for (CommentGrammar cg : groups.getValue()) {
@@ -102,7 +98,7 @@ public abstract class DOMCompiler implements Compilr {
 
         compileTo(result, mapTargetPath(result.getTemplatePath()), doc);
 
-        List<RoundoffGrammar> sortedRgs = CompilerUtils.sort(grammars, RoundoffGrammar.class, "roundoffGrammar");
+        List<RoundoffGrammar> sortedRgs = GrammarUtils.sort(grammars, RoundoffGrammar.class, "roundoffGrammar");
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             for (RoundoffGrammar rg : sortedRgs) {
                 if (rg.acceptRoundoff(e.getValue())) {
@@ -117,15 +113,15 @@ public abstract class DOMCompiler implements Compilr {
     @SuppressWarnings("unchecked")
     public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
 
-        for (Map.Entry<Integer, List<CompilerUtils.NamespacedWrapper<AttrGrammar>>> group :
-                CompilerUtils.sortAsNamespacedGroups(grammars, AttrGrammar.class, "processAttr").entrySet()) {
+        for (Map.Entry<Integer, List<GrammarUtils.NamespacedWrapper<AttrGrammar>>> group :
+                GrammarUtils.sortAsNamespacedGroups(grammars, AttrGrammar.class, "processAttr").entrySet()) {
             for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     eachAttr:
                     for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
                         if (attr.getParent() != null) {
                             String attrNs = attr.getNamespacePrefix();
-                            for (CompilerUtils.NamespacedWrapper<AttrGrammar> w : group.getValue()) {
+                            for (GrammarUtils.NamespacedWrapper<AttrGrammar> w : group.getValue()) {
                                 String agNs = w.getNamespace();
                                 AttrGrammar ag = w.getGrammar();
                                 if (agNs.equals("") || agNs.equals(attrNs)) {
@@ -147,7 +143,7 @@ public abstract class DOMCompiler implements Compilr {
         }
 
         for (Map.Entry<Integer, List<ElementGrammar>> groups :
-                CompilerUtils.sortAsGroups(grammars, ElementGrammar.class, "processElement").entrySet()) {
+                GrammarUtils.sortAsGroups(grammars, ElementGrammar.class, "processElement").entrySet()) {
             for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     for (ElementGrammar eg : groups.getValue()) {
@@ -162,17 +158,12 @@ public abstract class DOMCompiler implements Compilr {
             }
         }
 
-        for (BranchGrammar bg : CompilerUtils.sort(grammars, BranchGrammar.class, "processBranch")) {
+        for (BranchGrammar bg : GrammarUtils.sort(grammars, BranchGrammar.class, "processBranch")) {
             if (bg.acceptBranch(root)) {
                 bg.processBranch(this, result, root);
             }
         }
 
         result.getTargets().put(targetPath, buildTarget(root));
-    }
-
-    @SuppressWarnings("unused")
-    public void setGrammars(Map<String, Set<Grammar>> grammars) {
-        this.grammars = grammars;
     }
 }

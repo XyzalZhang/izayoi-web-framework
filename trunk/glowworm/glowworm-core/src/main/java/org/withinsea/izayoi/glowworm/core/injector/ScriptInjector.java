@@ -24,7 +24,9 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
+import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.dependency.DependencyManager;
+import org.withinsea.izayoi.core.dependency.DependencyUtils;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
@@ -43,7 +45,6 @@ import java.util.Map;
 public class ScriptInjector implements Injector {
 
     protected static final ScriptEngineManager SCRIPT_ENGINE_MANAGER = new ScriptEngineManager();
-    protected static final String DEFAULT_TYPE = "default";
 
     protected String dataObjectName;
     protected DependencyManager dependencyManager;
@@ -58,12 +59,16 @@ public class ScriptInjector implements Injector {
     @SuppressWarnings("unchecked")
     public void inject(HttpServletRequest request, InjectManager.Scope scope, String dataPath, String type, String src) throws GlowwormException {
 
-        Interpreter interpreter = interpreters.get(type);
-        if (interpreter == null) interpreter = interpreters.get(DEFAULT_TYPE);
+        Interpreter interpreter = interpreters.get(interpreters.containsKey(type) ? type : "default");
 
         Object ret;
         try {
-            ret = interpreter.interpret(src, dependencyManager.getDependency(request), type);
+            Varstack bindings = new Varstack();
+            {
+                bindings.push(DependencyUtils.asMap(dependencyManager, request));
+                bindings.push();
+            }
+            ret = interpreter.interpret(src, bindings, type);
         } catch (IzayoiException ex) {
             throw new GlowwormException(ex);
         }

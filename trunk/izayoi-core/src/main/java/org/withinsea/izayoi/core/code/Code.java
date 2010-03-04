@@ -22,18 +22,20 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.interpreter;
-
-import org.withinsea.izayoi.core.exception.IzayoiException;
-
-import javax.script.Bindings;
+package org.withinsea.izayoi.core.code;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 13:58:32
+ * Date: 2009-12-15
+ * Time: 7:19:08
  */
-public interface Interpreter {
+public interface Code {
 
-    <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException;
+    boolean isFolder();
+
+    String getPath();
+
+    String getCode();
+
+    long getLastModified();
 }

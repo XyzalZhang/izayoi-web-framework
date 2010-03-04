@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.conf;
+package org.withinsea.izayoi.core.code;
 
 import java.io.File;
 import java.io.FilenameFilter;

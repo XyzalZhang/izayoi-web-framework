@@ -29,6 +29,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
 import org.withinsea.izayoi.glowworm.core.GlowwormLight;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfig;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
@@ -77,15 +78,15 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
 
             GlowwormLight light = new GlowwormLight() {
                 @Override
-                public void init(ServletContext servletContext, String configPath) throws GlowwormException {
-                    dispatcher = new GlowwormConfig(servletContext, configPath) {
+                public IzayoiConfig config(ServletContext servletContext, String configPath) {
+                    return new GlowwormConfig(servletContext, configPath) {
                         @Override
                         protected void initComponents(MutablePicoContainer container, ServletContext servletContext, Properties conf) throws Exception {
                             conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.glowworm.adapter.springmvc.SpringWebContextDependencyManager");
                             super.initComponents(container, servletContext, conf);
                             container.addComponent("applicationContext", applicationContext);
                         }
-                    }.getComponent(Dispatcher.class);
+                    };
                 }
             };
 

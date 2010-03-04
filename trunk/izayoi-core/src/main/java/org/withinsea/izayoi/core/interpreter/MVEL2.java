@@ -34,11 +34,21 @@ import javax.script.Bindings;
  * Date: 2010-3-4
  * Time: 13:59:24
  */
-public class MVEL2 implements Interpreter {
+public class MVEL2 implements ImportableInterpreter {
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
         return (T) MVEL.eval(script, bindings);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(String script, Bindings bindings, String asType, String... importedClasses) throws IzayoiException {
+        String importsEl = "";
+        for (String claz : importedClasses) {
+            importsEl += "import " + claz + ";";
+        }
+        return (T) interpret(importsEl + script, bindings, asType);
     }
 }

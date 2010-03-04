@@ -29,7 +29,6 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -42,8 +41,6 @@ import java.util.*;
  * Time: 22:14:05
  */
 public class Iters implements AttrGrammar {
-
-    protected ELInterpreter elInterpreter;
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -93,25 +90,25 @@ public class Iters implements AttrGrammar {
         }
 
         if (attrname.startsWith("while")) {
-            preScriptlet = preScriptlet + "while ((Boolean)" + elInterpreter.compileEL(el) + ") {";
+            preScriptlet = preScriptlet + "while ((Boolean)" + compiler.compileEL(el) + ") {";
             sufScriptlet = "}" + sufScriptlet;
         } else if (attrname.startsWith("until")) {
             preScriptlet = preScriptlet + "do {";
-            sufScriptlet = "} while (!((Boolean)" + elInterpreter.compileEL(el) + "));" + sufScriptlet;
+            sufScriptlet = "} while (!((Boolean)" + compiler.compileEL(el) + "));" + sufScriptlet;
         } else if (attrname.startsWith("for")) {
             if (el.split("\\s*;\\s*").length == 3) {
                 String[] split = el.split("\\s*;\\s*");
                 preScriptlet = preScriptlet + "for (" +
-                        elInterpreter.compileEL(i + "=(" + split[0] + ")") + ";" +
-                        "(Boolean) " + elInterpreter.compileEL(split[1]) + ";" +
-                        elInterpreter.compileEL(split[2]) + ") {";
+                        compiler.compileEL(i + "=(" + split[0] + ")") + ";" +
+                        "(Boolean) " + compiler.compileEL(split[1]) + ";" +
+                        compiler.compileEL(split[2]) + ") {";
             } else if (el.matches("-?\\d+\\s*\\.\\.\\s*-?\\d+")) {
                 preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
                         ".asIterable(" + el.replace("..", ",") + ")) {";
                 helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
             } else {
                 preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
-                        ".asIterable(" + elInterpreter.compileEL(el) + ")) {";
+                        ".asIterable(" + compiler.compileEL(el) + ")) {";
                 helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
             }
             helperScriptlet = helperScriptlet + "varstack.push();";
@@ -127,22 +124,14 @@ public class Iters implements AttrGrammar {
         attr.detach();
     }
 
-    @SuppressWarnings("unused")
-    public void setElInterpreter(ELInterpreter elInterpreter) {
-        this.elInterpreter = elInterpreter;
-    }
-
-    @SuppressWarnings("unused")
     public static Iterable<Integer> asIterable(int start, int end) {
         return new NumRange(start, end);
     }
 
-    @SuppressWarnings("unused")
     public static Iterable<Integer> asIterable(int start, int end, int step) {
         return new NumRange(start, end, step);
     }
 
-    @SuppressWarnings("unused")
     public static Iterable<?> asIterable(Object obj) {
         if (obj == null) {
             return Collections.emptyList();

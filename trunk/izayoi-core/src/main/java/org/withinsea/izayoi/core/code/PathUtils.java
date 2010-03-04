@@ -22,26 +22,33 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.conf;
-
-import java.util.List;
+package org.withinsea.izayoi.core.code;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 1:30:39
+ * Date: 2010-3-5
+ * Time: 1:02:24
  */
-public interface CodeManager {
+public class PathUtils {
 
-    List<String> listNames(String folderPath);
+    public static String normalizePath(String path) {
+        path = path.replaceAll("/+", "/").trim();
+        return path.endsWith("/") ? path.substring(path.length() - 1) : path;
+    }
 
-    List<String> listNames(String folderPath, String namePattern);
+    public static String getFolderPath(String path) {
+        return normalizePath(path).replaceAll("/[^/]*$", "");
+    }
 
-    boolean exist(String path);
+    public static String getName(String path) {
+        return normalizePath(path).replaceAll(".*/", "");
+    }
 
-    Code get(String path);
+    public static String getMainName(String path) {
+        return getName(path).replaceAll("\\.[^\\.]*$", "");
+    }
 
-    void update(String path, String code);
-
-    boolean delete(String path);
+    public static String getExtName(String path) {
+        return getName(path).replaceAll(".*\\.", "");
+    }
 }

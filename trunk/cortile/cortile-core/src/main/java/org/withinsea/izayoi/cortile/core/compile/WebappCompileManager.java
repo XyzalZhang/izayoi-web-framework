@@ -25,7 +25,9 @@
 package org.withinsea.izayoi.cortile.core.compile;
 
 import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
-import org.withinsea.izayoi.core.conf.CodeManager;
+import org.withinsea.izayoi.core.code.Code;
+import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.PathUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
@@ -42,14 +44,8 @@ import java.util.Set;
  */
 public class WebappCompileManager implements CompileManager {
 
-    protected String encoding;
     protected CodeManager codeManager;
     protected Map<String, Compilr> compilers;
-
-    @Override
-    public String getEncoding() {
-        return encoding;
-    }
 
     @Override
     public Set<String> getSupportedTypes() {
@@ -57,22 +53,22 @@ public class WebappCompileManager implements CompileManager {
     }
 
     @Override
-    public boolean exist(String templatePath) {
-        return codeManager.exist(templatePath);
-    }
+    public boolean isUpdated(String templatePath, String asType) throws CortileException {
 
-    @Override
-    public boolean isUpdated(String templatePath, String asType) {
-        return caches.get(asType).cached(templatePath) && checkUpdated(templatePath, asType, true);
-    }
+        String type = checkType(templatePath, asType);
+        Compilr compiler = getCompiler(type);
+        Cache cache = caches.get(compiler);
 
-    @Override
-    public String update(String templatePath, String asType) throws CortileException {
-        return update(templatePath, asType, false);
+        return cache.cached(templatePath) && checkUpdated(templatePath, type, true);
     }
 
     @Override
     public String update(String templatePath, String asType, boolean focus) throws CortileException {
+
+        String type = checkType(templatePath, asType);
+        Compilr compiler = getCompiler(type);
+        Cache cache = caches.get(compiler);
+
         if (focus || !isUpdated(templatePath, asType)) {
             Set<String> done = new HashSet<String>();
             Set<String> todo = new HashSet<String>();
@@ -80,37 +76,43 @@ public class WebappCompileManager implements CompileManager {
             while (!todo.isEmpty()) {
                 String todoTemplatePath = todo.iterator().next();
                 if (!codeManager.exist(todoTemplatePath)) {
-                    codeManager.delete(compilers.get(asType).mapEntrancePath(templatePath));
-                    caches.get(asType).remove(templatePath);
+                    codeManager.delete(compiler.mapEntrancePath(templatePath));
+                    cache.remove(templatePath);
                     throw new CortileException(todoTemplatePath + " not exist.");
                 } else if (focus || !checkUpdated(todoTemplatePath, asType, false)) {
-                    Compilr.Result result = compilers.get(asType).compile(todoTemplatePath, codeManager.get(todoTemplatePath).getCode());
-                    caches.get(asType).cache(todoTemplatePath, result);
+                    Compilr.Result result = compiler.compile(todoTemplatePath, codeManager.get(todoTemplatePath).getCode());
+                    cache.cache(todoTemplatePath, result);
                     for (Map.Entry<String, String> target : result.getTargets().entrySet()) {
                         codeManager.update(target.getKey(), target.getValue());
                     }
                 }
                 done.add(todoTemplatePath);
-                todo.addAll(caches.get(asType).relatives(todoTemplatePath));
+                todo.addAll(cache.relatives(todoTemplatePath));
                 todo.removeAll(done);
             }
         }
-        return compilers.get(asType).mapEntrancePath(templatePath);
+        return compiler.mapEntrancePath(templatePath);
     }
 
     protected boolean checkUpdated(String templatePath, String asType, boolean checkRelatives) {
+
+        String type = checkType(templatePath, asType);
+        Compilr compiler = getCompiler(type);
+        Cache cache = caches.get(compiler);
+
+        Code templateCode = codeManager.get(templatePath);
+
         Set<String> toChecks = new HashSet<String>();
         toChecks.add(templatePath);
         if (checkRelatives) {
-            toChecks.addAll(caches.get(asType).relatives(templatePath));
+            toChecks.addAll(cache.relatives(templatePath));
         }
         for (String toCheck : toChecks) {
-            if (!caches.get(asType).cached(toCheck)) {
+            if (!cache.cached(toCheck)) {
                 return false;
             }
-            for (String targetPath : caches.get(asType).targets(toCheck)) {
-                if (!codeManager.exist(targetPath) || (
-                        codeManager.get(targetPath).getLastModified() < codeManager.get(templatePath).getLastModified())) {
+            for (String targetPath : cache.targets(toCheck)) {
+                if (!codeManager.exist(targetPath) || (codeManager.get(targetPath).getLastModified() < templateCode.getLastModified())) {
                     return false;
                 }
             }
@@ -118,11 +120,20 @@ public class WebappCompileManager implements CompileManager {
         return true;
     }
 
+    protected String checkType(String path, String asType) {
+        if (asType == null || asType.equals("")) asType = PathUtils.getExtName(path);
+        return asType;
+    }
+
+    protected Compilr getCompiler(String type) {
+        return compilers.get(compilers.containsKey(type) ? type : "default");
+    }
+
     // cache
 
-    protected final Map<String, Cache> caches = new LazyLinkedHashMap<String, Cache>() {
+    protected final Map<Compilr, Cache> caches = new LazyLinkedHashMap<Compilr, Cache>() {
         @Override
-        protected Cache createValue(String type) {
+        protected Cache createValue(Compilr type) {
             return new Cache();
         }
     };
@@ -164,9 +175,5 @@ public class WebappCompileManager implements CompileManager {
 
     public void setCompilers(Map<String, Compilr> compilers) {
         this.compilers = compilers;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
     }
 }

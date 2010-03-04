@@ -22,26 +22,16 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.core.conf;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.servlet.ServletContext;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-16
- * Time: 4:15:18
+ * Date: 2010-3-5
+ * Time: 3:54:57
  */
-public interface Grammar {
+public interface IzayoiConfigurable {
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(value = {ElementType.METHOD})
-    public @interface Priority {
-
-        public static final int DEFAULT_PRIORITY = 0;
-
-        int value();
-    }
+    IzayoiConfig config(ServletContext servletContext, String configPath);
 }

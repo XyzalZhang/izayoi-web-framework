@@ -24,6 +24,10 @@
 
 package org.withinsea.izayoi.cortile.core;
 
+import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.PathUtils;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.IzayoiConfigurable;
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfig;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -32,21 +36,25 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-27
  * Time: 22:04:20
  */
-public class CortileMirage implements Filter {
+public class CortileMirage implements Filter, IzayoiConfigurable {
 
     public static class Dispatcher {
 
-        public static final String TRUE_PATH_ATTR_NAME = CortileMirage.class.getCanonicalName() + ".TRUE_PATH_ATTR_NAME";
+        public static final String TRUE_PATH_ATTR = CortileMirage.class.getCanonicalName() + ".TRUE_PATH";
 
         protected ServletContext servletContext;
+        protected CodeManager codeManager;
         protected CompileManager compileManager;
         protected String mirageSuffix;
+        protected String encoding;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
 
@@ -54,36 +62,36 @@ public class CortileMirage implements Filter {
 
             try {
 
-                String truePath = (String) req.getAttribute(TRUE_PATH_ATTR_NAME);
+                String truePath = (String) req.getAttribute(TRUE_PATH_ATTR);
                 if (truePath != null) {
                     chain.doFilter(req, resp);
-                    resp.setCharacterEncoding(compileManager.getEncoding());
-                    resp.setContentType(servletContext.getMimeType(truePath) + "; charset=" + compileManager.getEncoding());
+                    resp.setCharacterEncoding(encoding);
+                    resp.setContentType(servletContext.getMimeType(truePath) + "; charset=" + encoding);
                     return;
                 }
 
-                if (requestPath.endsWith("/")) {
-                    chain.doFilter(req, resp);
-                }
+                if (!codeManager.get(requestPath).isFolder()) {
 
-                String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
-                String main = requestPath.substring(0, requestPath.length() - type.length() - 1);
+                    String folder = PathUtils.getFolderPath(requestPath);
+                    String main = PathUtils.getMainName(requestPath);
+                    String ext = PathUtils.getExtName(requestPath);
+                    String typedTemplateNameRegex = Pattern.quote(main + mirageSuffix + "-") + "(\\w+)" + Pattern.quote("." + ext);
 
-                if (compileManager.getSupportedTypes().contains(type)) {
-                    String templatePath = main + mirageSuffix + "." + type;
-                    if (compileManager.exist(templatePath)) {
-                        req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
-                        req.getRequestDispatcher(compileManager.update(templatePath, type)).forward(req, resp);
-                        return;
+                    String templatePath = folder + "/" + main + mirageSuffix + "." + ext;
+                    List<String> typedTemplateNames = codeManager.listNames(folder, typedTemplateNameRegex);
+
+                    if ((codeManager.exist(templatePath) && !typedTemplateNames.isEmpty()) || typedTemplateNames.size() > 1) {
+                        throw new CortileException("Request on " + requestPath + " has ambiguous mirage templates.");
                     }
-                }
 
-                for (String supportedType : compileManager.getSupportedTypes()) {
-                    String typeSuffix = supportedType.equals("") ? "" : "-" + supportedType;
-                    String templatePath = main + mirageSuffix + typeSuffix + "." + type;
-                    if (compileManager.exist(templatePath)) {
-                        req.setAttribute(TRUE_PATH_ATTR_NAME, requestPath);
-                        req.getRequestDispatcher(compileManager.update(templatePath, supportedType)).forward(req, resp);
+                    if (codeManager.exist(templatePath)) {
+                        req.setAttribute(TRUE_PATH_ATTR, requestPath);
+                        req.getRequestDispatcher(compileManager.update(templatePath, null, false)).forward(req, resp);
+                        return;
+                    } else if (!typedTemplateNames.isEmpty()) {
+                        String type = Pattern.compile(typedTemplateNameRegex).matcher(typedTemplateNames.get(0)).group(1);
+                        req.setAttribute(TRUE_PATH_ATTR, requestPath);
+                        req.getRequestDispatcher(compileManager.update(folder + "/" + typedTemplateNames.get(0), type, false)).forward(req, resp);
                         return;
                     }
                 }
@@ -106,14 +114,27 @@ public class CortileMirage implements Filter {
         public void setServletContext(ServletContext servletContext) {
             this.servletContext = servletContext;
         }
+
+        public void setCodeManager(CodeManager codeManager) {
+            this.codeManager = codeManager;
+        }
+
+        public void setEncoding(String encoding) {
+            this.encoding = encoding;
+        }
     }
 
     // api
 
     protected Dispatcher dispatcher;
 
+    @Override
+    public IzayoiConfig config(ServletContext servletContext, String configPath) {
+        return new CortileConfig(servletContext, configPath);
+    }
+
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = new CortileConfig(servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = config(servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {

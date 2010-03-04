@@ -41,7 +41,7 @@ import java.util.*;
  */
 public class IzayoiConfig {
 
-    protected static final String CONTAINERS_ATTR_NAME = IzayoiConfig.class.getCanonicalName() + ".CONTAINERS";
+    protected static final String CONTAINERS_ATTR = IzayoiConfig.class.getCanonicalName() + ".CONTAINERS";
 
     protected final ServletContext servletContext;
     protected final String configPath;
@@ -56,6 +56,16 @@ public class IzayoiConfig {
     }
 
     @SuppressWarnings("unchecked")
+    public static IzayoiConfig retrieval(ServletContext servletContext, String retrievalKey) {
+        try {
+            Map<String, IzayoiComponentContainer> containers = (Map<String, IzayoiComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
+            return (IzayoiConfig) containers.get(retrievalKey).getComponent("config");
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public final <T> T getComponent(String name) {
         return (T) getContainer().getComponent(name);
     }
@@ -67,12 +77,12 @@ public class IzayoiConfig {
 
     @SuppressWarnings("unchecked")
     protected final IzayoiComponentContainer getContainer() {
-        Map<String, IzayoiComponentContainer> containers = (Map<String, IzayoiComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR_NAME);
+        Map<String, IzayoiComponentContainer> containers = (Map<String, IzayoiComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
         if (containers == null) {
             containers = new HashMap<String, IzayoiComponentContainer>();
-            servletContext.setAttribute(CONTAINERS_ATTR_NAME, containers);
+            servletContext.setAttribute(CONTAINERS_ATTR, containers);
         }
-        String containerName = getClass().getCanonicalName() + "@" + configPath;
+        String containerName = getRetrievalKey();
         IzayoiComponentContainer container = containers.get(containerName);
         if (container == null) {
             try {
@@ -83,6 +93,10 @@ public class IzayoiConfig {
             containers.put(containerName, container);
         }
         return container;
+    }
+
+    protected final String getRetrievalKey() {
+        return getClass().getCanonicalName() + "@" + (configPath == null ? "DEFAULT" : configPath);
     }
 
     @SuppressWarnings("unchecked")
@@ -120,9 +134,14 @@ public class IzayoiConfig {
 
         IzayoiComponentContainer container = new IzayoiComponentContainer();
         {
+
+            container.addComponent("config", this);
+            container.addComponent("retrievalKey", getRetrievalKey());
+
             for (String propname : conf.stringPropertyNames()) {
                 container.addComponent(propname, conf.getProperty(propname));
             }
+
             initComponents(container, servletContext, conf);
         }
         return container;

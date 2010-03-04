@@ -30,12 +30,11 @@ import org.dom4j.Element;
 import org.dom4j.Text;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
-import org.withinsea.izayoi.cortile.core.compiler.StringGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.dom.TextGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.StringGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -45,8 +44,6 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  */
 public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGrammar {
 
-    protected ELInterpreter elInterpreter;
-
     @Override
     @Priority(-50)
     public boolean acceptString(String str) {
@@ -55,7 +52,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
 
     @Override
     public String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException {
-        return compileEmbeddedELs(str);
+        return compileEmbeddedELs(compiler, str);
     }
 
     @Override
@@ -66,7 +63,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-        attr.setValue(compileEmbeddedELs(attr.getValue()));
+        attr.setValue(compileEmbeddedELs(compiler, attr.getValue()));
     }
 
     @Override
@@ -77,7 +74,7 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processText(DOMCompiler compiler, Compilr.Result result, Text text) throws CortileException {
-        text.setText(compileEmbeddedELs(text.getText()));
+        text.setText(compileEmbeddedELs(compiler, text.getText()));
     }
 
     @Override
@@ -88,26 +85,21 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     @Priority(-50)
     public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        comment.setText(compileEmbeddedELs(comment.getText()));
+        comment.setText(compileEmbeddedELs(compiler, comment.getText()));
     }
 
-    protected String compileEmbeddedELs(String text) {
+    protected String compileEmbeddedELs(final Compilr compiler, String text) {
         return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             @Override
             public String replace(String... groups) {
-                return "<%=" + EL.class.getCanonicalName() + ".ifNull(" +
-                        elInterpreter.compileEL(groups[1].replace("\\}", "}")) +
-                        ", \"\")%>";
+                return "<%=" + EL.class.getCanonicalName() + ".silent(" +
+                        compiler.compileEL(groups[1].replace("\\}", "}")) +
+                        ")%>";
             }
         });
     }
 
-    @SuppressWarnings("unused")
-    public void setElInterpreter(ELInterpreter elInterpreter) {
-        this.elInterpreter = elInterpreter;
-    }
-
-    public static Object ifNull(Object value, Object defaultValue) {
-        return (value == null) ? defaultValue : value;
+    public static Object silent(Object value) {
+        return (value == null) ? "" : value;
     }
 }

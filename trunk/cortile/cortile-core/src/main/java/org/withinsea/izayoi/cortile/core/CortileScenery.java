@@ -24,6 +24,9 @@
 
 package org.withinsea.izayoi.cortile.core;
 
+import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.IzayoiConfigurable;
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfig;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -39,12 +42,14 @@ import java.io.IOException;
  * Date: 2009-12-27
  * Time: 22:01:47
  */
-public class CortileScenery extends HttpServlet implements Filter {
+public class CortileScenery extends HttpServlet implements Filter, IzayoiConfigurable {
 
     public static class Dispatcher {
 
         protected ServletContext servletContext;
+        protected CodeManager codeManager;
         protected CompileManager compileManager;
+        protected String encoding;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
 
@@ -52,14 +57,12 @@ public class CortileScenery extends HttpServlet implements Filter {
 
             try {
 
-                String type = requestPath.replaceAll(".*/", "").replaceAll(".*\\.", "");
-
-                if (requestPath.endsWith("/") || !compileManager.exist(requestPath)) {
-                    resp.sendError(404, req.getServletPath());
+                if (codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
+                    req.getRequestDispatcher(compileManager.update(requestPath, null, false)).forward(req, resp);
+                    resp.setCharacterEncoding(encoding);
+                    resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + encoding);
                 } else {
-                    req.getRequestDispatcher(compileManager.update(requestPath, type)).forward(req, resp);
-                    resp.setCharacterEncoding(compileManager.getEncoding());
-                    resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + compileManager.getEncoding());
+                    resp.sendError(404, req.getServletPath());
                 }
 
             } catch (Exception e) {
@@ -74,14 +77,27 @@ public class CortileScenery extends HttpServlet implements Filter {
         public void setServletContext(ServletContext servletContext) {
             this.servletContext = servletContext;
         }
+
+        public void setCodeManager(CodeManager codeManager) {
+            this.codeManager = codeManager;
+        }
+
+        public void setEncoding(String encoding) {
+            this.encoding = encoding;
+        }
     }
 
     // api
 
     protected Dispatcher dispatcher;
 
+    @Override
+    public IzayoiConfig config(ServletContext servletContext, String configPath) {
+        return new CortileConfig(servletContext, configPath);
+    }
+
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = new CortileConfig(servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = config(servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {

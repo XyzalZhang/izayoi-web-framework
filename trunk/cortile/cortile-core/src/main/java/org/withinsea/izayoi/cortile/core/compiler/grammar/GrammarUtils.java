@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.cortile.core.compiler.grammar;
 
 import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 
@@ -34,7 +34,7 @@ import java.util.*;
  * Date: 2009-12-28
  * Time: 17:28:19
  */
-public class CompilerUtils {
+public class GrammarUtils {
 
     public static int getPriority(Grammar grammar, String methodName) {
         for (Method m : grammar.getClass().getDeclaredMethods()) {

@@ -28,6 +28,9 @@ import org.dom4j.Branch;
 import org.dom4j.Document;
 import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.commons.html.HTMLWriter;
+import org.withinsea.izayoi.commons.util.Varstack;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.cortile.core.compiler.ELHelper;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
@@ -44,6 +47,29 @@ public class HTMLCompiler extends DOMCompiler {
 
     protected String encoding;
     protected String targetPath;
+    protected String retrievalKey;
+
+    // el compiler
+
+    @Override
+    public String compileELInit(String classes) {
+        String elHelperInit = ELHelper.class.getCanonicalName() + ".Helper elHelper = " +
+                IzayoiConfig.class.getCanonicalName() +
+                ".retrieval(request.getServletContext(), \"" + retrievalKey + "\")" +
+                ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
+                ".getHelper(request);";
+        String varstackInit = Varstack.class.getCanonicalName() + " varstack = " +
+                "elHelper.getVarstack();";
+        String importsInit = "elHelper.imports(\"" + classes + "\");";
+        return elHelperInit + varstackInit + importsInit;
+    }
+
+    @Override
+    public String compileEL(String el) {
+        return "elHelper.eval(\"" + el.replace("\n", "").replace("\r", "") + "\")";
+    }
+
+    // dom compiler
 
     @Override
     public String mapEntrancePath(String templatePath) {
@@ -80,13 +106,17 @@ public class HTMLCompiler extends DOMCompiler {
         return jspHeader + buf.toString();
     }
 
-    @SuppressWarnings("unused")
+    // dependency
+
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
-    @SuppressWarnings("unused")
     public void setTargetPath(String targetPath) {
         this.targetPath = targetPath;
+    }
+
+    public void setRetrievalKey(String retrievalKey) {
+        this.retrievalKey = retrievalKey;
     }
 }

@@ -22,16 +22,19 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.cortile.core.compiler.grammar;
+
+import org.withinsea.izayoi.cortile.core.compiler.Compilr;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 0:50:15
+ * Date: 2009-12-21
+ * Time: 15:29:06
  */
-public interface ELInterpreter {
+public interface StringGrammar extends Grammar {
 
-    public String compileInit(String initEl);
+    public boolean acceptString(String str);
 
-    public String compileEL(String el);
+    public abstract String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException;
 }

@@ -48,7 +48,8 @@ public class IOUtils {
     }
 
     public static void write(String data, File file, String encoding) throws IOException {
-        if (file.getParentFile().mkdirs()) {
+        File parentFile = file.getParentFile();
+        if ((parentFile.exists() && parentFile.isDirectory()) || parentFile.mkdirs()) {
             FileOutputStream fos = new FileOutputStream(file);
             write(data, fos, encoding);
             fos.close();

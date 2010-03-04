@@ -26,7 +26,10 @@ package org.withinsea.izayoi.glowworm.core;
 
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
 import org.withinsea.izayoi.commons.util.StringUtils;
-import org.withinsea.izayoi.core.conf.CodeManager;
+import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.PathUtils;
+import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.IzayoiConfigurable;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfig;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
@@ -44,13 +47,13 @@ import java.util.regex.Pattern;
  * Date: 2010-1-12
  * Time: 23:49:57
  */
-public class GlowwormLight implements Filter {
+public class GlowwormLight implements Filter, IzayoiConfigurable {
 
     public static class Dispatcher {
 
-        protected static final String NAMEPARAM_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".NAMEPARAM_INJECTED_FLAG";
-        protected static final String GLOBAL_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".GLOBAL_INJECTED_FLAG";
-        protected static final String INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".INJECTED_FLAG";
+        protected static final String NAMEPARAM_INJECTED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".NAMEPARAM_INJECTED_FLAG";
+        protected static final String GLOBAL_INJECTED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".GLOBAL_INJECTED_FLAG";
+        protected static final String INJECTED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".INJECTED_FLAG";
 
         protected ServletContext servletContext;
         protected CodeManager codeManager;
@@ -65,11 +68,11 @@ public class GlowwormLight implements Filter {
 
             try {
 
-                if (req.getAttribute(INJECTED_FLAG_NAME) == null) {
+                if (req.getAttribute(INJECTED_FLAG_ATTR) == null) {
 
                     // template path parameters mapping
 
-                    if (req.getAttribute(NAMEPARAM_INJECTED_FLAG_NAME) == null) {
+                    if (req.getAttribute(NAMEPARAM_INJECTED_FLAG_ATTR) == null) {
                         Map<String, String> appendentParams = new LinkedHashMap<String, String>();
                         String templateRequestPath = matchPathTemplate(appendentParams, "/", requestPath.substring(1));
                         if (templateRequestPath != null && !templateRequestPath.equals(requestPath) && !appendentParams.isEmpty()) {
@@ -77,7 +80,7 @@ public class GlowwormLight implements Filter {
                             for (Map.Entry<String, String> e : appendentParams.entrySet()) {
                                 reqw.appendParam(e.getKey(), e.getValue());
                             }
-                            req.setAttribute(NAMEPARAM_INJECTED_FLAG_NAME, true);
+                            req.setAttribute(NAMEPARAM_INJECTED_FLAG_ATTR, true);
                             reqw.getRequestDispatcher(templateRequestPath).forward(reqw, resp);
                             return;
                         }
@@ -85,29 +88,29 @@ public class GlowwormLight implements Filter {
 
                     // global injections
 
-                    if (servletContext.getAttribute(GLOBAL_INJECTED_FLAG_NAME) == null) {
+                    if (servletContext.getAttribute(GLOBAL_INJECTED_FLAG_ATTR) == null) {
                         for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-application" + dataSuffix + ".") + "\\w+")) {
                             injectManager.inject(req, InjectManager.Scope.APPLICATION, dataFolder + "/" + dataName, null);
                         }
-                        servletContext.setAttribute(GLOBAL_INJECTED_FLAG_NAME, true);
+                        servletContext.setAttribute(GLOBAL_INJECTED_FLAG_ATTR, true);
                     }
 
-                    if (req.getSession().getAttribute(GLOBAL_INJECTED_FLAG_NAME) == null) {
+                    if (req.getSession().getAttribute(GLOBAL_INJECTED_FLAG_ATTR) == null) {
                         for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-session" + dataSuffix + ".") + "\\w+")) {
                             injectManager.inject(req, InjectManager.Scope.SESSION, dataFolder + "/" + dataName, null);
                         }
-                        req.getSession().setAttribute(GLOBAL_INJECTED_FLAG_NAME, true);
+                        req.getSession().setAttribute(GLOBAL_INJECTED_FLAG_ATTR, true);
                     }
 
-                    String folderPath = requestPath.replaceAll("/[^/]*$", "");
+                    String folderPath = PathUtils.getFolderPath(requestPath);
                     String globalFolderPath = dataFolder;
                     for (String folderPathSplitItem : folderPath.split("/+")) {
                         globalFolderPath = globalFolderPath + folderPathSplitItem + "/";
-                        if (req.getAttribute(GLOBAL_INJECTED_FLAG_NAME + "#" + globalFolderPath) == null) {
+                        if (req.getAttribute(GLOBAL_INJECTED_FLAG_ATTR + "#" + globalFolderPath) == null) {
                             for (String dataName : codeManager.listNames(globalFolderPath, Pattern.quote(globalPrefix + dataSuffix + ".") + "\\w+")) {
                                 injectManager.inject(req, InjectManager.Scope.REQUEST, globalFolderPath + "/" + dataName, null);
                             }
-                            req.setAttribute(GLOBAL_INJECTED_FLAG_NAME + "#" + globalFolderPath, true);
+                            req.setAttribute(GLOBAL_INJECTED_FLAG_ATTR + "#" + globalFolderPath, true);
                         }
                     }
 
@@ -118,16 +121,15 @@ public class GlowwormLight implements Filter {
                         if (dataMatcher.matches() && codeManager.exist(requestPath)) {
                             // direct access to glowworm data file
                             injectManager.inject(req, InjectManager.Scope.REQUEST, requestPath, null);
-                            req.setAttribute(INJECTED_FLAG_NAME, true);
+                            req.setAttribute(INJECTED_FLAG_ATTR, true);
                             req.getRequestDispatcher("/" + dataMatcher.group(1)).forward(req, resp);
                         } else {
                             // auto bind
-                            String name = requestPath.replaceAll(".*/", "");
-                            String main = name.substring(0, name.indexOf(".") < 0 ? name.length() : name.lastIndexOf("."));
-                            String suffix = name.substring(main.length());
-                            for (String dataName : codeManager.listNames(folderPath, Pattern.quote(main) + "(|" + Pattern.quote(suffix) + ")" + Pattern.quote(dataSuffix) + "\\.\\w+")) {
+                            String main = PathUtils.getMainName(requestPath);
+                            String ext = PathUtils.getExtName(requestPath);
+                            for (String dataName : codeManager.listNames(folderPath, Pattern.quote(main) + "(|" + Pattern.quote("." + ext) + ")" + Pattern.quote(dataSuffix) + "\\.\\w+")) {
                                 injectManager.inject(req, InjectManager.Scope.REQUEST, folderPath + "/" + dataName, null);
-                                req.setAttribute(INJECTED_FLAG_NAME, true);
+                                req.setAttribute(INJECTED_FLAG_ATTR, true);
                             }
                         }
                     }
@@ -238,8 +240,13 @@ public class GlowwormLight implements Filter {
 
     protected Dispatcher dispatcher;
 
+    @Override
+    public IzayoiConfig config(ServletContext servletContext, String configPath) {
+        return new GlowwormConfig(servletContext, configPath);
+    }
+
     public void init(ServletContext servletContext, String configPath) throws GlowwormException {
-        dispatcher = new GlowwormConfig(servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = config(servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws GlowwormException {

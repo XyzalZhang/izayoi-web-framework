@@ -22,20 +22,23 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.conf;
+package org.withinsea.izayoi.cortile.core.compiler.grammar;
+
+import org.withinsea.izayoi.cortile.core.compiler.Compilr;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-15
- * Time: 7:19:08
+ * Date: 2010-3-4
+ * Time: 23:59:20
  */
-public interface Code {
+public abstract class GrammarCompiler implements Compilr {
 
-    public boolean isFolder();
+    protected Map<String, Set<Grammar>> grammars;
 
-    public String getPath();
-
-    public String getCode();
-
-    public long getLastModified();
+    public void setGrammars(Map<String, Set<Grammar>> grammars) {
+        this.grammars = grammars;
+    }
 }

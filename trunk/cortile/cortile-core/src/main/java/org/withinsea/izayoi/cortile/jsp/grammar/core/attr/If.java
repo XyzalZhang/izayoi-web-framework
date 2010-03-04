@@ -29,7 +29,6 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -42,8 +41,6 @@ import java.util.List;
  * Time: 22:36:16
  */
 public class If implements AttrGrammar {
-
-    protected ELInterpreter elInterpreter;
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -61,7 +58,7 @@ public class If implements AttrGrammar {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String preScriptlet = "if ((Boolean) " + elInterpreter.compileEL(el) + ") { varstack.push();";
+        String preScriptlet = "if ((Boolean) " + compiler.compileEL(el) + ") { varstack.push();";
         String sufScriptlet = "varstack.pop(); }";
 
         String attrname = attr.getName().replaceAll("[:_-]", ".");
@@ -83,10 +80,5 @@ public class If implements AttrGrammar {
         }
 
         attr.detach();
-    }
-
-    @SuppressWarnings("unused")
-    public void setElInterpreter(ELInterpreter elInterpreter) {
-        this.elInterpreter = elInterpreter;
     }
 }

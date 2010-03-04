@@ -28,7 +28,8 @@ import org.picocontainer.MutablePicoContainer;
 import org.withinsea.izayoi.commons.util.ClassUtils;
 import org.withinsea.izayoi.core.conf.IzayoiConfig;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.Grammar;
+import org.withinsea.izayoi.cortile.core.compiler.ELHelper;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
 
 import javax.servlet.ServletContext;
 import java.io.IOException;
@@ -55,7 +56,8 @@ public class CortileConfig extends IzayoiConfig {
         super.initComponents(container, servletContext, conf);
 
         container.addComponent("target", container.getComponent("webroot"));
-        container.addComponent("elIterpreter", Class.forName(conf.getProperty("class.elInterpreter")));
+
+        container.addComponent("elHelper", ELHelper.class);
 
         Map<String, Set<Grammar>> grammars = new LinkedHashMap<String, Set<Grammar>>();
         {
@@ -67,7 +69,6 @@ public class CortileConfig extends IzayoiConfig {
                     {
                         for (String className : trimClassNames(conf.getProperty(propname))) {
                             Class<?> claz = Class.forName(className);
-//                            if (ClassUtils.isExtendsFrom(claz, Grammar.class)) {
                             if (Grammar.class.isAssignableFrom(claz)) {
                                 grammarGroup.add((Grammar) container.getComponent(claz));
                             }
@@ -85,7 +86,6 @@ public class CortileConfig extends IzayoiConfig {
                 if (propname.startsWith("class.compiler")) {
                     String type = propname.substring("class.compiler".length()).replaceAll("^\\.", "");
                     Class<?> claz = Class.forName(conf.getProperty(propname));
-//                    if (ClassUtils.isExtendsFrom(claz, Compilr.class)) {
                     if (Compilr.class.isAssignableFrom(claz)) {
                         compilers.put(type, (Compilr) container.getComponent(claz));
                     }

@@ -22,18 +22,26 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.interpreter;
+package org.withinsea.izayoi.core.code;
 
-import org.withinsea.izayoi.core.exception.IzayoiException;
-
-import javax.script.Bindings;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 13:58:32
+ * Date: 2009-12-21
+ * Time: 1:30:39
  */
-public interface Interpreter {
+public interface CodeManager {
 
-    <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException;
+    List<String> listNames(String folderPath);
+
+    List<String> listNames(String folderPath, String namePattern);
+
+    boolean exist(String path);
+
+    Code get(String path);
+
+    void update(String path, String code);
+
+    boolean delete(String path);
 }

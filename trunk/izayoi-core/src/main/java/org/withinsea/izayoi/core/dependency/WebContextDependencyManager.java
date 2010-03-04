@@ -38,10 +38,10 @@ import java.util.List;
  * Date: 2010-1-30
  * Time: 16:05:28
  */
-public class WebContextDependencyManager extends DependencyManagerImpl {
+public class WebContextDependencyManager implements DependencyManager {
 
     @Override
-    protected Object getBean(HttpServletRequest request, String name) {
+    public Object getBean(HttpServletRequest request, String name) {
         Object obj = lookupConstants(request, name);
         if (obj == null) obj = lookupRequest(request, name);
         if (obj == null) obj = lookupCDI(name);
@@ -51,7 +51,6 @@ public class WebContextDependencyManager extends DependencyManagerImpl {
 
     protected static Object lookupConstants(HttpServletRequest request, String name) {
         return name.equals("request") ? request
-                : name.equals("request") ? request
                 : name.equals("session") ? request.getSession()
                 : name.equals("application") ? request.getServletContext()
                 : name.equals("servletContext") ? request.getServletContext()

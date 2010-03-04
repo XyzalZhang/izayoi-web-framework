@@ -35,15 +35,9 @@ import java.util.Set;
  */
 public interface CompileManager {
 
-    String getEncoding();
-
     Set<String> getSupportedTypes();
 
-    boolean exist(String templatePath);
-
-    boolean isUpdated(String templatePath, String asType);
-
-    String update(String templatePath, String asType) throws CortileException;
+    boolean isUpdated(String templatePath, String asType) throws CortileException;
 
     String update(String templatePath, String asType, boolean focus) throws CortileException;
 }

@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.conf;
+package org.withinsea.izayoi.core.code;
 
 import org.withinsea.izayoi.commons.util.IOUtils;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;

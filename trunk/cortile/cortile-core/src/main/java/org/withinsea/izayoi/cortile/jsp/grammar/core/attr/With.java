@@ -29,7 +29,6 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.ELInterpreter;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -40,8 +39,6 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Time: 19:41:58
  */
 public class With implements AttrGrammar {
-
-    protected ELInterpreter elInterpreter;
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -57,7 +54,7 @@ public class With implements AttrGrammar {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + elInterpreter.compileEL(el) + "));varstack.push();";
+        String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + "));varstack.push();";
         String sufScriptlet = "varstack.pop();varstack.pop();";
         try {
             DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
@@ -66,10 +63,5 @@ public class With implements AttrGrammar {
         }
 
         attr.detach();
-    }
-
-    @SuppressWarnings("unused")
-    public void setElInterpreter(ELInterpreter elInterpreter) {
-        this.elInterpreter = elInterpreter;
     }
 }

@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.inject;
 
-import org.withinsea.izayoi.core.conf.CodeManager;
+import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
@@ -38,21 +38,27 @@ import java.util.Map;
  */
 public class WebContextInjectManager implements InjectManager {
 
-    protected static final String DEFAULT_TYPE = "default";
-
     protected CodeManager codeManager;
     protected Map<String, Injector> injectors;
 
     @Override
     public void inject(HttpServletRequest request, Scope scope, String dataPath, String asType) throws GlowwormException {
-        if (!dataPath.endsWith("/")) {
-            String type = (asType != null) ? asType : dataPath.replaceAll(".*\\.", "");
-            Injector injector = injectors.get(type);
-            if (injector == null) injector = injectors.get(DEFAULT_TYPE);
-            if (injector != null && injector.isSupport(type)) {
-                injector.inject(request, scope, dataPath, type, codeManager.get(dataPath).getCode());
-            }
+
+        String type = checkType(dataPath, asType);
+        Injector injector = getInjector(type);
+
+        if (injector != null && injector.isSupport(type)) {
+            injector.inject(request, scope, dataPath, type, codeManager.get(dataPath).getCode());
         }
+    }
+
+    protected String checkType(String path, String asType) {
+        if (asType == null || asType.equals("")) asType = path.replaceAll(".*\\.", "");
+        return asType;
+    }
+
+    protected Injector getInjector(String type) {
+        return injectors.get(injectors.containsKey(type) ? type : "default");
     }
 
     // dependency

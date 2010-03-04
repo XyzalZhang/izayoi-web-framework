@@ -24,41 +24,44 @@
 
 package org.withinsea.izayoi.core.dependency;
 
-import org.withinsea.izayoi.commons.util.Varstack;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-3
- * Time: 20:24:57
+ * Date: 2010-3-5
+ * Time: 3:23:18
  */
-public abstract class DependencyManagerImpl implements DependencyManager {
+public class DependencyUtils {
 
-    protected static final String VARSTACK_ATTR = DependencyManagerImpl.class.getCanonicalName() + ".VARSTACK";
+    protected static final String DEPENDENCY_MAP_ATTR = DependencyUtils.class.getCanonicalName() + ".DEPENDENCY_MAP";
 
-    protected abstract Object getBean(HttpServletRequest request, String name);
-
-    @Override
-    public synchronized Varstack getDependency(HttpServletRequest request) {
-        Varstack varstack = (Varstack) request.getAttribute(VARSTACK_ATTR);
-        if (varstack == null) {
-            varstack = new Varstack();
-            varstack.push(new DependencyMap(request));
-            varstack.push();
-            request.setAttribute(VARSTACK_ATTR, varstack);
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> asMap(DependencyManager dependencyManager, HttpServletRequest request) {
+        Map<DependencyManager, Map<String, Object>> map = (Map<DependencyManager, Map<String, Object>>) request.getAttribute(DEPENDENCY_MAP_ATTR);
+        if (map == null) {
+            map = new LinkedHashMap<DependencyManager, Map<String, Object>>();
+            request.setAttribute(DEPENDENCY_MAP_ATTR, map);
         }
-        return varstack;
+        Map<String, Object> dependencyMap = map.get(dependencyManager);
+        if (dependencyMap == null) {
+            dependencyMap = Collections.unmodifiableMap(new DependencyMap(dependencyManager, request));
+            map.put(dependencyManager, dependencyMap);
+        }
+        return dependencyMap;
     }
 
-    protected class DependencyMap implements Map<String, Object> {
+    protected static class DependencyMap implements Map<String, Object> {
 
         protected HttpServletRequest request;
+        protected DependencyManager dependencyManager;
 
-        public DependencyMap(HttpServletRequest request) {
+        public DependencyMap(DependencyManager dependencyManager, HttpServletRequest request) {
+            this.dependencyManager = dependencyManager;
+            this.request = request;
+        }
+
+        public void setRequest(HttpServletRequest request) {
             this.request = request;
         }
 
@@ -81,7 +84,7 @@ public abstract class DependencyManagerImpl implements DependencyManager {
 
         @Override
         public Object get(Object key) {
-            return getBean(request, key.toString());
+            return dependencyManager.getBean(request, key.toString());
         }
 
         @Override
