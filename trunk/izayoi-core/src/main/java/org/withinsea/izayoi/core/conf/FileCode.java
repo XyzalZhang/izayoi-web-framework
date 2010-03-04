@@ -53,6 +53,34 @@ public class FileCode implements Code {
         this.encoding = encoding;
     }
 
+    @Override
+    public boolean isFolder() {
+        return getFile().isDirectory();
+    }
+
+    @Override
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    public String getCode() {
+        if (isFolder()) {
+            return null;
+        } else {
+            try {
+                return IOUtils.toString(getFile(), getEncoding());
+            } catch (IOException e) {
+                throw new IzayoiRuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public long getLastModified() {
+        return getFile().lastModified();
+    }
+
     public File getFile() {
         return new File(base, getPath());
     }
@@ -61,27 +89,11 @@ public class FileCode implements Code {
         return encoding;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public String getCode() {
-        try {
-            return IOUtils.toString(getFile(), getEncoding());
-        } catch (IOException e) {
-            throw new IzayoiRuntimeException(e);
-        }
-    }
-
     public void setCode(String code) {
         try {
             IOUtils.write(code, getFile(), getEncoding());
         } catch (IOException e) {
             throw new IzayoiRuntimeException(e);
         }
-    }
-
-    public long getLastModified() {
-        return getFile().lastModified();
     }
 }

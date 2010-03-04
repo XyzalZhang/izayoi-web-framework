@@ -24,6 +24,8 @@
 
 package org.withinsea.izayoi.core.conf;
 
+import java.util.List;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
@@ -31,11 +33,15 @@ package org.withinsea.izayoi.core.conf;
  */
 public interface CodeManager {
 
-    public boolean exist(String path);
+    List<String> listNames(String folderPath);
 
-    public Code get(String path);
+    List<String> listNames(String folderPath, String namePattern);
 
-    public void update(String path, String code);
+    boolean exist(String path);
 
-    public boolean delete(String path);
+    Code get(String path);
+
+    void update(String path, String code);
+
+    boolean delete(String path);
 }

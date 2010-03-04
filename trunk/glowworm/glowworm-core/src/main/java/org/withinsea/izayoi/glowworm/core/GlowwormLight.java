@@ -26,15 +26,14 @@ package org.withinsea.izayoi.glowworm.core;
 
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
 import org.withinsea.izayoi.commons.util.StringUtils;
+import org.withinsea.izayoi.core.conf.CodeManager;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfig;
-import org.withinsea.izayoi.glowworm.core.dependency.DependencyManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -49,18 +48,16 @@ public class GlowwormLight implements Filter {
 
     public static class Dispatcher {
 
-        protected static String NAMEPARAM_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".NAMEPARAM_INJECTED_FLAG";
-        protected static String GLOBAL_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".GLOBAL_INJECTED_FLAG";
-        protected static String INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".INJECTED_FLAG";
+        protected static final String NAMEPARAM_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".NAMEPARAM_INJECTED_FLAG";
+        protected static final String GLOBAL_INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".GLOBAL_INJECTED_FLAG";
+        protected static final String INJECTED_FLAG_NAME = Dispatcher.class.getCanonicalName() + ".INJECTED_FLAG";
 
         protected ServletContext servletContext;
-        protected DependencyManager dependencyManager;
+        protected CodeManager codeManager;
         protected InjectManager injectManager;
-        protected File webroot;
         protected String dataFolder;
-        protected String dataSuffix;
         protected String globalPrefix;
-        protected String dataObjectName;
+        protected String dataSuffix;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws GlowwormException {
 
@@ -70,107 +67,67 @@ public class GlowwormLight implements Filter {
 
                 if (req.getAttribute(INJECTED_FLAG_NAME) == null) {
 
-                    // split request path
-
-                    String folderPath = requestPath.replaceAll("/[^/]*$", "/");
-                    String name = requestPath.substring(folderPath.length());
-                    String main = name.substring(0, name.indexOf(".") < 0 ? name.length() : name.lastIndexOf("."));
-                    String suffix = name.substring(main.length());
-
                     // template path parameters mapping
 
-                    String realRequestPath = requestPath;
                     if (req.getAttribute(NAMEPARAM_INJECTED_FLAG_NAME) == null) {
                         Map<String, String> appendentParams = new LinkedHashMap<String, String>();
-                        String templateRequestPath = matchPathTemplate(appendentParams, webroot, "/", requestPath.substring(1));
-                        if (templateRequestPath != null && !templateRequestPath.equals(realRequestPath)) {
-                            requestPath = templateRequestPath;
-                            if (!appendentParams.isEmpty()) {
-                                ParamsAdjustHttpServletRequestWrapper reqw = new ParamsAdjustHttpServletRequestWrapper(req);
-                                for (Map.Entry<String, String> e : appendentParams.entrySet()) {
-                                    reqw.appendParam(e.getKey(), e.getValue());
-                                }
-                                req.setAttribute(NAMEPARAM_INJECTED_FLAG_NAME, true);
-                                reqw.getRequestDispatcher(requestPath).forward(reqw, resp);
-                                return;
+                        String templateRequestPath = matchPathTemplate(appendentParams, "/", requestPath.substring(1));
+                        if (templateRequestPath != null && !templateRequestPath.equals(requestPath) && !appendentParams.isEmpty()) {
+                            ParamsAdjustHttpServletRequestWrapper reqw = new ParamsAdjustHttpServletRequestWrapper(req);
+                            for (Map.Entry<String, String> e : appendentParams.entrySet()) {
+                                reqw.appendParam(e.getKey(), e.getValue());
                             }
+                            req.setAttribute(NAMEPARAM_INJECTED_FLAG_NAME, true);
+                            reqw.getRequestDispatcher(templateRequestPath).forward(reqw, resp);
+                            return;
                         }
                     }
 
                     // global injections
 
-                    Set<String> supportedTypes = injectManager.getSupportedTypes();
-
                     if (servletContext.getAttribute(GLOBAL_INJECTED_FLAG_NAME) == null) {
-                        for (String type : supportedTypes) {
-                            String globalFilePath = dataFolder + "/" + globalPrefix + "-application" + dataSuffix + "." + type;
-                            if (injectManager.exist(globalFilePath)) {
-                                injectManager.inject(req, InjectManager.Scope.APPLICATION, globalFilePath, type);
-                                break;
-                            }
+                        for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-application" + dataSuffix + ".") + "\\w+")) {
+                            injectManager.inject(req, InjectManager.Scope.APPLICATION, dataFolder + "/" + dataName, null);
                         }
                         servletContext.setAttribute(GLOBAL_INJECTED_FLAG_NAME, true);
                     }
 
                     if (req.getSession().getAttribute(GLOBAL_INJECTED_FLAG_NAME) == null) {
-                        for (String type : supportedTypes) {
-                            String globalFilePath = dataFolder + "/" + globalPrefix + "-session" + dataSuffix + "." + type;
-                            if (injectManager.exist(globalFilePath)) {
-                                injectManager.inject(req, InjectManager.Scope.SESSION, globalFilePath, type);
-                                break;
-                            }
+                        for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-session" + dataSuffix + ".") + "\\w+")) {
+                            injectManager.inject(req, InjectManager.Scope.SESSION, dataFolder + "/" + dataName, null);
                         }
                         req.getSession().setAttribute(GLOBAL_INJECTED_FLAG_NAME, true);
                     }
 
-                    String[] folderPathSplit = folderPath.equals("/") ? new String[]{""} :
-                            folderPath.replaceAll("/$", "").split("/");
+                    String folderPath = requestPath.replaceAll("/[^/]*$", "");
                     String globalFolderPath = dataFolder;
-                    for (String folderPathSplitItem : folderPathSplit) {
+                    for (String folderPathSplitItem : folderPath.split("/+")) {
                         globalFolderPath = globalFolderPath + folderPathSplitItem + "/";
                         if (req.getAttribute(GLOBAL_INJECTED_FLAG_NAME + "#" + globalFolderPath) == null) {
-                            for (String type : supportedTypes) {
-                                String globalFilePath = globalFolderPath + globalPrefix + dataSuffix + "." + type;
-                                if (injectManager.exist(globalFilePath)) {
-                                    injectManager.inject(req, InjectManager.Scope.REQUEST, globalFilePath, type);
-                                    break;
-                                }
+                            for (String dataName : codeManager.listNames(globalFolderPath, Pattern.quote(globalPrefix + dataSuffix + ".") + "\\w+")) {
+                                injectManager.inject(req, InjectManager.Scope.REQUEST, globalFolderPath + "/" + dataName, null);
                             }
                             req.setAttribute(GLOBAL_INJECTED_FLAG_NAME + "#" + globalFolderPath, true);
                         }
                     }
 
-                    if (requestPath.endsWith("/")) {
-                        chain.doFilter(req, resp);
-                    }
+                    // request injection
 
-                    // direct access to glowworm data file
-
-                    for (String type : supportedTypes) {
-                        String regexp = Pattern.quote(dataFolder) + "(.+)" + Pattern.quote(dataSuffix) + "\\." + type;
-                        if (requestPath.matches(regexp)) {
-                            if (injectManager.exist(requestPath)) {
-                                injectManager.inject(req, InjectManager.Scope.REQUEST, requestPath, type);
+                    if (!requestPath.endsWith("/")) {
+                        Matcher dataMatcher = Pattern.compile(Pattern.quote(folderPath) + "/(.+)" + Pattern.quote(dataSuffix) + "\\.\\w+").matcher(requestPath);
+                        if (dataMatcher.matches() && codeManager.exist(requestPath)) {
+                            // direct access to glowworm data file
+                            injectManager.inject(req, InjectManager.Scope.REQUEST, requestPath, null);
+                            req.setAttribute(INJECTED_FLAG_NAME, true);
+                            req.getRequestDispatcher("/" + dataMatcher.group(1)).forward(req, resp);
+                        } else {
+                            // auto bind
+                            String name = requestPath.replaceAll(".*/", "");
+                            String main = name.substring(0, name.indexOf(".") < 0 ? name.length() : name.lastIndexOf("."));
+                            String suffix = name.substring(main.length());
+                            for (String dataName : codeManager.listNames(folderPath, Pattern.quote(main) + "(|" + Pattern.quote(suffix) + ")" + Pattern.quote(dataSuffix) + "\\.\\w+")) {
+                                injectManager.inject(req, InjectManager.Scope.REQUEST, folderPath + "/" + dataName, null);
                                 req.setAttribute(INJECTED_FLAG_NAME, true);
-                                req.getRequestDispatcher("/" + requestPath.replaceAll(regexp, "$1")).forward(req, resp);
-                                return;
-                            }
-                        }
-                    }
-
-                    // auto bind
-
-                    types:
-                    for (String type : supportedTypes) {
-                        String regexp = Pattern.quote(main) + "(|" + Pattern.quote(suffix) + ")" + Pattern.quote(dataSuffix) + "\\." + type;
-                        File folder = new File(servletContext.getRealPath(dataFolder + folderPath));
-                        if (folder.exists() && folder.isDirectory()) {
-                            for (File f : folder.listFiles()) {
-                                if (f.getName().matches(regexp)) {
-                                    injectManager.inject(req, InjectManager.Scope.REQUEST, dataFolder + folderPath + "/" + f.getName(), type);
-                                    req.setAttribute(INJECTED_FLAG_NAME, true);
-                                    break types;
-                                }
                             }
                         }
                     }
@@ -183,28 +140,32 @@ public class GlowwormLight implements Filter {
             }
         }
 
-        protected String matchPathTemplate(Map<String, String> params, File root, String basePath, String path) {
+        protected static final Pattern PATH_TEMPLATE_PATTERN = Pattern.compile("\\{\\w+\\}");
+
+        protected int scorePathTemplate(String name) {
+            Matcher matcher = PATH_TEMPLATE_PATTERN.matcher(name);
+            int count = 0;
+            while (matcher.find()) count++;
+            return -count;
+        }
+
+        protected String matchPathTemplate(Map<String, String> params, String basePath, String path) {
 
             if (path.equals("")) {
                 return basePath;
             }
 
-            List<File> files = Arrays.asList(new File(root, basePath).listFiles());
-            Collections.sort(files, new Comparator<File>() {
+            String fname = path.replaceAll("/.*", "");
 
-                int score(String name) {
-                    return name.matches("\\{\\w+\\}") ? 0 : name.matches(".*\\{\\w+\\}.*") ? 1 : 2;
-                }
-
+            List<String> codeNames = codeManager.listNames(basePath);
+            Collections.sort(codeNames, new Comparator<String>() {
                 @Override
-                public int compare(File o1, File o2) {
-                    return score(o2.getName()) - score(o1.getName());
+                public int compare(String n1, String n2) {
+                    return scorePathTemplate(n1) - scorePathTemplate(n2);
                 }
             });
 
-            String fname = path.replaceAll("/.*", "");
-            for (File templateF : files) {
-                String tname = templateF.getName();
+            for (String tname : codeNames) {
                 String nameRegexp = StringUtils.replaceAll(
                         tname, "\\{\\w+\\}", new StringUtils.Replace() {
                             @Override
@@ -238,9 +199,9 @@ public class GlowwormLight implements Filter {
                     for (int i = 1; i <= templateMatcher.groupCount(); i++) {
                         params.put(templateMatcher.group(i), nameMatcher.group(i));
                     }
-                    String ret = templateF.isFile()
-                            ? basePath + (basePath.equals("") ? "" : "/") + templateF.getName()
-                            : matchPathTemplate(params, root, basePath + "/" + templateF.getName(), path.substring(fname.length() + 1));
+                    String ret = codeManager.get(basePath + "/" + tname).isFolder()
+                            ? matchPathTemplate(params, basePath + "/" + tname, path.substring(fname.length() + 1))
+                            : basePath + (basePath.equals("") ? "" : "/") + tname;
                     return (ret == null) ? null : ret.replaceAll("^/+", "/");
                 }
             }
@@ -248,8 +209,12 @@ public class GlowwormLight implements Filter {
             return null;
         }
 
+        public void setCodeManager(CodeManager codeManager) {
+            this.codeManager = codeManager;
+        }
+
         public void setDataFolder(String dataFolder) {
-            this.dataFolder = dataFolder;
+            this.dataFolder = dataFolder.replaceAll("/+$", "");
         }
 
         public void setDataSuffix(String dataSuffix) {
@@ -260,24 +225,12 @@ public class GlowwormLight implements Filter {
             this.globalPrefix = globalPrefix;
         }
 
-        public void setDataObjectName(String dataObjectName) {
-            this.dataObjectName = dataObjectName;
-        }
-
-        public void setDependencyManager(DependencyManager dependencyManager) {
-            this.dependencyManager = dependencyManager;
-        }
-
         public void setInjectManager(InjectManager injectManager) {
             this.injectManager = injectManager;
         }
 
         public void setServletContext(ServletContext servletContext) {
             this.servletContext = servletContext;
-        }
-
-        public void setWebroot(File webroot) {
-            this.webroot = webroot;
         }
     }
 

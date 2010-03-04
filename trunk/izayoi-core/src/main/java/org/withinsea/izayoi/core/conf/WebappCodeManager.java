@@ -25,6 +25,9 @@
 package org.withinsea.izayoi.core.conf;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -36,6 +39,19 @@ public class WebappCodeManager implements CodeManager {
     private String encoding;
 
     private File webroot;
+
+    public List<String> listNames(String folderPath) {
+        return Arrays.asList(new File(webroot, folderPath).list());
+    }
+
+    public List<String> listNames(String folderPath, final String regex) {
+        return Arrays.asList(new File(webroot, folderPath).list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.matches(regex);
+            }
+        }));
+    }
 
     public boolean exist(String path) {
         return new FileCode(webroot, path, encoding).getFile().exists();

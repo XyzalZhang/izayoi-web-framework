@@ -22,16 +22,29 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.dependency;
+package org.withinsea.izayoi.core.interpreter;
 
-import javax.servlet.http.HttpServletRequest;
+import org.withinsea.izayoi.core.exception.IzayoiException;
+
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-30
- * Time: 16:04:30
+ * Date: 2010-3-4
+ * Time: 13:59:24
  */
-public interface DependencyManager {
+public class JSR223 implements Interpreter {
 
-    public Object getBean(HttpServletRequest request, String name);
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
+        try {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(asType);
+            return (T) engine.eval(script, bindings);
+        } catch (Exception e) {
+            throw new IzayoiException(e);
+        }
+    }
 }

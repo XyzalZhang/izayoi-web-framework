@@ -22,22 +22,18 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.core.dependency;
 
-import org.mvel2.MVEL;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.withinsea.izayoi.commons.util.Varstack;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 18:00:15
+ * Date: 2010-1-30
+ * Time: 16:04:30
  */
-public class MVEL2 extends ScriptInjector {
+public interface DependencyManager {
 
-    @Override
-    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
-        return MVEL.eval(src, new DependencyBindings(dependencyManager, request));
-    }
+    public Varstack getDependency(HttpServletRequest request);
 }

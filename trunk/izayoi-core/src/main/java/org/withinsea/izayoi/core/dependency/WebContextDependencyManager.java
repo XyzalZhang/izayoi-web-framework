@@ -22,11 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.dependency;
-
-import org.withinsea.izayoi.commons.servlet.HttpContextMap;
-import org.withinsea.izayoi.commons.servlet.HttpParameterMap;
-import org.withinsea.izayoi.commons.util.Varstack;
+package org.withinsea.izayoi.core.dependency;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -42,45 +38,38 @@ import java.util.List;
  * Date: 2010-1-30
  * Time: 16:05:28
  */
-public class WebContextDependencyManager implements DependencyManager {
+public class WebContextDependencyManager extends DependencyManagerImpl {
 
     @Override
-    public Object getBean(HttpServletRequest request, String name) {
-        Object obj = lookupRequest(request, name);
+    protected Object getBean(HttpServletRequest request, String name) {
+        Object obj = lookupConstants(request, name);
+        if (obj == null) obj = lookupRequest(request, name);
         if (obj == null) obj = lookupCDI(name);
         if (obj == null) obj = lookupJndi(name.replace("_", "/"));
         return obj;
     }
 
-    protected static final String VARSTACK_ATTR = WebContextDependencyManager.class.getCanonicalName() + ".VARSTACK";
-
-    @SuppressWarnings("unchecked")
-    protected static <T> T lookupRequest(HttpServletRequest request, String name) {
-        if (request.getAttribute(VARSTACK_ATTR) == null) {
-            HttpContextMap contextMap = new HttpContextMap(request);
-            HttpParameterMap paramMap = new HttpParameterMap(request);
-            Varstack varstack = new Varstack();
-            {
-                varstack.push(contextMap);
-                varstack.push(paramMap);
-                varstack.push();
-                {
-                    varstack.put("params", paramMap);
-                    varstack.put("application", request.getSession().getServletContext());
-                    varstack.put("session", request.getSession());
-                    varstack.put("request", request);
-                }
-            }
-            request.setAttribute(VARSTACK_ATTR, varstack);
-        }
-        Varstack varstack = (Varstack) request.getAttribute(VARSTACK_ATTR);
-        return (T) varstack.get(name);
+    protected static Object lookupConstants(HttpServletRequest request, String name) {
+        return name.equals("request") ? request
+                : name.equals("request") ? request
+                : name.equals("session") ? request.getSession()
+                : name.equals("application") ? request.getServletContext()
+                : name.equals("servletContext") ? request.getServletContext()
+                : null;
     }
 
-    @SuppressWarnings("unchecked")
-    protected static <T> T lookupCDI(String name) {
+    protected static Object lookupRequest(HttpServletRequest request, String name) {
+        Object obj = request.getParameter(name);
+        if (obj == null) obj = request.getAttribute(name);
+        if (obj == null) obj = request.getSession().getAttribute(name);
+        if (obj == null) obj = request.getServletContext().getAttribute(name);
+        return obj;
+    }
+
+    protected static Object lookupCDI(String name) {
         try {
-            BeanManager beanManager = lookupJndi("java:comp/BeanManager");
+            @SuppressWarnings("unchecked")
+            BeanManager beanManager = (BeanManager) lookupJndi("java:comp/BeanManager");
             if (beanManager == null) {
                 return null;
             }
@@ -89,15 +78,14 @@ public class WebContextDependencyManager implements DependencyManager {
                 return null;
             } else {
                 Bean<?> bean = beans.get(0);
-                return (T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
+                return beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
             }
         } catch (Exception ex) {
             return null;
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected static <T> T lookupJndi(String name) {
+    protected static Object lookupJndi(String name) {
         try {
             Context ctx = new InitialContext();
             for (String jndiName : new String[]{
@@ -111,7 +99,7 @@ public class WebContextDependencyManager implements DependencyManager {
                     "java:jms/" + name
             }) {
                 try {
-                    return (T) ctx.lookup(jndiName);
+                    return ctx.lookup(jndiName);
                 } catch (NamingException e) {
                     // do nothing
                 }

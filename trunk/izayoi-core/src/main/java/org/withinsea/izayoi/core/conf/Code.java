@@ -31,6 +31,8 @@ package org.withinsea.izayoi.core.conf;
  */
 public interface Code {
 
+    public boolean isFolder();
+
     public String getPath();
 
     public String getCode();

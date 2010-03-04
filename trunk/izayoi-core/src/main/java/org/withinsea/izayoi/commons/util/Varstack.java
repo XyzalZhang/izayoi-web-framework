@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.commons.util;
 
+import javax.script.Bindings;
 import java.util.*;
 
 /**
@@ -31,7 +32,7 @@ import java.util.*;
  * Date: 2009-12-22
  * Time: 16:58:19
  */
-public class Varstack implements Map<String, Object> {
+public class Varstack implements Bindings, Map<String, Object> {
 
     protected final Deque<Map<String, Object>> stack = new LinkedList<Map<String, Object>>();
 

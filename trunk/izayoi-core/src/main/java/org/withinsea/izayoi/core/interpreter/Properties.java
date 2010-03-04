@@ -22,10 +22,11 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.core.interpreter;
 
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.withinsea.izayoi.core.exception.IzayoiException;
 
+import javax.script.Bindings;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
@@ -33,25 +34,24 @@ import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 16:25:41
+ * Date: 2010-3-4
+ * Time: 13:59:24
  */
-@SuppressWarnings("unused")
-public class Props extends DeserializeInjector {
+public class Properties implements Interpreter {
 
     @Override
-    protected Object deserialize(String src) throws GlowwormException {
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
         try {
             java.util.Properties props = new java.util.Properties();
-            props.load(new StringReader(src));
+            props.load(new StringReader(script));
             Map<String, Object> data = new LinkedHashMap<String, Object>();
             for (String name : props.stringPropertyNames()) {
                 data.put(name, props.getProperty(name));
             }
-            return data;
+            return (T) data;
         } catch (IOException e) {
-            throw new GlowwormException(e);
+            throw new IzayoiException(e);
         }
     }
-
 }

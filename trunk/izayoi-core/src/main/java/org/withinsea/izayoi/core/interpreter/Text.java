@@ -22,21 +22,22 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.core.interpreter;
 
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
+import org.withinsea.izayoi.core.exception.IzayoiException;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.script.Bindings;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 17:59:16
+ * Date: 2010-3-4
+ * Time: 13:59:24
  */
-public interface Injector {
+public class Text implements Interpreter {
 
-    boolean isSupport(String type);
-
-    void inject(HttpServletRequest request, InjectManager.Scope scope, String dataPath, String type, String src) throws GlowwormException;
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
+        return (T) script;
+    }
 }

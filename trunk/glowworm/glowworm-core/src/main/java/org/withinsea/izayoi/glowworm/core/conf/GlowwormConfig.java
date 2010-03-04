@@ -30,7 +30,6 @@ import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -55,35 +54,24 @@ public class GlowwormConfig extends IzayoiConfig {
 
         super.initComponents(container, servletContext, conf);
 
-        container.addComponent("dependencyManager", Class.forName(conf.getProperty("class.dependencyManager").trim()));
-
         Map<String, Injector> injectors = new LinkedHashMap<String, Injector>();
         {
-            Map<String, Injector> unsortedInjectors = new HashMap<String, Injector>();
             for (String name : conf.stringPropertyNames()) {
                 if (name.startsWith("class.injector.")) {
                     String type = name.substring("class.injector.".length());
                     try {
-                        @SuppressWarnings("unchecked")
                         Class<?> claz = Class.forName(conf.getProperty(name));
-//                        if (ClassUtils.isExtendsFrom(claz, Injector.class)) {
                         if (Injector.class.isAssignableFrom(claz)) {
-                            unsortedInjectors.put(type, (Injector) container.getComponent(claz));
+                            injectors.put(type, (Injector) container.getComponent(claz));
                         }
                     } catch (Exception e) {
                         throw new ServletException(e);
                     }
                 }
             }
-            for (String type : conf.getProperty("defaultTypes").split("[\\s;,]+")) {
-                if (unsortedInjectors.containsKey(type)) {
-                    injectors.put(type, unsortedInjectors.get(type));
-                    unsortedInjectors.remove(type);
-                }
-            }
-            injectors.putAll(unsortedInjectors);
         }
         container.addComponent("injectors", injectors);
+
         container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager").trim()));
     }
 }

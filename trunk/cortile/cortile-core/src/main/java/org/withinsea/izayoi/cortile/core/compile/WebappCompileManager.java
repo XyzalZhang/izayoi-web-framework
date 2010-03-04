@@ -158,17 +158,14 @@ public class WebappCompileManager implements CompileManager {
 
     // dependency
 
-    @SuppressWarnings("unused")
     public void setCodeManager(CodeManager codeManager) {
         this.codeManager = codeManager;
     }
 
-    @SuppressWarnings("unused")
     public void setCompilers(Map<String, Compilr> compilers) {
         this.compilers = compilers;
     }
 
-    @SuppressWarnings("unused")
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }

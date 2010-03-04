@@ -27,7 +27,6 @@ package org.withinsea.izayoi.glowworm.core.inject;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -41,12 +40,6 @@ public interface InjectManager {
         SESSION,
         REQUEST
     }
-
-    String getEncoding();
-
-    Set<String> getSupportedTypes();
-
-    boolean exist(String dataPath);
 
     void inject(HttpServletRequest request, Scope scope, String dataPath, String asType) throws GlowwormException;
 }

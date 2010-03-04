@@ -22,24 +22,27 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.core.interpreter;
 
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.withinsea.izayoi.commons.js.JSUtils;
+import org.withinsea.izayoi.core.exception.IzayoiException;
+
+import javax.script.Bindings;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 16:25:41
+ * Date: 2010-3-4
+ * Time: 13:59:24
  */
-@SuppressWarnings("unused")
-public class Text extends DeserializeInjector {
+public class JSON implements Interpreter {
 
     @Override
-    protected Object deserialize(String src) throws GlowwormException {
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
         try {
-            return src;
+            return (T) JSUtils.json2java(script);
         } catch (Exception e) {
-            throw new GlowwormException(e);
+            throw new IzayoiException(e);
         }
     }
 }

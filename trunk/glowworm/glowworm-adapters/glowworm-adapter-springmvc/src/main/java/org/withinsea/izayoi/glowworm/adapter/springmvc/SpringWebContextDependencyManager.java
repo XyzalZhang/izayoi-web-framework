@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.glowworm.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.glowworm.core.dependency.WebContextDependencyManager;
+import org.withinsea.izayoi.core.dependency.WebContextDependencyManager;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,9 +45,8 @@ public class SpringWebContextDependencyManager extends WebContextDependencyManag
         return obj;
     }
 
-    @SuppressWarnings("unchecked")
-    protected <T> T lookupSpring(String name) {
-        return (T) applicationContext.getBean(name);
+    protected Object lookupSpring(String name) {
+        return applicationContext.getBean(name);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {

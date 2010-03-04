@@ -26,6 +26,7 @@ package org.withinsea.izayoi.glowworm.core.injector;
 
 import org.withinsea.izayoi.commons.servlet.MockHttpServletResponse;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,14 +40,18 @@ import java.io.IOException;
 public class ForwardInjector implements Injector {
 
     @Override
-    public Object inject(HttpServletRequest request, String srcPath, String src) throws GlowwormException {
+    public boolean isSupport(String type) {
+        return true;
+    }
+
+    @Override
+    public void inject(HttpServletRequest request, InjectManager.Scope scope, String dataPath, String type, String src) throws GlowwormException {
         try {
-            request.getRequestDispatcher(srcPath).forward(request, new MockHttpServletResponse());
+            request.getRequestDispatcher(dataPath).forward(request, new MockHttpServletResponse());
         } catch (ServletException e) {
             throw new GlowwormException(e);
         } catch (IOException e) {
             throw new GlowwormException(e);
         }
-        return null;
     }
 }
