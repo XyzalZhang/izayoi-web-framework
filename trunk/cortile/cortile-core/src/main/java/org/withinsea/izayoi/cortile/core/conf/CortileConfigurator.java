@@ -26,12 +26,11 @@ package org.withinsea.izayoi.cortile.core.conf;
 
 import org.picocontainer.MutablePicoContainer;
 import org.withinsea.izayoi.commons.util.ClassUtils;
-import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.ELHelper;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
 
-import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.util.*;
 
@@ -40,22 +39,12 @@ import java.util.*;
  * Date: 2010-1-9
  * Time: 16:05:31
  */
-public class CortileConfig extends IzayoiConfig {
-
-    public CortileConfig(ServletContext servletContext) {
-        this(servletContext, null);
-    }
-
-    public CortileConfig(ServletContext servletContext, String configPath) {
-        super(servletContext, configPath);
-    }
+public class CortileConfigurator extends IzayoiConfigurator {
 
     @Override
-    protected void initComponents(MutablePicoContainer container, ServletContext servletContext, Properties conf) throws Exception {
+    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
 
-        super.initComponents(container, servletContext, conf);
-
-        container.addComponent("target", container.getComponent("webroot"));
+        super.initComponents(container, conf);
 
         container.addComponent("elHelper", ELHelper.class);
 

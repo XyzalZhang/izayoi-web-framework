@@ -29,7 +29,7 @@ import org.dom4j.Document;
 import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.commons.html.HTMLWriter;
 import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.cortile.core.compiler.ELHelper;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -47,15 +47,15 @@ public class HTMLCompiler extends DOMCompiler {
 
     protected String encoding;
     protected String targetPath;
-    protected String retrievalKey;
+    protected String componentContainerRetrievalKey;
 
     // el compiler
 
     @Override
     public String compileELInit(String classes) {
         String elHelperInit = ELHelper.class.getCanonicalName() + ".Helper elHelper = " +
-                IzayoiConfig.class.getCanonicalName() +
-                ".retrieval(request.getServletContext(), \"" + retrievalKey + "\")" +
+                ComponentContainer.class.getCanonicalName() +
+                ".retrieval(request.getServletContext(), \"" + componentContainerRetrievalKey + "\")" +
                 ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
                 ".getHelper(request);";
         String varstackInit = Varstack.class.getCanonicalName() + " varstack = " +
@@ -116,7 +116,7 @@ public class HTMLCompiler extends DOMCompiler {
         this.targetPath = targetPath;
     }
 
-    public void setRetrievalKey(String retrievalKey) {
-        this.retrievalKey = retrievalKey;
+    public void setComponentContainerRetrievalKey(String componentContainerRetrievalKey) {
+        this.componentContainerRetrievalKey = componentContainerRetrievalKey;
     }
 }

@@ -25,10 +25,11 @@
 package org.withinsea.izayoi.cortile.core;
 
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.conf.IzayoiConfig;
-import org.withinsea.izayoi.core.conf.IzayoiConfigurable;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
+import org.withinsea.izayoi.core.conf.Configurable;
+import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
-import org.withinsea.izayoi.cortile.core.conf.CortileConfig;
+import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import javax.servlet.*;
@@ -42,7 +43,14 @@ import java.io.IOException;
  * Date: 2009-12-27
  * Time: 22:01:47
  */
-public class CortileScenery extends HttpServlet implements Filter, IzayoiConfigurable {
+public class CortileScenery extends HttpServlet implements Filter, Configurable {
+
+    protected Configurator configurator = new CortileConfigurator();
+
+    @Override
+    public void setConfigurator(Configurator configurator) {
+        this.configurator = configurator;
+    }
 
     public static class Dispatcher {
 
@@ -91,13 +99,8 @@ public class CortileScenery extends HttpServlet implements Filter, IzayoiConfigu
 
     protected Dispatcher dispatcher;
 
-    @Override
-    public IzayoiConfig config(ServletContext servletContext, String configPath) {
-        return new CortileConfig(servletContext, configPath);
-    }
-
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = config(servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {

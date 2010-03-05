@@ -26,15 +26,83 @@ package org.withinsea.izayoi.core.conf;
 
 import org.picocontainer.*;
 import org.picocontainer.behaviors.Behaviors;
+import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
+
+import javax.servlet.ServletContext;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-1-9
  * Time: 15:13:00
  */
-class IzayoiComponentContainer extends DefaultPicoContainer {
+public class ComponentContainer extends DefaultPicoContainer {
 
-    public IzayoiComponentContainer() {
+    // constructor
+
+    protected static final String CONTAINERS_ATTR = ComponentContainer.class.getCanonicalName() + ".CONTAINERS";
+
+    public static ComponentContainer get(Class<? extends Configurator> configuratorClaz, ServletContext servletContext, String configPath) {
+        try {
+            return get(configuratorClaz.newInstance(), servletContext, configPath);
+        } catch (InstantiationException e) {
+            throw new IzayoiRuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new IzayoiRuntimeException(e);
+        }
+    }
+
+    public static ComponentContainer get(Configurator configurator, ServletContext servletContext, String configPath) {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, ComponentContainer> containers = (Map<String, ComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
+            if (containers == null) {
+                containers = new HashMap<String, ComponentContainer>();
+                servletContext.setAttribute(CONTAINERS_ATTR, containers);
+            }
+            String retrievalKey = getRetrievalKey(configurator.getClass(), configPath);
+            ComponentContainer container = containers.get(retrievalKey);
+            if (container == null) {
+                Properties conf = new Properties();
+                {
+                    configurator.loadConf(conf, servletContext, configPath);
+                }
+                container = new ComponentContainer();
+                {
+                    container.addComponent("servletContext", servletContext);
+                    container.addComponent("componentContainerRetrievalKey", retrievalKey);
+                    for (String propname : conf.stringPropertyNames()) {
+                        container.addComponent(propname, conf.getProperty(propname));
+                    }
+                    configurator.initComponents(container, conf);
+                }
+                containers.put(retrievalKey, container);
+            }
+            return container;
+        } catch (Exception e) {
+            throw new IzayoiRuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static ComponentContainer retrieval(ServletContext servletContext, String retrievalKey) {
+        try {
+            String[] splitKey = retrievalKey.split("@");
+            return get((Class<? extends Configurator>) Class.forName(splitKey[0]), servletContext, splitKey[1]);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    protected static String getRetrievalKey(Class<? extends Configurator> configClass, String configPath) {
+        return configClass.getCanonicalName() + "@" + (configPath == null ? "DEFAULT" : configPath);
+    }
+
+    // container
+
+    protected ComponentContainer() {
         super(Behaviors.caching());
         change(Characteristics.SDI, Characteristics.USE_NAMES);
     }
@@ -66,8 +134,9 @@ class IzayoiComponentContainer extends DefaultPicoContainer {
                 : super.addComponent(implOrInstance);
     }
 
-    public Object getComponent(String componentKey) {
-        return super.getComponent(toInjectName(componentKey));
+    @SuppressWarnings("unchecked")
+    public <T> T getComponent(String componentKey) {
+        return (T) super.getComponent(toInjectName(componentKey));
     }
 
     public MutablePicoContainer addComponent(Class<?> impl) {

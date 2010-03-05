@@ -24,14 +24,19 @@
 
 package org.withinsea.izayoi.core.conf;
 
+import org.picocontainer.MutablePicoContainer;
+
 import javax.servlet.ServletContext;
+import java.util.Properties;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-3-5
- * Time: 3:54:57
+ * Time: 21:29:52
  */
-public interface IzayoiConfigurable {
+public interface Configurator {
 
-    IzayoiConfig config(ServletContext servletContext, String configPath);
+    void loadConf(Properties conf, ServletContext servletContext, String configPath) throws Exception;
+
+    void initComponents(MutablePicoContainer container, Properties conf) throws Exception;
 }

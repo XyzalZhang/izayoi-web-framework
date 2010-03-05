@@ -38,7 +38,6 @@
     <version>0.2.0-SNAPSHOT</version>
     <modules>
         <module>glowworm-core</module>
-        <module>glowworm-adapter-springmvc</module>
     </modules>
 
     <!-- More Project Information -->

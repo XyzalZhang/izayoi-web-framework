@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.core.code;
 
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
@@ -36,9 +37,8 @@ import java.util.List;
  */
 public class WebappCodeManager implements CodeManager {
 
-    private String encoding;
-
-    private File webroot;
+    protected File webroot;
+    protected String encoding;
 
     public List<String> listNames(String folderPath) {
         return Arrays.asList(new File(webroot, folderPath).list());
@@ -71,13 +71,11 @@ public class WebappCodeManager implements CodeManager {
         return new FileCode(webroot, path, encoding).getFile().delete();
     }
 
-    @SuppressWarnings("unused")
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
-    @SuppressWarnings("unused")
-    public void setWebroot(File webroot) {
-        this.webroot = webroot;
+    public void setServletContext(ServletContext servletContext) {
+        this.webroot = new File(servletContext.getRealPath("/").replace("%20", " "));
     }
 }

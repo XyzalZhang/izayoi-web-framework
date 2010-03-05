@@ -25,10 +25,9 @@
 package org.withinsea.izayoi.glowworm.core.conf;
 
 import org.picocontainer.MutablePicoContainer;
-import org.withinsea.izayoi.core.conf.IzayoiConfig;
+import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,20 +38,12 @@ import java.util.Properties;
  * Date: 2010-1-11
  * Time: 14:36:57
  */
-public class GlowwormConfig extends IzayoiConfig {
-
-    public GlowwormConfig(ServletContext servletContext) {
-        super(servletContext);
-    }
-
-    public GlowwormConfig(ServletContext servletContext, String configPath) {
-        super(servletContext, configPath);
-    }
+public class GlowwormConfigurator extends IzayoiConfigurator {
 
     @Override
-    protected void initComponents(MutablePicoContainer container, ServletContext servletContext, Properties conf) throws Exception {
+    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
 
-        super.initComponents(container, servletContext, conf);
+        super.initComponents(container, conf);
 
         Map<String, Injector> injectors = new LinkedHashMap<String, Injector>();
         {

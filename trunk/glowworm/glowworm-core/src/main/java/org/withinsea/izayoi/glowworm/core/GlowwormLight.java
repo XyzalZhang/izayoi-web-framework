@@ -28,9 +28,10 @@ import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrappe
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.PathUtils;
-import org.withinsea.izayoi.core.conf.IzayoiConfig;
-import org.withinsea.izayoi.core.conf.IzayoiConfigurable;
-import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfig;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
+import org.withinsea.izayoi.core.conf.Configurable;
+import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
 
@@ -47,7 +48,14 @@ import java.util.regex.Pattern;
  * Date: 2010-1-12
  * Time: 23:49:57
  */
-public class GlowwormLight implements Filter, IzayoiConfigurable {
+public class GlowwormLight implements Filter, Configurable {
+
+    protected Configurator configurator = new GlowwormConfigurator();
+
+    @Override
+    public void setConfigurator(Configurator configurator) {
+        this.configurator = configurator;
+    }
 
     public static class Dispatcher {
 
@@ -240,13 +248,8 @@ public class GlowwormLight implements Filter, IzayoiConfigurable {
 
     protected Dispatcher dispatcher;
 
-    @Override
-    public IzayoiConfig config(ServletContext servletContext, String configPath) {
-        return new GlowwormConfig(servletContext, configPath);
-    }
-
     public void init(ServletContext servletContext, String configPath) throws GlowwormException {
-        dispatcher = config(servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws GlowwormException {

@@ -33,13 +33,19 @@
         <artifactId>izayoi-base</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>cortile-adapter-springmvc</artifactId>
+    <artifactId>izayoi-adapter-springmvc</artifactId>
     <packaging>jar</packaging>
     <version>0.2.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>cortile-core</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>glowworm-core</artifactId>
             <version>0.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
@@ -58,7 +64,7 @@
     </dependencies>
 
     <!-- More Project Information -->
-    <name>cortile-adapter-springmvc</name>
+    <name>izayoi-adapter-springmvc</name>
 
     <!-- Environment Settings -->
     <repositories>

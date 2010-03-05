@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.adapter.springmvc;
+package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
 import org.withinsea.izayoi.core.dependency.WebContextDependencyManager;

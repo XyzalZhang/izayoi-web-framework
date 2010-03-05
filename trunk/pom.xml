@@ -40,10 +40,11 @@
     <modules>
         <module>izayoi-base</module>
         <module>izayoi-core</module>
-        <module>cortile</module>
-        <module>glowworm</module>
+        <module>izayoi-adapter</module>
         <module>izayoi-demo</module>
         <module>izayoi-site</module>
+        <module>cortile</module>
+        <module>glowworm</module>
     </modules>
 
     <!-- More Project Information -->
