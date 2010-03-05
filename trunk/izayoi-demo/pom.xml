@@ -34,19 +34,26 @@
         <artifactId>izayoi-base</artifactId>
         <version>0.1.0</version>
     </parent>
-    <artifactId>izayoi</artifactId>
+    <artifactId>izayoi-demo</artifactId>
     <packaging>pom</packaging>
     <version>0.2.0-SNAPSHOT</version>
     <modules>
-        <module>izayoi-base</module>
-        <module>izayoi-core</module>
-        <module>cortile</module>
-        <module>glowworm</module>
-        <module>izayoi-demo</module>
-        <module>izayoi-site</module>
+
+        <module>cortile-quick-start</module>
+        <module>glowworm-quick-start</module>
+
+        <module>cortile-tutorial-grammars</module>
+        <module>glowworm-tutorial-config</module>
+        <module>glowworm-tutorial-mapping-injectors</module>
+
+        <module>cortile-demo-intergration-glowworm</module>
+        <module>cortile-demo-intergration-springmvc</module>
+
+        <module>izayoi-demo-SpringGlowwormCortile</module>
+
     </modules>
 
     <!-- More Project Information -->
-    <name>izayoi</name>
+    <name>izayoi-demo</name>
 
 </project>

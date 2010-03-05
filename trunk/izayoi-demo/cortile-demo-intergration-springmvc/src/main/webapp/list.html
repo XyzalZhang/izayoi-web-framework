@@ -22,27 +22,28 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <!-- The Basics -->
-    <parent>
-        <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi-base</artifactId>
-        <version>0.1.0</version>
-    </parent>
-    <artifactId>cortile</artifactId>
-    <packaging>pom</packaging>
-    <version>0.2.0-SNAPSHOT</version>
-    <modules>
-        <module>cortile-core</module>
-        <module>cortile-adapter-springmvc</module>
-    </modules>
-
-    <!-- More Project Information -->
-    <name>cortile</name>
-
-</project>
+<span>用户名称</span>
+<ul>
+    <li c:for.user="${userList}">
+        <span>用户名</span>：<span c:content="${user.name}">王小毛</span>
+    </li>
+    <li c:mock="toend">
+        <span>用户名</span>：<span>王小毛1</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛2</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛3</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛4</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛5</span>
+    </li>
+    <li>
+        <span>用户名</span>：<span>王小毛</span>
+    </li>
+</ul>
+<hr />

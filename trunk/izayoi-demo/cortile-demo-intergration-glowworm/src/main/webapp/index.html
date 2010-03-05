@@ -22,27 +22,18 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
+<img src="${album.src}" title="${album.title}" />
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<ul>
+    <li c:for.userAlbum="${userAlbumList}">
+        <a href="/room/album/edit.html?id=${userAlbum.id}"
+           c:attr.title="${userAlbum.id}" class="edit">修改</a>
+    </li>
+</ul>
 
-    <modelVersion>4.0.0</modelVersion>
-
-    <!-- The Basics -->
-    <parent>
-        <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi-base</artifactId>
-        <version>0.1.0</version>
-    </parent>
-    <artifactId>cortile</artifactId>
-    <packaging>pom</packaging>
-    <version>0.2.0-SNAPSHOT</version>
-    <modules>
-        <module>cortile-core</module>
-        <module>cortile-adapter-springmvc</module>
-    </modules>
-
-    <!-- More Project Information -->
-    <name>cortile</name>
-
-</project>
+<ul c:set.a="${album}">
+    <li c:for.i="i=4; i<10; i++" c:for-status.i="iStat"
+        c:set.href="blahblah.html?title=${iStat.idx}">
+        <a href="${href}">LINK ${i} ${a.title}</a>
+    </li>
+</ul>

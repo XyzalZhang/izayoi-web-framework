@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
   ~ The contents of this file are subject to the Mozilla Public License
   ~ Version 1.1 (the "License"); you may not use this file except in compliance
@@ -22,27 +24,10 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
+<!DOCTYPE sun-web-app PUBLIC "-//Sun Microsystems, Inc.//DTD GlassFish Application Server 3.0 Servlet 3.0//EN"
+        "http://www.sun.com/software/appserver/dtds/sun-web-app_3_0-0.dtd">
+<sun-web-app>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <context-root>/glowworm-quick-start</context-root>
 
-    <modelVersion>4.0.0</modelVersion>
-
-    <!-- The Basics -->
-    <parent>
-        <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi-base</artifactId>
-        <version>0.1.0</version>
-    </parent>
-    <artifactId>cortile</artifactId>
-    <packaging>pom</packaging>
-    <version>0.2.0-SNAPSHOT</version>
-    <modules>
-        <module>cortile-core</module>
-        <module>cortile-adapter-springmvc</module>
-    </modules>
-
-    <!-- More Project Information -->
-    <name>cortile</name>
-
-</project>
+</sun-web-app>
