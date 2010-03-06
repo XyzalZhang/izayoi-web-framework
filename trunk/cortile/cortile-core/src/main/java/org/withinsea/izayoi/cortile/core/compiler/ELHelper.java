@@ -68,18 +68,20 @@ public class ELHelper {
             this.context = Context.newInstance(dependencyManager, request);
         }
 
-        public Object eval(String el) {
+        public Object eval(String el, boolean forOutput) {
             Interpreter interpreter = interpreters.get(interpreters.containsKey(elType) ? elType : "default");
+            Object ret;
             try {
                 if (interpreter instanceof ImportableInterpreter) {
                     String[] importedClasses = context.importedClasses.toArray(new String[context.importedClasses.size()]);
-                    return ((ImportableInterpreter) interpreter).interpret(el, context.varstack, elType, importedClasses);
+                    ret = ((ImportableInterpreter) interpreter).interpret(el, context.varstack, elType, importedClasses);
                 } else {
-                    return interpreter.interpret(el, context.varstack, elType);
+                    ret = interpreter.interpret(el, context.varstack, elType);
                 }
             } catch (Exception e) {
-                return null; // silent exception stack trace
+                ret = null; // silent exception stack trace
             }
+            return (!forOutput) ? ret : (ret == null) ? "" : ret;
         }
 
         public void imports(String classes) {

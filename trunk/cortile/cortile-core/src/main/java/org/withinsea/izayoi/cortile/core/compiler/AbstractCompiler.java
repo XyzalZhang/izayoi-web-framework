@@ -22,23 +22,16 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler.grammar;
-
-import org.withinsea.izayoi.cortile.core.compiler.AbstractCompiler;
-
-import java.util.Map;
-import java.util.Set;
+package org.withinsea.izayoi.cortile.core.compiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 23:59:20
+ * Date: 2010-3-6
+ * Time: 20:14:19
  */
-public abstract class GrammarCompiler extends AbstractCompiler {
+public abstract class AbstractCompiler implements Compilr {
 
-    protected Map<String, Set<Grammar>> grammars;
-
-    public void setGrammars(Map<String, Set<Grammar>> grammars) {
-        this.grammars = grammars;
+    public String compileEL(String el) {
+        return compileEL(el, false);
     }
 }

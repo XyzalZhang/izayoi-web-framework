@@ -76,7 +76,9 @@ public interface Compilr {
 
     Result compile(String templatePath, String templateCode) throws CortileException;
 
-    String compileELInit(String classes);
+    String compileELInit();
 
-    String compileEL(String el);
+    String compileELImports(String classes);
+
+    String compileEL(String el, boolean forOutput);
 }

@@ -62,15 +62,11 @@ public class ImportsComment implements RoundoffGrammar, CommentGrammar {
     @Override
     public String roundoffCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
         String imports = result.getAttribute(IMPORTS_ATTR);
-        try {
-            if (imports == null || imports.equals("")) {
-                return "<%" + compiler.compileELInit("") + "%>" + code;
-            } else {
-                return "<%@ page import=\"" + imports + "\"%>" +
-                        "<%" + compiler.compileELInit(imports) + "%>" + code;
-            }
-        } catch (Exception e) {
-            throw new CortileException(e);
+        if (imports == null || imports.equals("")) {
+            return code;
+        } else {
+            return "<%@ page import=\"" + imports + "\"%>" +
+                    "<%" + compiler.compileELImports(imports) + "%>" + code;
         }
     }
 }

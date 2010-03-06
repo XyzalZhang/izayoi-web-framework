@@ -30,10 +30,7 @@ import org.dom4j.Element;
 import org.dom4j.Text;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
-import org.withinsea.izayoi.cortile.core.compiler.dom.TextGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.*;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.StringGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
@@ -42,7 +39,7 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-21
  * Time: 14:19:20
  */
-public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGrammar {
+public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGrammar, StringGrammar {
 
     @Override
     @Priority(-50)
@@ -53,6 +50,17 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
     @Override
     public String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException {
         return compileEmbeddedELs(compiler, str);
+    }
+
+    @Override
+    public boolean acceptRoundoff(String code) {
+        return true;
+    }
+
+    @Override
+    @Priority(-50)
+    public String roundoffCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        return "<%" + compiler.compileELInit() + "%>" + code;
     }
 
     @Override
@@ -92,14 +100,8 @@ public class EL implements AttrGrammar, CommentGrammar, TextGrammar, StringGramm
         return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             @Override
             public String replace(String... groups) {
-                return "<%=" + EL.class.getCanonicalName() + ".silent(" +
-                        compiler.compileEL(groups[1].replace("\\}", "}")) +
-                        ")%>";
+                return "<%=" + compiler.compileEL(groups[1].replace("\\}", "}"), true) + "%>";
             }
         });
-    }
-
-    public static Object silent(Object value) {
-        return (value == null) ? "" : value;
     }
 }

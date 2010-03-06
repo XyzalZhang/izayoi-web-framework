@@ -52,21 +52,25 @@ public class HTMLCompiler extends DOMCompiler {
     // el compiler
 
     @Override
-    public String compileELInit(String classes) {
+    public String compileELInit() {
         String elHelperInit = ELHelper.class.getCanonicalName() + ".Helper elHelper = " +
                 ComponentContainer.class.getCanonicalName() +
-                ".retrieval(request.getServletContext(), \"" + componentContainerRetrievalKey + "\")" +
+                ".retrieval(request.getSession().getServletContext(), \"" + componentContainerRetrievalKey + "\")" +
                 ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
                 ".getHelper(request);";
         String varstackInit = Varstack.class.getCanonicalName() + " varstack = " +
                 "elHelper.getVarstack();";
-        String importsInit = "elHelper.imports(\"" + classes + "\");";
-        return elHelperInit + varstackInit + importsInit;
+        return elHelperInit + varstackInit;
     }
 
     @Override
-    public String compileEL(String el) {
-        return "elHelper.eval(\"" + el.replace("\n", "").replace("\r", "") + "\")";
+    public String compileELImports(String classes) {
+        return "elHelper.imports(\"" + classes + "\");";
+    }
+
+    @Override
+    public String compileEL(String el, boolean forOutput) {
+        return "elHelper.eval(\"" + el.replace("\n", "").replace("\r", "") + "\", " + forOutput + ")";
     }
 
     // dom compiler

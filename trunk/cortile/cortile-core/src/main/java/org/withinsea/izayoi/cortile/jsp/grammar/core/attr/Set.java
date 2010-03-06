@@ -76,7 +76,7 @@ public class Set implements AttrGrammar {
     protected String compileEmbeddedELs(final Compilr compiler, String text) {
         return "\"" + StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             public String replace(String... groups) {
-                return "\"+" + compiler.compileEL(groups[1].replace("\\}", "}")) + "+ \"";
+                return "\"+" + compiler.compileEL(groups[1].replace("\\}", "}"), true) + "+ \"";
             }
         }) + "\"";
     }
