@@ -74,12 +74,12 @@ public class IzayoiConfigurator implements Configurator {
             classes.push(claz);
         }
         for (Class<?> claz : classes) {
-            InputStream is = claz.getResourceAsStream(getDefaultConfigName() + ".properties");
+            InputStream is = claz.getResourceAsStream(getDefaultConfigName(claz) + ".properties");
             if (is != null) {
                 conf.load(is);
             }
         }
-        InputStream is = servletContext.getResourceAsStream("/WEB-INF/" + getDefaultConfigName() + ".properties");
+        InputStream is = servletContext.getResourceAsStream("/WEB-INF/" + getDefaultConfigName(getClass()) + ".properties");
         if (is != null) {
             conf.load(is);
         }
@@ -94,8 +94,8 @@ public class IzayoiConfigurator implements Configurator {
         }
     }
 
-    protected String getDefaultConfigName() {
-        String name = getClass().getSimpleName().replaceAll("Configurator.*$", "");
+    protected String getDefaultConfigName(Class<?> claz) {
+        String name = claz.getSimpleName().replaceAll("Configurator.*$", "");
         return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 }

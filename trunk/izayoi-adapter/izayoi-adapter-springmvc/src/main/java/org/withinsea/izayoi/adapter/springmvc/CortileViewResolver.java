@@ -78,7 +78,7 @@ public class CortileViewResolver extends UrlBasedViewResolver implements Applica
                     @Override
                     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                         try {
-                            scenery.doDispatch((HttpServletRequest) request, (HttpServletResponse) response, getUrl());
+                            scenery.doDispatch((HttpServletRequest) request, (HttpServletResponse) response, getUrl(), null);
                         } catch (ClassCastException e) {
                             throw new ServletException("non-HTTP request or response");
                         } catch (CortileException e) {

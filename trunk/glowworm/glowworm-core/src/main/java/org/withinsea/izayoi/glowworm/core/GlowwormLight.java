@@ -50,12 +50,16 @@ import java.util.regex.Pattern;
  */
 public class GlowwormLight implements Filter, Configurable {
 
+    // config
+
     protected Configurator configurator = new GlowwormConfigurator();
 
     @Override
     public void setConfigurator(Configurator configurator) {
         this.configurator = configurator;
     }
+
+    // dispatcher
 
     public static class Dispatcher {
 
@@ -262,6 +266,7 @@ public class GlowwormLight implements Filter, Configurable {
 
     // as filter
 
+    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         try {
             init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
@@ -285,7 +290,7 @@ public class GlowwormLight implements Filter, Configurable {
         }
     }
 
+    @Override
     public void destroy() {
-
     }
 }

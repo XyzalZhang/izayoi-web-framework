@@ -47,12 +47,16 @@ import java.util.regex.Pattern;
  */
 public class CortileMirage implements Filter, Configurable {
 
+    // config
+
     protected Configurator configurator = new CortileConfigurator();
 
     @Override
     public void setConfigurator(Configurator configurator) {
         this.configurator = configurator;
     }
+
+    // dispatcher
 
     public static class Dispatcher {
 
@@ -141,7 +145,7 @@ public class CortileMirage implements Filter, Configurable {
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
-        doDispatch(req, resp, null, chain);
+        dispatcher.doDispatch(req, resp, null, chain);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {

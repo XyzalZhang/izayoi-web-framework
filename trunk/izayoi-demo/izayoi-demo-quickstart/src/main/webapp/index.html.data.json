@@ -22,29 +22,6 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.exception;
-
-import javax.servlet.ServletException;
-
-/**
- * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-6
- * Time: 14:46:40
- */
-public class IzayoiException extends ServletException {
-
-    public IzayoiException() {
-    }
-
-    public IzayoiException(Throwable cause) {
-        super(cause);
-    }
-
-    public IzayoiException(String message) {
-        super(message);
-    }
-
-    public IzayoiException(String message, Throwable cause) {
-        super(message, cause);
-    }
+{
+    project: "Izayoi"
 }

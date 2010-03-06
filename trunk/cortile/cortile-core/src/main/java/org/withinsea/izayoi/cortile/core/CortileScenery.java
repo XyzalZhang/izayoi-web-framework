@@ -45,6 +45,8 @@ import java.io.IOException;
  */
 public class CortileScenery extends HttpServlet implements Filter, Configurable {
 
+    // config
+
     protected Configurator configurator = new CortileConfigurator();
 
     @Override
@@ -52,23 +54,29 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
         this.configurator = configurator;
     }
 
+    // dispatcher
+
     public static class Dispatcher {
 
         protected ServletContext servletContext;
         protected CodeManager codeManager;
         protected CompileManager compileManager;
+        protected String templateSuffix;
         protected String encoding;
 
-        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
+        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
 
             requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 
             try {
 
-                if (codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
+                if ((chain == null || requestPath.endsWith(templateSuffix))
+                        && codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
                     req.getRequestDispatcher(compileManager.update(requestPath, null, false)).forward(req, resp);
                     resp.setCharacterEncoding(encoding);
                     resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + encoding);
+                } else if (chain != null) {
+                    chain.doFilter(req, resp);
                 } else {
                     resp.sendError(404, req.getServletPath());
                 }
@@ -93,6 +101,10 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
         public void setEncoding(String encoding) {
             this.encoding = encoding;
         }
+
+        public void setTemplateSuffix(String templateSuffix) {
+            this.templateSuffix = templateSuffix;
+        }
     }
 
     // api
@@ -103,12 +115,12 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
         dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
     }
 
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws CortileException {
-        doDispatch(req, resp, null);
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, null, chain);
     }
 
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath) throws CortileException {
-        dispatcher.doDispatch(req, resp, requestPath);
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, requestPath, chain);
     }
 
     // as servlet
@@ -126,7 +138,7 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            doDispatch(req, resp, req.getServletPath());
+            doDispatch(req, resp, req.getServletPath(), null);
         } catch (CortileException e) {
             throw new ServletException(e);
         }
@@ -149,7 +161,7 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
             HttpServletRequest req = (HttpServletRequest) request;
             HttpServletResponse resp = (HttpServletResponse) response;
             try {
-                doDispatch(req, resp);
+                doDispatch(req, resp, chain);
             } catch (CortileException e) {
                 throw new ServletException(e);
             }
