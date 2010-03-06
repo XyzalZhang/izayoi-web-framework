@@ -30,8 +30,8 @@ import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ import java.util.List;
  * Date: 2009-12-28
  * Time: 22:36:16
  */
-public class If implements AttrGrammar {
+public class If implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -50,7 +50,7 @@ public class If implements AttrGrammar {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
@@ -58,8 +58,8 @@ public class If implements AttrGrammar {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String preScriptlet = "if ((Boolean) " + compiler.compileEL(el) + ") { varstack.push();";
-        String sufScriptlet = "varstack.pop(); }";
+        String preScriptlet = "if ((Boolean) " + compiler.compileEL(el) + ") { " + compiler.elScope();
+        String sufScriptlet = compiler.elScopeEnd() + " }";
 
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         if (attrname.equals("if")) {

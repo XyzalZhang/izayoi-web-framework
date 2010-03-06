@@ -75,10 +75,4 @@ public interface Compilr {
     String mapEntrancePath(String templatePath);
 
     Result compile(String templatePath, String templateCode) throws CortileException;
-
-    String compileELInit();
-
-    String compileELImports(String classes);
-
-    String compileEL(String el, boolean forOutput);
 }

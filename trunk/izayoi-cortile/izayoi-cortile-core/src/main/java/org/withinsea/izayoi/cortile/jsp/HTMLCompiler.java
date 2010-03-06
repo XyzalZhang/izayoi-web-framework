@@ -28,10 +28,9 @@ import org.dom4j.Branch;
 import org.dom4j.Document;
 import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.commons.html.HTMLWriter;
-import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.conf.ComponentContainer;
-import org.withinsea.izayoi.cortile.core.compiler.ELHelper;
 import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.java.JSPCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 import java.io.IOException;
@@ -43,48 +42,21 @@ import java.io.StringWriter;
  * Date: 2009-12-28
  * Time: 17:39:51
  */
-public class HTMLCompiler extends DOMCompiler {
+public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
 
-    protected String encoding;
-    protected String targetPath;
-    protected String componentContainerRetrievalKey;
-
-    // el compiler
-
-    @Override
-    public String compileELInit() {
-        String elHelperInit = ELHelper.class.getCanonicalName() + ".Helper elHelper = " +
-                ComponentContainer.class.getCanonicalName() +
-                ".retrieval(request.getSession().getServletContext(), \"" + componentContainerRetrievalKey + "\")" +
-                ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
-                ".getHelper(request);";
-        String varstackInit = Varstack.class.getCanonicalName() + " varstack = " +
-                "elHelper.getVarstack();";
-        return elHelperInit + varstackInit;
-    }
-
-    @Override
-    public String compileELImports(String classes) {
-        return "elHelper.imports(\"" + classes + "\");";
-    }
-
-    @Override
-    public String compileEL(String el, boolean forOutput) {
-        return "elHelper.eval(\"" + el.replace("\n", "").replace("\r", "") + "\", " + forOutput + ")";
-    }
-
-    // dom compiler
+    // implement compiler
 
     @Override
     public String mapEntrancePath(String templatePath) {
-        return mapTargetPath(templatePath);
+        return jspCompiler.mapEntrancePath(templatePath);
     }
+
+    // implement dom compiler
 
     @Override
     public String mapTargetPath(String path, String suffix) {
-        String folder = "/" + targetPath.trim().replaceAll("^/|/$", "");
-        suffix = (suffix == null || "".equals(suffix)) ? "" : "$" + suffix;
-        return folder + path + suffix + ".jsp";
+        suffix = (suffix == null) ? "" : suffix;
+        return mapEntrancePath(path).replaceAll("\\..+$", suffix + "$0");
     }
 
     @Override
@@ -98,29 +70,77 @@ public class HTMLCompiler extends DOMCompiler {
 
     @Override
     protected String buildTarget(Branch root) throws CortileException {
-        String jspHeader = "<%@ page " +
-                "contentType=\"text/html; charset=" + encoding + "\" " +
-                "pageEncoding=\"" + encoding + "\" %>";
         StringWriter buf = new StringWriter();
         try {
             new HTMLWriter(buf).write(root);
         } catch (IOException e) {
             throw new CortileException(e);
         }
-        return jspHeader + buf.toString();
+        return jspCompiler.jspHeader() + buf.toString();
     }
 
-    // dependency
+    // implement el supported compiler
+
+    public String compileEL(String el) {
+        return jspCompiler.compileEL(el);
+    }
+
+    @Override
+    public String el(String el, boolean forOutput) {
+        return jspCompiler.el(el, forOutput);
+    }
+
+    @Override
+    public String elInit() {
+        return jspCompiler.elInit();
+    }
+
+    @Override
+    public String elImports(String classes) {
+        return jspCompiler.elImports(classes);
+    }
+
+    public String elScope() {
+        return jspCompiler.elScope();
+    }
+
+    public String elScope(String elType) {
+        return jspCompiler.elScope(elType);
+    }
+
+    @Override
+    public String elScope(String elType, String bindingsCode) {
+        return jspCompiler.elScope(elType, bindingsCode);
+    }
+
+    @Override
+    public String elBind(String key, String valueCode) {
+        return jspCompiler.elBind(key, valueCode);
+    }
+
+    @Override
+    public String elScopeEnd() {
+        return jspCompiler.elScopeEnd();
+    }
+
+    // combine jsp compiler
+
+    protected JSPCompiler jspCompiler = new JSPCompiler() {
+        @Override
+        public Result compile(String templatePath, String templateCode) throws CortileException {
+            throw new UnsupportedOperationException();
+        }
+    };
+
+    public void setComponentContainerRetrievalKey(String componentContainerRetrievalKey) {
+        jspCompiler.setComponentContainerRetrievalKey(componentContainerRetrievalKey);
+    }
 
     public void setEncoding(String encoding) {
-        this.encoding = encoding;
+        jspCompiler.setEncoding(encoding);
     }
 
     public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
-    }
-
-    public void setComponentContainerRetrievalKey(String componentContainerRetrievalKey) {
-        this.componentContainerRetrievalKey = componentContainerRetrievalKey;
+        jspCompiler.setTargetPath(targetPath);
     }
 }

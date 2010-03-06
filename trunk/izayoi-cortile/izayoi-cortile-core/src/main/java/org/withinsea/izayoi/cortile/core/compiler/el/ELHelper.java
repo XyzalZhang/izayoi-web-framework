@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.cortile.core.compiler.el;
 
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.dependency.DependencyManager;
@@ -31,10 +31,7 @@ import org.withinsea.izayoi.core.interpreter.ImportableInterpreter;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -49,7 +46,7 @@ public class ELHelper {
     protected DependencyManager dependencyManager;
     protected Map<String, Interpreter> interpreters;
 
-    public Helper getHelper(HttpServletRequest request) {
+    public synchronized Helper getHelper(HttpServletRequest request) {
         Helper helper = (Helper) request.getAttribute(HELPER_ATTR);
         if (helper == null) {
             helper = new Helper(request);
@@ -60,23 +57,27 @@ public class ELHelper {
 
     public class Helper {
 
-        protected HttpServletRequest request;
-        protected Context context;
+        protected final Set<String> importedClasses;
+        protected final Deque<String> elTypeStack = new LinkedList<String>();
+        protected final Varstack varstack = new Varstack();
 
         protected Helper(HttpServletRequest request) {
-            this.request = request;
-            this.context = Context.newInstance(dependencyManager, request);
+            this.importedClasses = new LinkedHashSet<String>();
+            elTypeStack.push(elType);
+            varstack.push(DependencyUtils.asMap(dependencyManager, request));
+            varstack.push();
         }
 
         public Object eval(String el, boolean forOutput) {
+            String elType = elTypeStack.peek();
             Interpreter interpreter = interpreters.get(interpreters.containsKey(elType) ? elType : "default");
             Object ret;
             try {
                 if (interpreter instanceof ImportableInterpreter) {
-                    String[] importedClasses = context.importedClasses.toArray(new String[context.importedClasses.size()]);
-                    ret = ((ImportableInterpreter) interpreter).interpret(el, context.varstack, elType, importedClasses);
+                    String[] classes = importedClasses.toArray(new String[importedClasses.size()]);
+                    ret = ((ImportableInterpreter) interpreter).interpret(el, varstack, elType, classes);
                 } else {
-                    ret = interpreter.interpret(el, context.varstack, elType);
+                    ret = interpreter.interpret(el, varstack, elType);
                 }
             } catch (Exception e) {
                 ret = null; // silent exception stack trace
@@ -86,34 +87,26 @@ public class ELHelper {
 
         public void imports(String classes) {
             if (classes != null && !classes.trim().equals("")) {
-                context.importedClasses.addAll(Arrays.asList(classes.replaceAll("\\s+", "").split(",")));
+                importedClasses.addAll(Arrays.asList(classes.replaceAll("\\s+", "").split(",")));
             }
         }
 
-        public Varstack getVarstack() {
-            return context.varstack;
-        }
-    }
-
-    protected static class Context {
-
-        protected Set<String> importedClasses;
-        protected Varstack varstack;
-
-        protected Context(Set<String> importedClasses, Varstack varstack) {
-            this.importedClasses = importedClasses;
-            this.varstack = varstack;
+        public void bind(String key, Object value) {
+            varstack.put(key, value);
         }
 
-        public static Context newInstance(DependencyManager dependencyManager, HttpServletRequest request) {
-            Varstack varstack = new Varstack();
-            {
-                varstack.push(DependencyUtils.asMap(dependencyManager, request));
+        public synchronized void scope(String elType, Map<String, Object> bindings) {
+            if (bindings == null) {
                 varstack.push();
-                varstack.put("varstack", varstack);
-                varstack.push();
+            } else {
+                varstack.push(bindings);
             }
-            return new Context(new LinkedHashSet<String>(), varstack);
+            elTypeStack.push((elType != null) ? elType : elTypeStack.peek());
+        }
+
+        public synchronized void scopeEnd() {
+            elTypeStack.pop();
+            varstack.pop();
         }
     }
 

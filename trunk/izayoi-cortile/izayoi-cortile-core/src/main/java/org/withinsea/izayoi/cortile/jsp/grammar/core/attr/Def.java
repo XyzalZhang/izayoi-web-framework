@@ -30,15 +30,15 @@ import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 22:04:16
  */
-public class Def implements AttrGrammar {
+public class Def implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -46,13 +46,15 @@ public class Def implements AttrGrammar {
     }
 
     @Override
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
             String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
             attr.detach();
             Element range = DOMUtils.surroundBy(elem, HTMLReader.ANONYMOUS_TAG_NAME);
             compiler.compileTo(result, funcPath, range);
-            DOMUtils.replaceBy(range, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
+            DOMUtils.replaceBy(range, "<% " + compiler.elScope() + " %>" +
+                    "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                    "<% " + compiler.elScopeEnd() + " %>");
         } catch (Exception e) {
             throw new CortileException(e);
         }

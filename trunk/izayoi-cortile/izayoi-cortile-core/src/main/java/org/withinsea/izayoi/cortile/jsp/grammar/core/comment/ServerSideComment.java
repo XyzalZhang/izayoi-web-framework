@@ -28,15 +28,15 @@ import org.dom4j.Comment;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 23:02:01
  */
-public class ServerSideComment implements CommentGrammar {
+public class ServerSideComment implements CommentGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptComment(Comment comment) {
@@ -45,7 +45,7 @@ public class ServerSideComment implements CommentGrammar {
 
     @Override
     @Priority(-50)
-    public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         try {
             DOMUtils.replaceBy(comment, "<%-- " + comment.getText().substring("//".length()) + " --%>");
         } catch (Exception e) {

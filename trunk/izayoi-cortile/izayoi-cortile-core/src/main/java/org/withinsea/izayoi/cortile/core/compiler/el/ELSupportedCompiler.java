@@ -22,16 +22,26 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler;
+package org.withinsea.izayoi.cortile.core.compiler.el;
+
+import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-3-6
  * Time: 20:14:19
  */
-public abstract class AbstractCompiler implements Compilr {
+public interface ELSupportedCompiler extends Compilr {
 
-    public String compileEL(String el) {
-        return compileEL(el, false);
-    }
+    String elInit();
+
+    String elImports(String classes);
+
+    String el(String el, boolean forOutput);
+
+    String elBind(String key, String valueCode);
+
+    String elScope(String elType, String bindingsCode);
+
+    String elScopeEnd();
 }

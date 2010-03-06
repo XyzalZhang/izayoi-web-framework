@@ -27,16 +27,16 @@ package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
 import org.dom4j.Comment;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.dom.RoundoffGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 17:57:38
  */
-public class ImportsComment implements RoundoffGrammar, CommentGrammar {
+public class ImportsComment implements RoundoffGrammar<HTMLCompiler>, CommentGrammar<HTMLCompiler> {
 
     protected static final String IMPORTS_ATTR = ImportsComment.class.getCanonicalName() + ".IMPORTS";
 
@@ -47,7 +47,7 @@ public class ImportsComment implements RoundoffGrammar, CommentGrammar {
 
     @Override
     @Priority(99)
-    public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         String imports = result.getAttribute(IMPORTS_ATTR);
         imports = (imports == null ? "" : imports + ",") + comment.getText().substring("@imports".length())
                 .trim().replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
@@ -60,13 +60,13 @@ public class ImportsComment implements RoundoffGrammar, CommentGrammar {
     }
 
     @Override
-    public String roundoffCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
+    public String roundoffCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
         String imports = result.getAttribute(IMPORTS_ATTR);
         if (imports == null || imports.equals("")) {
             return code;
         } else {
             return "<%@ page import=\"" + imports + "\"%>" +
-                    "<%" + compiler.compileELImports(imports) + "%>" + code;
+                    "<%" + compiler.elImports(imports) + "%>" + code;
         }
     }
 }

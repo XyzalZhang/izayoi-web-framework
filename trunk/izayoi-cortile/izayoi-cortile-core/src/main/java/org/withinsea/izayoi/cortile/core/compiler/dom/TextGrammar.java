@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cortile.core.compiler.dom;
 import org.dom4j.Text;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -34,9 +35,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface TextGrammar extends Grammar {
+public interface TextGrammar<C extends GrammarCompiler> extends Grammar<C> {
 
     public boolean acceptText(Text text);
 
-    public abstract void processText(DOMCompiler compiler, Compilr.Result result, Text text) throws CortileException;
+    public abstract void processText(C compiler, Compilr.Result result, Text text) throws CortileException;
 }

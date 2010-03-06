@@ -26,16 +26,12 @@ package org.withinsea.izayoi.cortile.core.compile;
 
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
-import java.util.Set;
-
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 7:37:58
  */
 public interface CompileManager {
-
-    Set<String> getSupportedTypes();
 
     boolean isUpdated(String templatePath, String asType) throws CortileException;
 

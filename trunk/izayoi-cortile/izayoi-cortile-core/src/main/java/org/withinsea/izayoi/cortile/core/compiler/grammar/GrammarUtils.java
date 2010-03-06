@@ -51,13 +51,11 @@ public class GrammarUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends Grammar> List<T> sort(
-            Map<String, Set<Grammar>> grammars,
-            Class<T> claz,
-            final String sortMethod) {
+            Map<String, Set<Grammar>> grammars, Class<T> grammarClass, final String sortMethod) {
         Set<T> all = new LinkedHashSet<T>();
         for (Set<Grammar> gs : grammars.values()) {
             for (Grammar g : gs) {
-                if (claz.isInstance(g)) {
+                if (grammarClass.isInstance(g)) {
                     all.add((T) g);
                 }
             }
@@ -73,16 +71,14 @@ public class GrammarUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends Grammar> Map<Integer, List<T>> sortAsGroups(
-            Map<String, Set<Grammar>> grammars,
-            Class<T> claz,
-            final String sortMethod) {
+            Map<String, Set<Grammar>> grammars, Class<T> grammarClass, final String sortMethod) {
         Map<Integer, List<T>> groups = new LazyLinkedHashMap<Integer, List<T>>() {
             @Override
             protected List<T> createValue(Integer priority) {
                 return new ArrayList<T>();
             }
         };
-        for (T grammar : sort(grammars, claz, sortMethod)) {
+        for (T grammar : sort(grammars, grammarClass, sortMethod)) {
             groups.get(getPriority(grammar, sortMethod)).add(grammar);
         }
         return groups;
@@ -90,13 +86,11 @@ public class GrammarUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends Grammar> Map<Integer, List<NamespacedWrapper<T>>> sortAsNamespacedGroups(
-            Map<String, Set<Grammar>> grammars,
-            Class<T> claz,
-            final String sortMethod) {
+            Map<String, Set<Grammar>> grammars, Class<T> grammarClass, final String sortMethod) {
         List<NamespacedWrapper<T>> sortedWrappers = new LinkedList<NamespacedWrapper<T>>();
         for (String namespace : grammars.keySet()) {
             for (Grammar g : grammars.get(namespace)) {
-                if (claz.isInstance(g)) {
+                if (grammarClass.isInstance(g)) {
                     sortedWrappers.add(new NamespacedWrapper<T>((T) g, namespace));
                 }
             }

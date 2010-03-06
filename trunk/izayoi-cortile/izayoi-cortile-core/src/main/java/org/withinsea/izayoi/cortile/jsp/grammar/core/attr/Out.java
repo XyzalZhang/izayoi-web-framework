@@ -28,15 +28,15 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-1-11
  * Time: 15:14:01
  */
-public class Out implements AttrGrammar {
+public class Out implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -46,7 +46,7 @@ public class Out implements AttrGrammar {
 
     @Override
     @Priority(-99)
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         if (attrname.startsWith("attr.")) {
             elem.addAttribute(attrname.substring("attr.".length()), attr.getValue()

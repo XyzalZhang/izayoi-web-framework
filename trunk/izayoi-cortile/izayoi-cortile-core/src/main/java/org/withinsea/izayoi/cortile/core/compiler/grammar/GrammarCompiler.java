@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compiler.grammar;
 
-import org.withinsea.izayoi.cortile.core.compiler.AbstractCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 
 import java.util.Map;
 import java.util.Set;
@@ -34,11 +34,7 @@ import java.util.Set;
  * Date: 2010-3-4
  * Time: 23:59:20
  */
-public abstract class GrammarCompiler extends AbstractCompiler {
+public interface GrammarCompiler extends Compilr {
 
-    protected Map<String, Set<Grammar>> grammars;
-
-    public void setGrammars(Map<String, Set<Grammar>> grammars) {
-        this.grammars = grammars;
-    }
+    void setGrammars(Map<String, Set<Grammar>> grammars);
 }

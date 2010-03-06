@@ -30,15 +30,16 @@ import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 23:09:11
  */
-public class Set implements AttrGrammar {
+public class Set implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -47,22 +48,22 @@ public class Set implements AttrGrammar {
     }
 
     @Override
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         String var = attrname.substring("set.".length());
         String value = attr.getValue();
 
-        String preScriptlet = "varstack.push();";
+        String preScriptlet = compiler.elScope();
         if (!(value.startsWith("${") && value.endsWith("}")) || value.substring(2, value.length() - 1).indexOf("${") > 0) {
-            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compileEmbeddedELs(compiler, value) + ");";
+            preScriptlet = preScriptlet + compiler.elBind(var, compileEmbeddedELs(compiler, value));
         } else {
             String el = value.substring(2, value.length() - 1).trim();
-            preScriptlet = preScriptlet + "varstack.put(\"" + var + "\", " + compiler.compileEL(el) + ");";
+            preScriptlet = preScriptlet + compiler.elBind(var, compiler.compileEL(el));
         }
-        preScriptlet = preScriptlet + "varstack.push();";
+        preScriptlet = preScriptlet + compiler.elScope();
 
-        String sufScriptlet = "varstack.pop();varstack.pop();";
+        String sufScriptlet = compiler.elScopeEnd() + compiler.elScopeEnd();
 
         try {
             DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
@@ -73,10 +74,10 @@ public class Set implements AttrGrammar {
         attr.detach();
     }
 
-    protected String compileEmbeddedELs(final Compilr compiler, String text) {
+    protected String compileEmbeddedELs(final ELSupportedCompiler compiler, String text) {
         return "\"" + StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             public String replace(String... groups) {
-                return "\"+" + compiler.compileEL(groups[1].replace("\\}", "}"), true) + "+ \"";
+                return "\"+" + compiler.el(groups[1].replace("\\}", "}"), true) + "+ \"";
             }
         }) + "\"";
     }

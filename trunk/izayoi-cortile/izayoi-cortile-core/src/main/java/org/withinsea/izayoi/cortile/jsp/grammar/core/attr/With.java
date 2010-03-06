@@ -30,15 +30,15 @@ import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-1-4
  * Time: 19:41:58
  */
-public class With implements AttrGrammar {
+public class With implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -46,7 +46,8 @@ public class With implements AttrGrammar {
     }
 
     @Override
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
@@ -54,10 +55,11 @@ public class With implements AttrGrammar {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String preScriptlet = "varstack.push(new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + "));varstack.push();";
-        String sufScriptlet = "varstack.pop();varstack.pop();";
+        String scopeBegin = compiler.elScope(),
+                scopeEnd = compiler.elScopeEnd(),
+                beanScopeBegin = compiler.elScope(null, "new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + ")");
         try {
-            DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+            DOMUtils.surroundBy(elem, "<%" + beanScopeBegin + scopeBegin + "%>", "<%" + scopeEnd + scopeEnd + "%>");
         } catch (Exception e) {
             throw new CortileException(e);
         }

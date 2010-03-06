@@ -30,8 +30,8 @@ import org.dom4j.Node;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +41,7 @@ import java.util.List;
  * Date: 2009-12-28
  * Time: 23:21:31
  */
-public class Mock implements AttrGrammar {
+public class Mock implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -51,24 +51,29 @@ public class Mock implements AttrGrammar {
     @Override
     @SuppressWarnings("unchecked")
     @Priority(99)
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+
+        String mockType = attr.getValue();
+
         java.util.Set<Node> mocks = new HashSet<Node>();
         List<Node> siblings = (List<Node>) DOMUtils.parent(elem).content();
-        if (attr.getValue().equals("siblings")) {
+        if (mockType.equals("siblings")) {
             mocks.addAll(siblings);
-        } else if (attr.getValue().equals("neighbors")) {
+        } else if (mockType.equals("neighbors")) {
             mocks.addAll(siblings);
             mocks.remove(elem);
-        } else if (attr.getValue().equals("below")) {
+        } else if (mockType.equals("below")) {
             mocks.addAll(siblings.subList(siblings.indexOf(elem) + 1, siblings.size()));
-        } else if (attr.getValue().equals("toend")) {
+        } else if (mockType.equals("toend")) {
             mocks.addAll(siblings.subList(siblings.indexOf(elem), siblings.size()));
         } else {
             mocks.add(elem);
         }
+
         for (Node mock : mocks) {
             mock.detach();
         }
+
         attr.detach();
     }
 }

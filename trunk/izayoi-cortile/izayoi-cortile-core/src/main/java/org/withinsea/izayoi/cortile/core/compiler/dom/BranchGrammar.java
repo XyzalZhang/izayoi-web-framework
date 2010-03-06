@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cortile.core.compiler.dom;
 import org.dom4j.Branch;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -34,9 +35,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface BranchGrammar extends Grammar {
+public interface BranchGrammar<C extends GrammarCompiler> extends Grammar<C> {
 
     public boolean acceptBranch(Branch branch);
 
-    public abstract void processBranch(DOMCompiler compiler, Compilr.Result result, Branch branch) throws CortileException;
+    public abstract void processBranch(C compiler, Compilr.Result result, Branch branch) throws CortileException;
 }

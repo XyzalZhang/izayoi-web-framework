@@ -22,21 +22,36 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.core.compiler.dom;
+package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
 
+import org.dom4j.Attribute;
+import org.dom4j.Element;
+import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
-import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
+import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 15:29:06
+ * Date: 2010-3-6
+ * Time: 22:48:37
  */
-public interface RoundoffGrammar<C extends GrammarCompiler> extends Grammar<C> {
+public class ELType implements AttrGrammar<HTMLCompiler> {
 
-    public boolean acceptRoundoff(String code);
+    @Override
+    public boolean acceptAttr(Element elem, Attribute attr) {
+        return attr.getName().equals("elType");
+    }
 
-    public abstract String roundoffCode(C compiler, Compilr.Result result, String code) throws CortileException;
+    @Override
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+        String elType = attr.getValue();
+        try {
+            DOMUtils.surroundBy(elem, "<%" + compiler.elScope(elType) + "%>", "<%" + compiler.elScopeEnd() + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
+        }
+        attr.detach();
+    }
 }

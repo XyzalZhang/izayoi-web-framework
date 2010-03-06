@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * Date: 2009-12-16
  * Time: 4:15:18
  */
-public interface Grammar {
+public interface Grammar<C extends GrammarCompiler> {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(value = {ElementType.METHOD})

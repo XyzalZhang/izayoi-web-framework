@@ -26,6 +26,7 @@ package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -33,9 +34,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface PretreatGrammar extends Grammar {
+public interface PretreatGrammar<C extends GrammarCompiler> extends Grammar<C> {
 
     public boolean acceptPretreat(String code);
 
-    public abstract String pretreatCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException;
+    public abstract String pretreatCode(C compiler, Compilr.Result result, String code) throws CortileException;
 }

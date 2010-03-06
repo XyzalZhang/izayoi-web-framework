@@ -30,8 +30,8 @@ import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ import java.util.*;
  * Date: 2009-12-28
  * Time: 22:14:05
  */
-public class Iters implements AttrGrammar {
+public class Iters implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -50,7 +50,7 @@ public class Iters implements AttrGrammar {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String attrname = attr.getName().replaceAll("[:_-]", ".");
 
@@ -60,9 +60,9 @@ public class Iters implements AttrGrammar {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String preScriptlet = "{ varstack.push();";
+        String preScriptlet = "{ " + compiler.elScope();
         String helperScriptlet = "";
-        String sufScriptlet = "varstack.pop(); }";
+        String sufScriptlet = compiler.elScopeEnd() + " }";
 
         String type = attrname.startsWith("while") ? "while" :
                 attrname.startsWith("until") ? "until" : "for";
@@ -81,7 +81,7 @@ public class Iters implements AttrGrammar {
                     String iStatus = statusAttr.getValue();
                     preScriptlet = preScriptlet + "" +
                             Status.class.getCanonicalName() + " " + iStatus + " = new " + Status.class.getCanonicalName() + "();" +
-                            "varstack.put(\"" + iStatus + "\", " + iStatus + ");";
+                            compiler.elBind(iStatus, iStatus);
                     helperScriptlet = helperScriptlet + iStatus + ".inc();";
                     statusAttr.detach();
                     break;
@@ -105,14 +105,14 @@ public class Iters implements AttrGrammar {
             } else if (el.matches("-?\\d+\\s*\\.\\.\\s*-?\\d+")) {
                 preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
                         ".asIterable(" + el.replace("..", ",") + ")) {";
-                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
+                helperScriptlet = helperScriptlet + compiler.elBind(i, i);
             } else {
                 preScriptlet = preScriptlet + "for (Object " + i + ":" + "(Iterable)" + Iters.class.getCanonicalName() +
                         ".asIterable(" + compiler.compileEL(el) + ")) {";
-                helperScriptlet = helperScriptlet + "varstack.put(\"" + i + "\", " + i + ");";
+                helperScriptlet = helperScriptlet + compiler.elBind(i, i);
             }
-            helperScriptlet = helperScriptlet + "varstack.push();";
-            sufScriptlet = "varstack.pop(); }" + sufScriptlet;
+            helperScriptlet = helperScriptlet + compiler.elScope();
+            sufScriptlet = compiler.elScopeEnd() + " }" + sufScriptlet;
         }
 
         try {

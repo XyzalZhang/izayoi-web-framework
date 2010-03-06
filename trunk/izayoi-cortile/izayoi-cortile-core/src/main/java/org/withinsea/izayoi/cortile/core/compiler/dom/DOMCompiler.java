@@ -26,6 +26,7 @@ package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.dom4j.*;
 import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarUtils;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -33,13 +34,25 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 4:06:20
  */
-public abstract class DOMCompiler extends GrammarCompiler {
+public abstract class DOMCompiler implements GrammarCompiler {
+
+    // grammar
+
+    protected Map<String, Set<Grammar>> grammars;
+
+    @Override
+    public void setGrammars(Map<String, Set<Grammar>> grammars) {
+        this.grammars = grammars;
+    }
+
+    // dom
 
     protected abstract Document parseTemplate(String templatePath, String templateCode) throws CortileException;
 
@@ -47,18 +60,17 @@ public abstract class DOMCompiler extends GrammarCompiler {
 
     public abstract String mapTargetPath(String path, String suffix);
 
-    public String mapTargetPath(String path) {
-        return mapTargetPath(path, null);
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public Result compile(String templatePath, String templateCode) throws CortileException {
 
         Result result = new Result(templatePath);
 
         for (PretreatGrammar pg : GrammarUtils.sort(grammars, PretreatGrammar.class, "pretreatCode")) {
             if (pg.acceptPretreat(templateCode)) {
-                templateCode = pg.pretreatCode(this, result, templateCode);
+                try {
+                    templateCode = pg.pretreatCode(this, result, templateCode);
+                } catch (ClassCastException e) { /* ignore */ }
             }
         }
 
@@ -71,7 +83,9 @@ public abstract class DOMCompiler extends GrammarCompiler {
             for (Text text : DOMUtils.selectTypedNodes(Text.class, doc, false)) {
                 for (TextGrammar tg : groups.getValue()) {
                     if (tg.acceptText(text)) {
-                        tg.processText(this, result, text);
+                        try {
+                            tg.processText(this, result, text);
+                        } catch (ClassCastException cce) { /* ignore */ }
                     }
                     if (text.getParent() == null && text.getDocument() == null) {
                         break;
@@ -86,7 +100,9 @@ public abstract class DOMCompiler extends GrammarCompiler {
                 if (comment.getParent() != null || comment.getDocument() != null) {
                     for (CommentGrammar cg : groups.getValue()) {
                         if (cg.acceptComment(comment)) {
-                            cg.processComment(this, result, comment);
+                            try {
+                                cg.processComment(this, result, comment);
+                            } catch (ClassCastException cce) { /* ignore */ }
                         }
                         if (comment.getParent() == null && comment.getDocument() == null) {
                             break;
@@ -96,13 +112,15 @@ public abstract class DOMCompiler extends GrammarCompiler {
             }
         }
 
-        compileTo(result, mapTargetPath(result.getTemplatePath()), doc);
+        compileTo(result, mapTargetPath(result.getTemplatePath(), null), doc);
 
         List<RoundoffGrammar> sortedRgs = GrammarUtils.sort(grammars, RoundoffGrammar.class, "roundoffGrammar");
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             for (RoundoffGrammar rg : sortedRgs) {
                 if (rg.acceptRoundoff(e.getValue())) {
-                    result.getTargets().put(e.getKey(), rg.roundoffCode(this, result, e.getValue()));
+                    try {
+                        result.getTargets().put(e.getKey(), rg.roundoffCode(this, result, e.getValue()));
+                    } catch (ClassCastException cce) { /* ignore */ }
                 }
             }
         }
@@ -126,7 +144,9 @@ public abstract class DOMCompiler extends GrammarCompiler {
                                 AttrGrammar ag = w.getGrammar();
                                 if (agNs.equals("") || agNs.equals(attrNs)) {
                                     if (ag.acceptAttr(elem, attr)) {
-                                        ag.processAttr(this, result, elem, attr);
+                                        try {
+                                            ag.processAttr(this, result, elem, attr);
+                                        } catch (ClassCastException cce) { /* ignore */ }
                                     }
                                     if (elem.getParent() == null && elem.getDocument() == null) {
                                         break eachAttr;
@@ -148,7 +168,9 @@ public abstract class DOMCompiler extends GrammarCompiler {
                 if (elem.getParent() != null || elem.getDocument() != null) {
                     for (ElementGrammar eg : groups.getValue()) {
                         if (eg.acceptElement(elem)) {
-                            eg.processElement(this, result, elem);
+                            try {
+                                eg.processElement(this, result, elem);
+                            } catch (ClassCastException cce) { /* ignore */ }
                         }
                         if (elem.getParent() == null && elem.getDocument() == null) {
                             break;
@@ -160,7 +182,9 @@ public abstract class DOMCompiler extends GrammarCompiler {
 
         for (BranchGrammar bg : GrammarUtils.sort(grammars, BranchGrammar.class, "processBranch")) {
             if (bg.acceptBranch(root)) {
-                bg.processBranch(this, result, root);
+                try {
+                    bg.processBranch(this, result, root);
+                } catch (ClassCastException cce) { /* ignore */ }
             }
         }
 

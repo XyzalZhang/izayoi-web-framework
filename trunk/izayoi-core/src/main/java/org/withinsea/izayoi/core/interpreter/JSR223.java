@@ -41,10 +41,19 @@ public class JSR223 implements Interpreter {
     @SuppressWarnings("unchecked")
     public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
         try {
-            ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(asType);
-            return (T) engine.eval(script, bindings);
+            return (T) ScriptHelper.eval(script, bindings, asType);
         } catch (Exception e) {
             throw new IzayoiException(e);
+        }
+    }
+
+    // lazy load Script Engine
+
+    protected static class ScriptHelper {
+
+        public static Object eval(String script, Bindings bindings, String asType) throws Exception {
+            ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(asType);
+            return engine.eval(script, bindings);
         }
     }
 }

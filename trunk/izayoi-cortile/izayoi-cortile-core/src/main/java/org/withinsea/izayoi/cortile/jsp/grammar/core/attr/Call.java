@@ -29,15 +29,15 @@ import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
  * Time: 22:07:55
  */
-public class Call implements AttrGrammar {
+public class Call implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -45,16 +45,20 @@ public class Call implements AttrGrammar {
     }
 
     @Override
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
             if (attr.getValue().indexOf(":") < 0) {
                 String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
-                DOMUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
+                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
+                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                        "<% " + compiler.elScopeEnd() + " %>");
             } else {
                 String[] value = attr.getValue().split(":");
                 String templatePath = value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0];
                 String funcPath = compiler.mapTargetPath(templatePath, value[1]);
-                DOMUtils.replaceBy(elem, "<% varstack.push(); %><jsp:include page=\"" + funcPath + "\" flush=\"true\" /><% varstack.pop(); %>");
+                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
+                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                        "<% " + compiler.elScopeEnd() + " %>");
                 result.getRelativeTemplatePaths().add(templatePath);
             }
         } catch (Exception e) {

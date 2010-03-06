@@ -30,27 +30,20 @@ import org.dom4j.Element;
 import org.dom4j.Text;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.*;
-import org.withinsea.izayoi.cortile.core.compiler.grammar.StringGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.RoundoffGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.TextGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 14:19:20
  */
-public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGrammar, StringGrammar {
-
-    @Override
-    @Priority(-50)
-    public boolean acceptString(String str) {
-        return true;
-    }
-
-    @Override
-    public String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException {
-        return compileEmbeddedELs(compiler, str);
-    }
+public class EL implements RoundoffGrammar<HTMLCompiler>, AttrGrammar<HTMLCompiler>, CommentGrammar<HTMLCompiler>, TextGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptRoundoff(String code) {
@@ -59,8 +52,8 @@ public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGra
 
     @Override
     @Priority(-50)
-    public String roundoffCode(DOMCompiler compiler, Compilr.Result result, String code) throws CortileException {
-        return "<%" + compiler.compileELInit() + "%>" + code;
+    public String roundoffCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        return "<%" + compiler.elInit() + "%>" + code;
     }
 
     @Override
@@ -70,7 +63,7 @@ public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGra
 
     @Override
     @Priority(-50)
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         attr.setValue(compileEmbeddedELs(compiler, attr.getValue()));
     }
 
@@ -81,7 +74,7 @@ public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGra
 
     @Override
     @Priority(-50)
-    public void processText(DOMCompiler compiler, Compilr.Result result, Text text) throws CortileException {
+    public void processText(HTMLCompiler compiler, Compilr.Result result, Text text) throws CortileException {
         text.setText(compileEmbeddedELs(compiler, text.getText()));
     }
 
@@ -92,15 +85,15 @@ public class EL implements RoundoffGrammar, AttrGrammar, CommentGrammar, TextGra
 
     @Override
     @Priority(-50)
-    public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         comment.setText(compileEmbeddedELs(compiler, comment.getText()));
     }
 
-    protected String compileEmbeddedELs(final Compilr compiler, String text) {
+    protected String compileEmbeddedELs(final ELSupportedCompiler compiler, String text) {
         return StringUtils.replaceAll(text, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             @Override
             public String replace(String... groups) {
-                return "<%=" + compiler.compileEL(groups[1].replace("\\}", "}"), true) + "%>";
+                return "<%=" + compiler.el(groups[1].replace("\\}", "}"), true) + "%>";
             }
         });
     }

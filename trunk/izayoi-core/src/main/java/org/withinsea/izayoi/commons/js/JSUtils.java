@@ -38,26 +38,31 @@ import javax.script.ScriptException;
  */
 public class JSUtils {
 
-    protected static final Invocable JS2JAVA; static {
-        try {
-            ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
-            String script = IOUtils.toString(JSUtils.class.getResourceAsStream("js2java.js"), "UTF-8");
-            engine.eval(script);
-            JS2JAVA = (Invocable) engine;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> T js2java(Object jsObj) throws ScriptException, NoSuchMethodException {
-        return (T) JS2JAVA.invokeFunction("js2java", jsObj);
+        return (T) ScriptHelper.JS2JAVA.invokeFunction("js2java", jsObj);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T json2java(String json) throws ScriptException, NoSuchMethodException {
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
         return (T) js2java(engine.eval("(" + json + ")"));
+    }
+
+    // lazy load Script Engine
+
+    protected static class ScriptHelper {
+
+        protected static final Invocable JS2JAVA; static {
+            try {
+                ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
+                String script = IOUtils.toString(JSUtils.class.getResourceAsStream("js2java.js"), "UTF-8");
+                engine.eval(script);
+                JS2JAVA = (Invocable) engine;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /* from: org.json, org.json.JSONObject.quote(String string) */

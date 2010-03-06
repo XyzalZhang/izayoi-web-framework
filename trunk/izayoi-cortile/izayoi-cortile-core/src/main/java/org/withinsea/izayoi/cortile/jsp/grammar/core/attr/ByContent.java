@@ -33,8 +33,8 @@ import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
 import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ import java.util.List;
  * Date: 2009-12-28
  * Time: 21:50:40
  */
-public class ByContent implements AttrGrammar {
+public class ByContent implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -55,7 +55,7 @@ public class ByContent implements AttrGrammar {
     @Override
     @SuppressWarnings("unchecked")
     @Priority(50)
-    public void processAttr(DOMCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String prefix = attr.getNamespacePrefix();
         List<Attribute> attrs = new ArrayList<Attribute>((List<Attribute>) elem.attributes());
         Element scope = elem;

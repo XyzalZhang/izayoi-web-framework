@@ -48,11 +48,6 @@ public class WebappCompileManager implements CompileManager {
     protected Map<String, Compilr> compilers;
 
     @Override
-    public Set<String> getSupportedTypes() {
-        return compilers.keySet();
-    }
-
-    @Override
     public boolean isUpdated(String templatePath, String asType) throws CortileException {
 
         String type = checkType(templatePath, asType);

@@ -28,15 +28,15 @@ import org.dom4j.Comment;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 14:19:20
  */
-public class ELComment implements CommentGrammar {
+public class ELComment implements CommentGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptComment(Comment comment) {
@@ -44,7 +44,7 @@ public class ELComment implements CommentGrammar {
     }
 
     @Override
-    public void processComment(DOMCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         try {
             if (comment.getText().startsWith("$=")) {
                 DOMUtils.replaceBy(comment, "<%=" + compiler.compileEL(comment.getText().substring("$=".length())) + "%>");

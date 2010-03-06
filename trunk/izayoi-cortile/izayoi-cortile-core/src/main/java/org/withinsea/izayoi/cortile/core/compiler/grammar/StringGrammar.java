@@ -32,9 +32,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface StringGrammar extends Grammar {
+public interface StringGrammar<C extends GrammarCompiler> extends Grammar<C> {
 
     public boolean acceptString(String str);
 
-    public abstract String processString(Compilr compiler, Compilr.Result result, String str) throws CortileException;
+    public abstract String processString(C compiler, Compilr.Result result, String str) throws CortileException;
 }
