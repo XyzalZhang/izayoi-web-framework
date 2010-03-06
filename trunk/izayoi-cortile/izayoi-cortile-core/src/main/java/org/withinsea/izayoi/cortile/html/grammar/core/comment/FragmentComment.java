@@ -22,35 +22,32 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
+package org.withinsea.izayoi.cortile.html.grammar.core.comment;
 
 import org.dom4j.Comment;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 14:19:20
+ * Date: 2009-12-28
+ * Time: 23:02:01
  */
-public class ELComment implements CommentGrammar<HTMLCompiler> {
+public class FragmentComment implements CommentGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("$");
+        return comment.getText().startsWith("=");
     }
 
     @Override
+    @Priority(-50)
     public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
         try {
-            if (comment.getText().startsWith("$=")) {
-                DOMUtils.replaceBy(comment, "<%=" + compiler.compileEL(comment.getText().substring("$=".length())) + "%>");
-            } else if (comment.getText().startsWith("$")) {
-                DOMUtils.replaceBy(comment, "<%" + compiler.compileEL(comment.getText().substring("$".length())) + ";%>");
-            }
+            DOMUtils.replaceBy(comment, comment.getText().substring("=".length()));
         } catch (Exception e) {
             throw new CortileException(e);
         }

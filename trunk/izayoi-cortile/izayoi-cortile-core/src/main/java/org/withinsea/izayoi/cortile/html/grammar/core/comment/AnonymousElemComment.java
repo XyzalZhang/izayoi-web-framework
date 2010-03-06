@@ -22,34 +22,29 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
+package org.withinsea.izayoi.cortile.html.grammar.core.comment;
 
-import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
- * Time: 23:02:01
+ * Time: 23:16:41
  */
-public class ScriptletComment implements CommentGrammar<HTMLCompiler> {
+public class AnonymousElemComment implements PretreatGrammar<HTMLCompiler> {
 
     @Override
-    public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("%");
+    public boolean acceptPretreat(String code) {
+        return true;
     }
 
     @Override
-    @Priority(-50)
-    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        try {
-            DOMUtils.replaceBy(comment, "<%" + comment.getText().substring("%".length()).replaceAll("%$", "") + "%>");
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
+    public String pretreatCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
+                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
     }
 }

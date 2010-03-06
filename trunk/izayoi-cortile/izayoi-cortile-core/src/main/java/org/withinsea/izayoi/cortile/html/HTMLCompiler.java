@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp;
+package org.withinsea.izayoi.cortile.html;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;

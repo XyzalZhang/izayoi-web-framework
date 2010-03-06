@@ -22,47 +22,58 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
+package org.withinsea.izayoi.cortile.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
- * Time: 22:07:55
+ * Time: 23:21:31
  */
-public class Call implements AttrGrammar<HTMLCompiler> {
+public class Mock implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("call");
+        return attr.getName().equals("mock");
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    @Priority(99)
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-        try {
-            if (attr.getValue().indexOf(":") < 0) {
-                String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
-                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
-                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                        "<% " + compiler.elScopeEnd() + " %>");
-            } else {
-                String[] value = attr.getValue().split(":");
-                String templatePath = value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0];
-                String funcPath = compiler.mapTargetPath(templatePath, value[1]);
-                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
-                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                        "<% " + compiler.elScopeEnd() + " %>");
-                result.getRelativeTemplatePaths().add(templatePath);
-            }
-        } catch (Exception e) {
-            throw new CortileException(e);
+
+        String mockType = attr.getValue();
+
+        java.util.Set<Node> mocks = new HashSet<Node>();
+        List<Node> siblings = (List<Node>) DOMUtils.parent(elem).content();
+        if (mockType.equals("siblings")) {
+            mocks.addAll(siblings);
+        } else if (mockType.equals("neighbors")) {
+            mocks.addAll(siblings);
+            mocks.remove(elem);
+        } else if (mockType.equals("below")) {
+            mocks.addAll(siblings.subList(siblings.indexOf(elem) + 1, siblings.size()));
+        } else if (mockType.equals("toend")) {
+            mocks.addAll(siblings.subList(siblings.indexOf(elem), siblings.size()));
+        } else {
+            mocks.add(elem);
         }
+
+        for (Node mock : mocks) {
+            mock.detach();
+        }
+
+        attr.detach();
     }
 }

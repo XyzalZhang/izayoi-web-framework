@@ -83,17 +83,25 @@ public class Izayoi implements Filter, Configurable {
         glowworm.doDispatch(req, resp, new FilterChain() {
             @Override
             public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                mirage.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
-                    @Override
-                    public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                        scenery.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
-                            @Override
-                            public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                                chain.doFilter(req, resp);
+                try {
+                    mirage.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
+                        @Override
+                        public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
+                            try {
+                                scenery.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
+                                    @Override
+                                    public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
+                                        chain.doFilter(req, resp);
+                                    }
+                                });
+                            } catch (CortileException e) {
+                                throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+                } catch (CortileException e) {
+                    throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
+                }
             }
         });
     }
@@ -116,8 +124,8 @@ public class Izayoi implements Filter, Configurable {
             HttpServletResponse resp = (HttpServletResponse) response;
             try {
                 doDispatch(req, resp, chain);
-            } catch (CortileException e) {
-                throw new ServletException(e);
+            } catch (IzayoiException e) {
+                throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
             }
         } else {
             chain.doFilter(request, response);

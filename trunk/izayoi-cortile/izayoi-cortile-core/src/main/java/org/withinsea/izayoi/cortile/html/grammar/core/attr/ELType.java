@@ -22,34 +22,36 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp.grammar.core.comment;
+package org.withinsea.izayoi.cortile.html.grammar.core.attr;
 
-import org.dom4j.Comment;
+import org.dom4j.Attribute;
+import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-28
- * Time: 23:02:01
+ * Date: 2010-3-6
+ * Time: 22:48:37
  */
-public class FragmentComment implements CommentGrammar<HTMLCompiler> {
+public class ELType implements AttrGrammar<HTMLCompiler> {
 
     @Override
-    public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("=");
+    public boolean acceptAttr(Element elem, Attribute attr) {
+        return attr.getName().equals("elType");
     }
 
     @Override
-    @Priority(-50)
-    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+        String elType = attr.getValue();
         try {
-            DOMUtils.replaceBy(comment, comment.getText().substring("=".length()));
+            DOMUtils.surroundBy(elem, "<%" + compiler.elScope(elType) + "%>", "<%" + compiler.elScopeEnd() + "%>");
         } catch (Exception e) {
             throw new CortileException(e);
         }
+        attr.detach();
     }
 }

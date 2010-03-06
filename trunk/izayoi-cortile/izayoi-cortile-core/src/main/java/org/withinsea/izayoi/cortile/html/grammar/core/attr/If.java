@@ -22,32 +22,35 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.jsp.grammar.core.attr;
+package org.withinsea.izayoi.cortile.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.commons.html.DOMUtils;
-import org.withinsea.izayoi.commons.util.BeanMap;
+import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.jsp.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-4
- * Time: 19:41:58
+ * Date: 2009-12-28
+ * Time: 22:36:16
  */
-public class With implements AttrGrammar<HTMLCompiler> {
+public class If implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("with");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.equals("if") || attrname.startsWith("if.");
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-
 
         String el = attr.getValue().trim();
         el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
@@ -55,13 +58,25 @@ public class With implements AttrGrammar<HTMLCompiler> {
             throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
         }
 
-        String scopeBegin = compiler.elScope(),
-                scopeEnd = compiler.elScopeEnd(),
-                beanScopeBegin = compiler.elScope(null, "new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + ")");
-        try {
-            DOMUtils.surroundBy(elem, "<%" + beanScopeBegin + scopeBegin + "%>", "<%" + scopeEnd + scopeEnd + "%>");
-        } catch (Exception e) {
-            throw new CortileException(e);
+        String preScriptlet = "if ((Boolean) " + compiler.compileEL(el) + ") { " + compiler.elScope();
+        String sufScriptlet = compiler.elScopeEnd() + " }";
+
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        if (attrname.equals("if")) {
+            try {
+                DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+        } else {
+            String ifname = attrname.substring("if.".length());
+            String ifAttrname = ifname.startsWith("attr.") ? ifname.substring("attr.".length()) : ifname;
+            for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {
+                if (ifAttr.getName().equals(ifAttrname)) {
+                    ifAttr.setPrefix("<%" + preScriptlet + "%>");
+                    ifAttr.setSuffix("<%" + sufScriptlet + "%>");
+                }
+            }
         }
 
         attr.detach();

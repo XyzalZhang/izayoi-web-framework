@@ -24,14 +24,12 @@
 
 package org.withinsea.izayoi.core.exception;
 
-import javax.servlet.ServletException;
-
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-1-6
  * Time: 14:46:40
  */
-public class IzayoiException extends ServletException {
+public class IzayoiException extends Exception {
 
     public IzayoiException() {
     }
