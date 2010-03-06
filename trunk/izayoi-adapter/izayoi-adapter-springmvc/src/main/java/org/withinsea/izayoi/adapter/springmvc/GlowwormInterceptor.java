@@ -69,7 +69,7 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
 
         GlowwormLight light = new GlowwormLight();
         light.setConfigurator(configurator);
-        light.init(request.getServletContext(), configPath);
+        light.init(request.getSession().getServletContext(), configPath);
 
         FlagChain chain = new FlagChain();
         light.doDispatch(request, response, chain);

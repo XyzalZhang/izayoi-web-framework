@@ -52,8 +52,8 @@ public class WebContextDependencyManager implements DependencyManager {
     protected static Object lookupConstants(HttpServletRequest request, String name) {
         return name.equals("request") ? request
                 : name.equals("session") ? request.getSession()
-                : name.equals("application") ? request.getServletContext()
-                : name.equals("servletContext") ? request.getServletContext()
+                : name.equals("application") ? request.getSession().getServletContext()
+                : name.equals("servletContext") ? request.getSession().getServletContext()
                 : null;
     }
 
@@ -61,27 +61,17 @@ public class WebContextDependencyManager implements DependencyManager {
         Object obj = request.getParameter(name);
         if (obj == null) obj = request.getAttribute(name);
         if (obj == null) obj = request.getSession().getAttribute(name);
-        if (obj == null) obj = request.getServletContext().getAttribute(name);
+        if (obj == null) obj = request.getSession().getServletContext().getAttribute(name);
         return obj;
     }
 
     protected static Object lookupCDI(String name) {
         try {
-            @SuppressWarnings("unchecked")
-            BeanManager beanManager = (BeanManager) lookupJndi("java:comp/BeanManager");
-            if (beanManager == null) {
-                return null;
-            }
-            List<Bean<?>> beans = new ArrayList<Bean<?>>(beanManager.getBeans(name));
-            if (beans.isEmpty()) {
-                return null;
-            } else {
-                Bean<?> bean = beans.get(0);
-                return beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
-            }
-        } catch (Exception ex) {
+            Class.forName("javax.enterprise.inject.spi.Bean");
+        } catch (ClassNotFoundException e) {
             return null;
         }
+        return CDIHelper.lookupCDI(name);
     }
 
     protected static Object lookupJndi(String name) {
@@ -107,5 +97,25 @@ public class WebContextDependencyManager implements DependencyManager {
             return null;
         }
         return null;
+    }
+
+    // lazy load CDI api for jee5-
+
+    protected static class CDIHelper {
+
+        protected static Object lookupCDI(String name) {
+            @SuppressWarnings("unchecked")
+            BeanManager beanManager = (BeanManager) lookupJndi("java:comp/BeanManager");
+            if (beanManager == null) {
+                return null;
+            }
+            List<Bean<?>> beans = new ArrayList<Bean<?>>(beanManager.getBeans(name));
+            if (beans.isEmpty()) {
+                return null;
+            } else {
+                Bean<?> bean = beans.get(0);
+                return beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
+            }
+        }
     }
 }

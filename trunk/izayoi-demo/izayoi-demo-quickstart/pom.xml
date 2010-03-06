@@ -30,7 +30,7 @@
     <!-- The Basics -->
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
-        <artifactId>izayoi-demo-base</artifactId>
+        <artifactId>izayoi-base</artifactId>
         <version>0.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>izayoi-demo-quickstart</artifactId>
@@ -39,12 +39,7 @@
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-bundle</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
-            <scope>provided</scope>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

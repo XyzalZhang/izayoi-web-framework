@@ -23,5 +23,5 @@
  */
 
 {
-    project: "Izayoi"
+    name: "world"
 }
