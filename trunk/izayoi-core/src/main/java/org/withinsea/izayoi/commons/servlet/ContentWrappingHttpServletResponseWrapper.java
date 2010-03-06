@@ -35,7 +35,7 @@ public abstract class ContentWrappingHttpServletResponseWrapper extends HttpServ
 
     protected abstract byte[] wrap(byte[] content) throws IOException;
 
-    protected ByteArrayServletOutputStream buffer = new ByteArrayServletOutputStream();
+    protected final ByteArrayServletOutputStream buffer = new ByteArrayServletOutputStream();
     protected PrintWriter bufferWriter;
     protected boolean committed = false;
 

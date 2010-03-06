@@ -53,15 +53,11 @@ public class DependencyUtils {
 
     protected static class DependencyMap implements Map<String, Object> {
 
-        protected HttpServletRequest request;
-        protected DependencyManager dependencyManager;
+        protected final DependencyManager dependencyManager;
+        protected final HttpServletRequest request;
 
         public DependencyMap(DependencyManager dependencyManager, HttpServletRequest request) {
             this.dependencyManager = dependencyManager;
-            this.request = request;
-        }
-
-        public void setRequest(HttpServletRequest request) {
             this.request = request;
         }
 

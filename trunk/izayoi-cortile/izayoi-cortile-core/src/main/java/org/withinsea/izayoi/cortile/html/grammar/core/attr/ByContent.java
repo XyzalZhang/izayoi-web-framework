@@ -28,13 +28,13 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.tree.DefaultElement;
-import org.withinsea.izayoi.commons.html.DOMUtils;
-import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
-import org.withinsea.izayoi.commons.html.HTMLReader;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.parser.HTMLDocumentFactory;
+import org.withinsea.izayoi.cortile.html.parser.HTMLReader;
 
 import java.util.ArrayList;
 import java.util.List;

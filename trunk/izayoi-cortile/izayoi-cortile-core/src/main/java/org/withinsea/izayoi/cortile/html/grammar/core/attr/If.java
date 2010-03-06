@@ -26,12 +26,12 @@ package org.withinsea.izayoi.cortile.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.html.DOMUtils;
-import org.withinsea.izayoi.commons.html.HTMLDocumentFactory;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.parser.HTMLDocumentFactory;
 
 import java.util.List;
 

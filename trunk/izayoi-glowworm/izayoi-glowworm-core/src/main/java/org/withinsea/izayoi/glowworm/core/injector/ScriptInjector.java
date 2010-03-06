@@ -30,7 +30,6 @@ import org.withinsea.izayoi.core.dependency.DependencyUtils;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
 
 import javax.script.ScriptEngineManager;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +56,7 @@ public class ScriptInjector implements Injector {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void inject(HttpServletRequest request, InjectManager.Scope scope, String dataPath, String type, String src) throws GlowwormException {
+    public void inject(HttpServletRequest request, Scope scope, String dataPath, String type, String src) throws GlowwormException {
 
         Interpreter interpreter = interpreters.get(interpreters.containsKey(type) ? type : "default");
 
@@ -90,7 +89,7 @@ public class ScriptInjector implements Injector {
         }
     }
 
-    protected static Object getAttribute(HttpServletRequest request, InjectManager.Scope scope, String name) {
+    protected static Object getAttribute(HttpServletRequest request, Scope scope, String name) {
         switch (scope) {
             case APPLICATION:
                 return request.getSession().getServletContext().getAttribute(name);
@@ -102,7 +101,7 @@ public class ScriptInjector implements Injector {
         return null;
     }
 
-    protected static void setAttribute(HttpServletRequest request, InjectManager.Scope scope, String name, Object value) {
+    protected static void setAttribute(HttpServletRequest request, Scope scope, String name, Object value) {
         switch (scope) {
             case APPLICATION:
                 request.getSession().getServletContext().setAttribute(name, value);

@@ -38,8 +38,7 @@ import java.util.List;
 public class UserService {
 
     public User getById(int id) {
-        User ret = new User(id, "name:" + id, true, id + ".jpg");
-        return ret;
+        return new User(id, "name:" + id, true, id + ".jpg");
     }
 
     public List<User> findUsers(int pageNumber, int pageSize) {

@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.html;
+package org.withinsea.izayoi.commons.dom;
 
 import org.dom4j.Branch;
 import org.dom4j.Node;

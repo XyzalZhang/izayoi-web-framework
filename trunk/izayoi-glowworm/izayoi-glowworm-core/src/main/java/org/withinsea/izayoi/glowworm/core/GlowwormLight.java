@@ -34,6 +34,7 @@ import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.inject.InjectManager;
+import org.withinsea.izayoi.glowworm.core.injector.Scope;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -102,14 +103,14 @@ public class GlowwormLight implements Filter, Configurable {
 
                     if (servletContext.getAttribute(GLOBAL_INJECTED_FLAG_ATTR) == null) {
                         for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-application" + dataSuffix + ".") + "\\w+")) {
-                            injectManager.inject(req, InjectManager.Scope.APPLICATION, dataFolder + "/" + dataName, null);
+                            injectManager.inject(req, Scope.APPLICATION, dataFolder + "/" + dataName, null);
                         }
                         servletContext.setAttribute(GLOBAL_INJECTED_FLAG_ATTR, true);
                     }
 
                     if (req.getSession().getAttribute(GLOBAL_INJECTED_FLAG_ATTR) == null) {
                         for (String dataName : codeManager.listNames(dataFolder, Pattern.quote(globalPrefix + "-session" + dataSuffix + ".") + "\\w+")) {
-                            injectManager.inject(req, InjectManager.Scope.SESSION, dataFolder + "/" + dataName, null);
+                            injectManager.inject(req, Scope.SESSION, dataFolder + "/" + dataName, null);
                         }
                         req.getSession().setAttribute(GLOBAL_INJECTED_FLAG_ATTR, true);
                     }
@@ -120,7 +121,7 @@ public class GlowwormLight implements Filter, Configurable {
                         globalFolderPath = globalFolderPath + folderPathSplitItem + "/";
                         if (req.getAttribute(GLOBAL_INJECTED_FLAG_ATTR + "#" + globalFolderPath) == null) {
                             for (String dataName : codeManager.listNames(globalFolderPath, Pattern.quote(globalPrefix + dataSuffix + ".") + "\\w+")) {
-                                injectManager.inject(req, InjectManager.Scope.REQUEST, globalFolderPath + "/" + dataName, null);
+                                injectManager.inject(req, Scope.REQUEST, globalFolderPath + "/" + dataName, null);
                             }
                             req.setAttribute(GLOBAL_INJECTED_FLAG_ATTR + "#" + globalFolderPath, true);
                         }
@@ -132,7 +133,7 @@ public class GlowwormLight implements Filter, Configurable {
                         Matcher dataMatcher = Pattern.compile(Pattern.quote(folderPath) + "/(.+)" + Pattern.quote(dataSuffix) + "\\.\\w+").matcher(requestPath);
                         if (dataMatcher.matches() && codeManager.exist(requestPath)) {
                             // direct access to glowworm data file
-                            injectManager.inject(req, InjectManager.Scope.REQUEST, requestPath, null);
+                            injectManager.inject(req, Scope.REQUEST, requestPath, null);
                             req.setAttribute(INJECTED_FLAG_ATTR, true);
                             req.getRequestDispatcher("/" + dataMatcher.group(1)).forward(req, resp);
                         } else {
@@ -140,7 +141,7 @@ public class GlowwormLight implements Filter, Configurable {
                             String main = PathUtils.getMainName(requestPath);
                             String ext = PathUtils.getExtName(requestPath);
                             for (String dataName : codeManager.listNames(folderPath, Pattern.quote(main) + "(|" + Pattern.quote("." + ext) + ")" + Pattern.quote(dataSuffix) + "\\.\\w+")) {
-                                injectManager.inject(req, InjectManager.Scope.REQUEST, folderPath + "/" + dataName, null);
+                                injectManager.inject(req, Scope.REQUEST, folderPath + "/" + dataName, null);
                                 req.setAttribute(INJECTED_FLAG_ATTR, true);
                             }
                         }

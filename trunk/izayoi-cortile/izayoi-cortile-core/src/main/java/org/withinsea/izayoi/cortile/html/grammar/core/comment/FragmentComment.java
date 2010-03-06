@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.html.grammar.core.comment;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;

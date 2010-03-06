@@ -81,7 +81,7 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
     public String getQueryString() {
         String queryString = (super.getQueryString() == null) ? "" : "&" + super.getQueryString();
         for (String ignoreParam : ignoreParams) {
-            queryString = queryString.replaceAll("\\&" + ignoreParam + "=[^\\&]*", "");
+            queryString = queryString.replaceAll("&" + ignoreParam + "=[^&]*", "");
         }
         for (String name : appendentParams.keySet()) {
             String[] params = appendentParams.get(name);

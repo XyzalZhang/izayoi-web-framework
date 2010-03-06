@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.html;
+package org.withinsea.izayoi.cortile.html.parser;
 
 import org.dom4j.*;
 import org.dom4j.tree.DefaultAttribute;

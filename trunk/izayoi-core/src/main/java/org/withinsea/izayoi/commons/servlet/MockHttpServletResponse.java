@@ -42,13 +42,13 @@ import java.util.*;
  */
 public class MockHttpServletResponse implements HttpServletResponse {
 
-    protected static ServletOutputStream NUL_OS = new ServletOutputStream() {
+    protected static final ServletOutputStream NUL_OS = new ServletOutputStream() {
         @Override
         public void write(int b) throws IOException {
         }
     };
 
-    protected static PrintWriter NUL_WRITER = new PrintWriter(NUL_OS);
+    protected static final PrintWriter NUL_WRITER = new PrintWriter(NUL_OS);
 
     protected int status = 200;
     protected String charset = "UTF-8";

@@ -27,6 +27,7 @@ package org.withinsea.izayoi.glowworm.core.inject;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.injector.Injector;
+import org.withinsea.izayoi.glowworm.core.injector.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;

@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.core.compiler.dom;
 
 import org.dom4j.*;
-import org.withinsea.izayoi.commons.html.DOMUtils;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.GrammarUtils;

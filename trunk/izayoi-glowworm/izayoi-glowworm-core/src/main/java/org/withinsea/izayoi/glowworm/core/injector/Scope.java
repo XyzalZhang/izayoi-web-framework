@@ -24,33 +24,13 @@
 
 package org.withinsea.izayoi.glowworm.core.injector;
 
-import org.withinsea.izayoi.commons.servlet.MockHttpServletResponse;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 18:00:15
+ * Date: 2010-3-7
+ * Time: 6:49:11
  */
-public class ForwardInjector implements Injector {
-
-    @Override
-    public boolean isSupport(String type) {
-        return true;
-    }
-
-    @Override
-    public void inject(HttpServletRequest request, Scope scope, String dataPath, String type, String src) throws GlowwormException {
-        try {
-            request.getRequestDispatcher(dataPath).forward(request, new MockHttpServletResponse());
-        } catch (ServletException e) {
-            throw new GlowwormException(e);
-        } catch (IOException e) {
-            throw new GlowwormException(e);
-        }
-    }
+public enum Scope {
+    APPLICATION,
+    SESSION,
+    REQUEST
 }

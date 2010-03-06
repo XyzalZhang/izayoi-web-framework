@@ -24,11 +24,11 @@
 
 package org.withinsea.izayoi.cortile.html.grammar.core.comment;
 
-import org.withinsea.izayoi.commons.html.HTMLReader;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.html.parser.HTMLReader;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.glowworm.core.inject;
 
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.withinsea.izayoi.glowworm.core.injector.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,12 +35,6 @@ import javax.servlet.http.HttpServletRequest;
  * Time: 16:57:03
  */
 public interface InjectManager {
-
-    public static enum Scope {
-        APPLICATION,
-        SESSION,
-        REQUEST
-    }
 
     void inject(HttpServletRequest request, Scope scope, String dataPath, String asType) throws GlowwormException;
 }

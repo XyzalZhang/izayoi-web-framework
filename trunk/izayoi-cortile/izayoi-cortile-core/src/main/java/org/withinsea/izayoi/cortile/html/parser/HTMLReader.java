@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.html;
+package org.withinsea.izayoi.cortile.html.parser;
 
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.XMLDocumentScannerImpl;
@@ -37,7 +37,6 @@ import org.dom4j.*;
 import org.dom4j.io.SAXContentHandler;
 import org.dom4j.io.SAXReader;
 import org.withinsea.izayoi.commons.util.IOUtils;
-import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -133,7 +132,7 @@ public class HTMLReader extends SAXReader {
                             completeCurrentTextNode();
                         }
                     } catch (Exception e) {
-                        throw new IzayoiRuntimeException(e);
+                        throw new RuntimeException(e);
                     }
                 }
                 super.endElement(namespaceURI, localName, qName);
