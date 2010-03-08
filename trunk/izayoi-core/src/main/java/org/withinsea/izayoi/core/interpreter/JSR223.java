@@ -53,7 +53,7 @@ public class JSR223 implements Interpreter {
 
         public static Object eval(String script, Bindings bindings, String asType) throws Exception {
             ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(asType);
-            return engine.eval(script, bindings);
+            return (engine == null) ? null : engine.eval(script, bindings);
         }
     }
 }

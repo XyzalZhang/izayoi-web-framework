@@ -63,20 +63,7 @@ public class InjectManager extends InvokeManagerImpl {
         return true;
     }
 
-    protected static Object getAttribute(HttpServletRequest request, Scope scope, String name) {
-        switch (scope) {
-            case APPLICATION:
-                return request.getSession().getServletContext().getAttribute(name);
-            case SESSION:
-                return request.getSession().getAttribute(name);
-            case REQUEST:
-                return request.getAttribute(name);
-            default:
-                return null;
-        }
-    }
-
-    protected static void setAttribute(HttpServletRequest request, Scope scope, String name, Object value) {
+    protected void setAttribute(HttpServletRequest request, Scope scope, String name, Object value) {
         switch (scope) {
             case APPLICATION:
                 request.getSession().getServletContext().setAttribute(name, value);

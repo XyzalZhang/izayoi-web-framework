@@ -47,7 +47,7 @@ public class IzayoiConfigurator implements Configurator {
     public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
 
         container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager")));
-        container.addComponent("bindingsManager", Class.forName(conf.getProperty("class.dependencyManager").trim()));
+        container.addComponent("bindingsManager", Class.forName(conf.getProperty("class.bindingsManager").trim()));
 
         Map<String, Interpreter> interpreters = new LinkedHashMap<String, Interpreter>();
         {
@@ -66,6 +66,8 @@ public class IzayoiConfigurator implements Configurator {
             }
         }
         container.addComponent("interpreters", interpreters);
+
+        container.addComponent("interpretManager", Class.forName(conf.getProperty("class.interpretManager").trim()));
     }
 
     protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {

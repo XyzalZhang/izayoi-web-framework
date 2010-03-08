@@ -45,7 +45,7 @@ public class DefaultInterpretManager implements InterpretManager {
 
         Interpreter interpreter = interpreters.get(interpreters.containsKey(asType) ? asType : "default");
 
-        if (interpreter == null) {
+        if (asType == null || interpreter == null) {
             return null;
         } else if (interpreter instanceof ImportableInterpreter) {
             return ((ImportableInterpreter) interpreter).interpret(script, bindings, asType, importedClasses);
@@ -54,5 +54,9 @@ public class DefaultInterpretManager implements InterpretManager {
         } else {
             return null;
         }
+    }
+
+    public void setInterpreters(Map<String, Interpreter> interpreters) {
+        this.interpreters = interpreters;
     }
 }

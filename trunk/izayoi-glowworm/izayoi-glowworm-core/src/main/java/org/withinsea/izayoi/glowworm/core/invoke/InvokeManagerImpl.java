@@ -55,6 +55,8 @@ public abstract class InvokeManagerImpl implements InvokeManager {
             throw new GlowwormException("script " + scriptPath + " does not exist.");
         }
 
+        asType = (asType != null) ? asType : scriptPath.replaceAll(".*\\.", "");
+
         Code code = codeManager.get(scriptPath);
         Varstack bindings = new Varstack();
         {
