@@ -54,6 +54,22 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
         this.configurator = configurator;
     }
 
+    // api
+
+    protected Dispatcher dispatcher;
+
+    public void init(ServletContext servletContext, String configPath) throws CortileException {
+        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, null, chain);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, requestPath, chain);
+    }
+
     // dispatcher
 
     public static class Dispatcher {
@@ -105,22 +121,6 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
         public void setTemplateSuffix(String templateSuffix) {
             this.templateSuffix = templateSuffix;
         }
-    }
-
-    // api
-
-    protected Dispatcher dispatcher;
-
-    public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
-    }
-
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
-        dispatcher.doDispatch(req, resp, null, chain);
-    }
-
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
-        dispatcher.doDispatch(req, resp, requestPath, chain);
     }
 
     // as servlet

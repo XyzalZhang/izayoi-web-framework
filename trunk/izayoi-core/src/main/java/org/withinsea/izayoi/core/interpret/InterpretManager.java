@@ -22,26 +22,18 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.conf;
+package org.withinsea.izayoi.core.interpret;
 
-import org.picocontainer.MutablePicoContainer;
-import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
+import org.withinsea.izayoi.core.exception.IzayoiException;
 
-import java.util.Properties;
+import javax.script.Bindings;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-11
- * Time: 14:36:57
+ * Date: 2010-3-9
+ * Time: 3:56:37
  */
-public class GlowwormConfigurator extends IzayoiConfigurator {
+public interface InterpretManager {
 
-    @Override
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
-
-        super.initComponents(container, conf);
-
-        container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager").trim()));
-        container.addComponent("actManager", Class.forName(conf.getProperty("class.actManager").trim()));
-    }
+    Object interpret(String script, Bindings bindings, String asType, String... importedClasses) throws IzayoiException;
 }

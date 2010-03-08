@@ -22,19 +22,24 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.inject;
 
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.injector.Scope;
 
+
+
+
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-11
- * Time: 16:57:03
- */
-public interface InjectManager {
+ServletContext application = application;
+HttpServletRequest request = request;
 
-    void inject(HttpServletRequest request, Scope scope, String dataPath, String asType) throws GlowwormException;
-}
+String path = request.getServletPath();
+String folderPath = path.replaceAll("/[^/]*\$", "/");
+
+[
+        "file": [
+                "webroot": new java.io.File(application.getRealPath('/')),
+                "folder": new java.io.File(application.getRealPath(folderPath))
+        ]
+]

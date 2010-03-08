@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.withinsea.izayoi.commons.servlet.FlagChain;
 import org.withinsea.izayoi.core.conf.Configurator;
-import org.withinsea.izayoi.glowworm.core.GlowwormLight;
+import org.withinsea.izayoi.glowworm.core.GlowwormFlare;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 
 import javax.servlet.ServletContext;
@@ -57,7 +57,7 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
             @Override
             protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
                 super.loadDefaultConf(conf, servletContext);
-                conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextDependencyManager");
+                conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextBindingsManager");
             }
 
             @Override
@@ -67,12 +67,12 @@ public class GlowwormInterceptor extends HandlerInterceptorAdapter implements Ap
             }
         };
 
-        GlowwormLight light = new GlowwormLight();
-        light.setConfigurator(configurator);
-        light.init(request.getSession().getServletContext(), configPath);
+        GlowwormFlare flare = new GlowwormFlare();
+        flare.setConfigurator(configurator);
+        flare.init(request.getSession().getServletContext(), configPath);
 
         FlagChain chain = new FlagChain();
-        light.doDispatch(request, response, chain);
+        flare.doDispatch(request, response, chain);
         return chain.isInvoked();
     }
 

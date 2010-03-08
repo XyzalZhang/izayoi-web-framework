@@ -22,7 +22,6 @@
   ~ the Initial Developer. All Rights Reserved.
   -->
 
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -32,18 +31,29 @@
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>izayoi-base</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.withinsea.izayoi.demo</groupId>
-    <artifactId>izayoi-demo</artifactId>
-    <packaging>pom</packaging>
-    <version>0.2.0-SNAPSHOT</version>
-    <modules>
-        <module>izayoi-demo-quickstart</module>
-        <module>izayoi-demo-samples</module>
-    </modules>
+    <artifactId>izayoi-demo-samples</artifactId>
+    <packaging>war</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>izayoi-bundle</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+    </dependencies>
 
     <!-- More Project Information -->
-    <name>izayoi-demo</name>
+    <name>izayoi-demo-samples</name>
 
 </project>

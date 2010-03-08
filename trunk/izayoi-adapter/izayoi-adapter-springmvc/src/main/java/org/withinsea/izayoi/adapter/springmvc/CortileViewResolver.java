@@ -110,7 +110,7 @@ public class CortileViewResolver extends UrlBasedViewResolver implements Applica
                 @Override
                 protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
                     super.loadDefaultConf(conf, servletContext);
-                    conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextDependencyManager");
+                    conf.setProperty("class.dependencyManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextBindingsManager");
                 }
 
                 @Override

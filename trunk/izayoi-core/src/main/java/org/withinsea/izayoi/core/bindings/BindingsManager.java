@@ -22,20 +22,17 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.core.bindings;
 
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-
+import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 17:59:16
+ * Date: 2010-3-9
+ * Time: 5:48:58
  */
-public interface Injector {
+public interface BindingsManager {
 
-    boolean isSupport(String type);
-
-    void inject(HttpServletRequest request, Scope scope, String dataPath, String type, String src) throws GlowwormException;
+    Bindings getBindings(HttpServletRequest request);
 }

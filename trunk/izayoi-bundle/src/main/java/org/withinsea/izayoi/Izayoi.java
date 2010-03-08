@@ -31,7 +31,7 @@ import org.withinsea.izayoi.cortile.core.CortileMirage;
 import org.withinsea.izayoi.cortile.core.CortileScenery;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.glowworm.core.GlowwormLight;
+import org.withinsea.izayoi.glowworm.core.GlowwormFlare;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 
 import javax.servlet.*;
@@ -55,7 +55,7 @@ public class Izayoi implements Filter, Configurable {
 
     // api
 
-    protected GlowwormLight glowworm;
+    protected GlowwormFlare flare;
     protected CortileScenery scenery;
     protected CortileMirage mirage;
 
@@ -63,9 +63,9 @@ public class Izayoi implements Filter, Configurable {
 
         Configurator glowwormConfigurator = (configurator != null) ? configurator : new GlowwormConfigurator();
 
-        glowworm = new GlowwormLight();
-        glowworm.setConfigurator(glowwormConfigurator);
-        glowworm.init(servletContext, configPath);
+        flare = new GlowwormFlare();
+        flare.setConfigurator(glowwormConfigurator);
+        flare.init(servletContext, configPath);
 
         Configurator cortileConfigurator = (configurator != null) ? configurator : new CortileConfigurator();
 
@@ -80,7 +80,7 @@ public class Izayoi implements Filter, Configurable {
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws IzayoiException {
 
-        glowworm.doDispatch(req, resp, new FilterChain() {
+        flare.doDispatch(req, resp, new FilterChain() {
             @Override
             public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
                 try {

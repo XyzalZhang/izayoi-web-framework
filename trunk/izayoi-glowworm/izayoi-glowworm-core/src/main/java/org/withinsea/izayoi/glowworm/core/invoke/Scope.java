@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.glowworm.core.invoke;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

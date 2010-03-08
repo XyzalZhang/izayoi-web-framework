@@ -56,6 +56,22 @@ public class CortileMirage implements Filter, Configurable {
         this.configurator = configurator;
     }
 
+    // api
+
+    protected Dispatcher dispatcher;
+
+    public void init(ServletContext servletContext, String configPath) throws CortileException {
+        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, null, chain);
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+        dispatcher.doDispatch(req, resp, requestPath, chain);
+    }
+
     // dispatcher
 
     public static class Dispatcher {
@@ -65,7 +81,7 @@ public class CortileMirage implements Filter, Configurable {
         protected ServletContext servletContext;
         protected CodeManager codeManager;
         protected CompileManager compileManager;
-        protected String mirageSuffix;
+        protected String mirageTemplateSuffix;
         protected String encoding;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
@@ -87,9 +103,9 @@ public class CortileMirage implements Filter, Configurable {
                     String folder = PathUtils.getFolderPath(requestPath);
                     String main = PathUtils.getMainName(requestPath);
                     String ext = PathUtils.getExtName(requestPath);
-                    String typedTemplateNameRegex = Pattern.quote(main + mirageSuffix + "-") + "(\\w+)" + Pattern.quote("." + ext);
+                    String typedTemplateNameRegex = Pattern.quote(main + mirageTemplateSuffix + "-") + "(\\w+)" + Pattern.quote("." + ext);
 
-                    String templatePath = folder + "/" + main + mirageSuffix + "." + ext;
+                    String templatePath = folder + "/" + main + mirageTemplateSuffix + "." + ext;
                     List<String> typedTemplateNames = codeManager.listNames(folder, typedTemplateNameRegex);
 
                     if ((codeManager.exist(templatePath) && !typedTemplateNames.isEmpty()) || typedTemplateNames.size() > 1) {
@@ -119,8 +135,8 @@ public class CortileMirage implements Filter, Configurable {
             this.compileManager = compileManager;
         }
 
-        public void setMirageSuffix(String mirageSuffix) {
-            this.mirageSuffix = mirageSuffix;
+        public void setMirageTemplateSuffix(String mirageTemplateSuffix) {
+            this.mirageTemplateSuffix = mirageTemplateSuffix;
         }
 
         public void setServletContext(ServletContext servletContext) {
@@ -134,22 +150,6 @@ public class CortileMirage implements Filter, Configurable {
         public void setEncoding(String encoding) {
             this.encoding = encoding;
         }
-    }
-
-    // api
-
-    protected Dispatcher dispatcher;
-
-    public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
-    }
-
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
-        dispatcher.doDispatch(req, resp, null, chain);
-    }
-
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
-        dispatcher.doDispatch(req, resp, requestPath, chain);
     }
 
     // as filter

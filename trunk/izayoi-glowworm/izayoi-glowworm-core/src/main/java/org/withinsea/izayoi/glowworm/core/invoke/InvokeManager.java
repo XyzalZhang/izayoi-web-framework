@@ -22,34 +22,19 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.adapter.springmvc;
+package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.core.dependency.WebContextDependencyManager;
+import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-3
- * Time: 1:06:51
+ * Date: 2010-3-9
+ * Time: 3:26:11
  */
-public class SpringWebContextDependencyManager extends WebContextDependencyManager {
+public interface InvokeManager {
 
-    protected ApplicationContext applicationContext;
-
-    @Override
-    public Object getBean(HttpServletRequest request, String name) {
-        Object obj = super.getBean(request, name);
-        if (obj == null) obj = lookupSpring(name);
-        return obj;
-    }
-
-    protected Object lookupSpring(String name) {
-        return applicationContext.getBean(name);
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+    void invoke(HttpServletRequest request, HttpServletResponse response, String scriptPath, String asType, Scope scope) throws GlowwormException;
 }

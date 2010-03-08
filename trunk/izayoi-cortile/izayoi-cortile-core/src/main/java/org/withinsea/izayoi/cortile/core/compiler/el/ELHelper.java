@@ -25,9 +25,8 @@
 package org.withinsea.izayoi.cortile.core.compiler.el;
 
 import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.dependency.DependencyManager;
-import org.withinsea.izayoi.core.dependency.DependencyUtils;
-import org.withinsea.izayoi.core.interpreter.ImportableInterpreter;
+import org.withinsea.izayoi.core.bindings.BindingsManager;
+import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +42,8 @@ public class ELHelper {
     protected static final String HELPER_ATTR = ELHelper.class.getCanonicalName() + ".HELPER";
 
     protected String elType;
-    protected DependencyManager dependencyManager;
+    protected BindingsManager bindingsManager;
+    protected InterpretManager interpretManager;
     protected Map<String, Interpreter> interpreters;
 
     public synchronized Helper getHelper(HttpServletRequest request) {
@@ -64,21 +64,15 @@ public class ELHelper {
         protected Helper(HttpServletRequest request) {
             this.importedClasses = new LinkedHashSet<String>();
             elTypeStack.push(elType);
-            varstack.push(DependencyUtils.asMap(dependencyManager, request));
+            varstack.push(bindingsManager.getBindings(request));
             varstack.push();
         }
 
         public Object eval(String el, boolean forOutput) {
             String elType = elTypeStack.peek();
-            Interpreter interpreter = interpreters.get(interpreters.containsKey(elType) ? elType : "default");
             Object ret;
             try {
-                if (interpreter instanceof ImportableInterpreter) {
-                    String[] classes = importedClasses.toArray(new String[importedClasses.size()]);
-                    ret = ((ImportableInterpreter) interpreter).interpret(el, varstack, elType, classes);
-                } else {
-                    ret = interpreter.interpret(el, varstack, elType);
-                }
+                ret = interpretManager.interpret(el, varstack, elType, importedClasses.toArray(new String[importedClasses.size()]));
             } catch (Exception e) {
                 ret = null; // silent exception stack trace
             }
@@ -114,8 +108,16 @@ public class ELHelper {
         this.interpreters = interpreters;
     }
 
-    public void setDependencyManager(DependencyManager dependencyManager) {
-        this.dependencyManager = dependencyManager;
+    public void setDependencyManager(BindingsManager bindingsManager) {
+        this.bindingsManager = bindingsManager;
+    }
+
+    public InterpretManager getInterpretManager() {
+        return interpretManager;
+    }
+
+    public void setInterpretManager(InterpretManager interpretManager) {
+        this.interpretManager = interpretManager;
     }
 
     public void setElType(String elType) {

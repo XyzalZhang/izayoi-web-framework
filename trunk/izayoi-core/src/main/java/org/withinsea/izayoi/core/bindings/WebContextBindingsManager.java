@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.dependency;
+package org.withinsea.izayoi.core.bindings;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -35,10 +35,10 @@ import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-30
- * Time: 16:05:28
+ * Date: 2010-3-9
+ * Time: 5:50:25
  */
-public class WebContextDependencyManager implements DependencyManager {
+public class WebContextBindingsManager extends BindingsManagerImpl {
 
     @Override
     public Object getBean(HttpServletRequest request, String name) {

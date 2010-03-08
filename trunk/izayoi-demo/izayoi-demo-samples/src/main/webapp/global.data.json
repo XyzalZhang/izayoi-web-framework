@@ -22,16 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.dependency;
-
-import javax.servlet.http.HttpServletRequest;
-
-/**
- * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-30
- * Time: 16:04:30
- */
-public interface DependencyManager {
-
-    Object getBean(HttpServletRequest request, String name);
+{
+    project: "Izayoi Demo",
+    module: "Samples"
 }

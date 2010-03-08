@@ -22,35 +22,34 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.injector;
+package org.withinsea.izayoi.adapter.springmvc;
 
-import org.withinsea.izayoi.commons.servlet.MockHttpServletResponse;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+import org.springframework.context.ApplicationContext;
+import org.withinsea.izayoi.core.bindings.WebContextBindingsManager;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-25
- * Time: 18:00:15
+ * Date: 2010-3-3
+ * Time: 1:06:51
  */
-public class ForwardInjector implements Injector {
+public class SpringWebContextBindingsManager extends WebContextBindingsManager {
+
+    protected ApplicationContext applicationContext;
 
     @Override
-    public boolean isSupport(String type) {
-        return true;
+    public Object getBean(HttpServletRequest request, String name) {
+        Object obj = super.getBean(request, name);
+        if (obj == null) obj = lookupSpring(name);
+        return obj;
     }
 
-    @Override
-    public void inject(HttpServletRequest request, Scope scope, String dataPath, String type, String src) throws GlowwormException {
-        try {
-            request.getRequestDispatcher(dataPath).forward(request, new MockHttpServletResponse());
-        } catch (ServletException e) {
-            throw new GlowwormException(e);
-        } catch (IOException e) {
-            throw new GlowwormException(e);
-        }
+    protected Object lookupSpring(String name) {
+        return applicationContext.getBean(name);
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 }
