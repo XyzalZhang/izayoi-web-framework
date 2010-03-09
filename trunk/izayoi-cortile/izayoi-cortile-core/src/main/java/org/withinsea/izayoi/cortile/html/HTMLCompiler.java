@@ -55,8 +55,8 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
 
     @Override
     public String mapTargetPath(String path, String suffix) {
-        suffix = (suffix == null) ? "" : suffix;
-        return mapEntrancePath(path).replaceAll("\\..+$", suffix + "$0");
+        suffix = (suffix == null) ? "" : "\\$" + suffix;
+        return mapEntrancePath(path).replaceAll("\\.[^\\.]+$", suffix + "$0");
     }
 
     @Override

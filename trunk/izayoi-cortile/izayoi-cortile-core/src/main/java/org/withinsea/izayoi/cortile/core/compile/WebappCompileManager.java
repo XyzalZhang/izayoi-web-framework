@@ -95,8 +95,6 @@ public class WebappCompileManager implements CompileManager {
         Compilr compiler = getCompiler(type);
         Cache cache = caches.get(compiler);
 
-        Code templateCode = codeManager.get(templatePath);
-
         Set<String> toChecks = new HashSet<String>();
         toChecks.add(templatePath);
         if (checkRelatives) {
@@ -106,8 +104,9 @@ public class WebappCompileManager implements CompileManager {
             if (!cache.cached(toCheck)) {
                 return false;
             }
+            Code toCheckCode = codeManager.get(toCheck);
             for (String targetPath : cache.targets(toCheck)) {
-                if (!codeManager.exist(targetPath) || (codeManager.get(targetPath).getLastModified() < templateCode.getLastModified())) {
+                if (!codeManager.exist(targetPath) || (codeManager.get(targetPath).getLastModified() < toCheckCode.getLastModified())) {
                     return false;
                 }
             }
