@@ -1,5 +1,0 @@
-def (userService, request, userId) {
-    return {
-        'userInfo': userService.getById(userId).name + ' from ' + request.servletPath
-    };
-}

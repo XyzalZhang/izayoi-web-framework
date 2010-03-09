@@ -51,9 +51,24 @@
             <artifactId>jruby</artifactId>
             <version>1.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>3.0.0.RELEASE</version>
+        </dependency>
     </dependencies>
 
     <!-- More Project Information -->
     <name>izayoi-demo-samples</name>
+
+    <!-- Environment Settings -->
+    <repositories>
+        <repository>
+            <id>springframework-release</id>
+            <name>springframework-release</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+            <releases/>
+        </repository>
+    </repositories>
 
 </project>
