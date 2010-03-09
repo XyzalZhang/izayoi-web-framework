@@ -39,6 +39,8 @@ import java.util.*;
  */
 public class IzayoiConfigurator implements Configurator {
 
+    protected static final String DEFAULT_CONFIG_PATH = "/WEB-INF/izayoi.properties";
+
     public void loadConf(Properties conf, ServletContext servletContext, String configPath) throws Exception {
         loadDefaultConf(conf, servletContext);
         loadCustomizedConf(conf, servletContext, configPath);
@@ -84,21 +86,13 @@ public class IzayoiConfigurator implements Configurator {
                 }
             }
         }
-        String confname = getDefaultConfigName(getClass());
-        if (confname != null) {
-            InputStream is = servletContext.getResourceAsStream("/WEB-INF/" + confname + ".properties");
-            if (is != null) {
-                conf.load(is);
-            }
-        }
     }
 
     protected void loadCustomizedConf(Properties conf, ServletContext servletContext, String configPath) throws Exception {
-        if (configPath != null) {
-            InputStream is = servletContext.getResourceAsStream(configPath);
-            if (is != null) {
-                conf.load(is);
-            }
+        configPath = (configPath != null) ? configPath : DEFAULT_CONFIG_PATH;
+        InputStream is = servletContext.getResourceAsStream(configPath);
+        if (is != null) {
+            conf.load(is);
         }
     }
 
