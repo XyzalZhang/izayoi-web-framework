@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cortile.core.compiler.grammar;
 import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -37,8 +38,10 @@ import java.util.*;
 public class GrammarUtils {
 
     public static int getPriority(Grammar grammar, String methodName) {
-        for (Method m : grammar.getClass().getDeclaredMethods()) {
-            if (m.getName().equals(methodName)) {
+        Class<?> claz = grammar.getClass();
+        for (Method m : claz.getDeclaredMethods()) {
+            if (!Modifier.isVolatile(m.getModifiers()) && m.getDeclaringClass() == claz
+                    && m.getName().equals(methodName)) {
                 if (m.isAnnotationPresent(Grammar.Priority.class)) {
                     return m.getAnnotation(Grammar.Priority.class).value();
                 } else {

@@ -67,11 +67,11 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
         appendParam(name, Arrays.asList(values));
     }
 
+    @SuppressWarnings("unchecked")
     public void appendParam(String name, Collection<String> values) {
         if (values.isEmpty()) {
             return;
         }
-        @SuppressWarnings("unchecked")
         List<String> params = appendentParams.containsKey(name) ? Arrays.asList(appendentParams.get(name)) : new ArrayList();
         params.addAll(values);
         appendentParams.put(name, params.toArray(new String[params.size()]));
@@ -122,9 +122,8 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Map getParameterMap() {
-        Map map = new LinkedHashMap(super.getParameterMap());
+    public Map<String, String[]> getParameterMap() {
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>(super.getParameterMap());
         for (String ignoreParam : ignoreParams) {
             map.remove(ignoreParam);
         }
@@ -133,9 +132,8 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration getParameterNames() {
-        Vector names = new Vector();
+    public Enumeration<String> getParameterNames() {
+        Vector<String> names = new Vector<String>();
         Enumeration enu = super.getParameterNames();
         while (enu.hasMoreElements()) {
             String name = enu.nextElement().toString();
@@ -143,7 +141,7 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
                 names.add(name);
             }
         }
-        names.add(appendentParams.keySet());
+        names.addAll(appendentParams.keySet());
         return names.elements();
     }
 }

@@ -38,23 +38,24 @@ import java.util.Properties;
  * Date: 2010-1-9
  * Time: 15:13:00
  */
+@SuppressWarnings("serial")
 public class ComponentContainer extends DefaultPicoContainer {
 
     // constructor
 
     protected static final String CONTAINERS_ATTR = ComponentContainer.class.getCanonicalName() + ".CONTAINERS";
 
-    public static ComponentContainer get(Class<? extends Configurator> configuratorClaz, ServletContext servletContext, String configPath) {
-        try {
-            return get(configuratorClaz.newInstance(), servletContext, configPath);
-        } catch (InstantiationException e) {
-            throw new IzayoiRuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new IzayoiRuntimeException(e);
+    public static ComponentContainer retrieval(ServletContext servletContext, String retrievalKey) {
+        @SuppressWarnings("unchecked")
+        Map<String, ComponentContainer> containers = (Map<String, ComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
+        if (containers == null) {
+            containers = new HashMap<String, ComponentContainer>();
+            servletContext.setAttribute(CONTAINERS_ATTR, containers);
         }
+        return containers.get(retrievalKey);
     }
 
-    public static ComponentContainer get(Configurator configurator, ServletContext servletContext, String configPath) {
+    public static ComponentContainer get(ServletContext servletContext, String configPath, Configurator configurator) {
         try {
             @SuppressWarnings("unchecked")
             Map<String, ComponentContainer> containers = (Map<String, ComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
@@ -63,7 +64,7 @@ public class ComponentContainer extends DefaultPicoContainer {
                 servletContext.setAttribute(CONTAINERS_ATTR, containers);
             }
             String retrievalKey = getRetrievalKey(configurator.getClass(), configPath);
-            ComponentContainer container = containers.get(retrievalKey);
+            ComponentContainer container = retrieval(servletContext, retrievalKey);
             if (container == null) {
                 Properties conf = new Properties();
                 {
@@ -86,18 +87,8 @@ public class ComponentContainer extends DefaultPicoContainer {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static ComponentContainer retrieval(ServletContext servletContext, String retrievalKey) {
-        try {
-            String[] splitKey = retrievalKey.split("@");
-            return get((Class<? extends Configurator>) Class.forName(splitKey[0]), servletContext, splitKey[1]);
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
     protected static String getRetrievalKey(Class<? extends Configurator> configClass, String configPath) {
-        return configClass.getCanonicalName() + "@" + (configPath == null ? "DEFAULT" : configPath);
+        return configClass.toString().replace(" ", "_") + "@" + (configPath == null ? "DEFAULT" : configPath);
     }
 
     // container

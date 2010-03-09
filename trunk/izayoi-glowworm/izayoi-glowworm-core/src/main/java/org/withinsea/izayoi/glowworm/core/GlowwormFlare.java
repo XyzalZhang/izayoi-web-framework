@@ -68,7 +68,7 @@ public class GlowwormFlare implements Filter, Configurable {
     protected ActionDispatcher actionDispatcher;
 
     public void init(ServletContext servletContext, String configPath) throws GlowwormException {
-        ComponentContainer container = ComponentContainer.get(configurator, servletContext, configPath);
+        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator);
         dataDispatcher = container.getComponent(DataDispatcher.class);
         actionDispatcher = container.getComponent(ActionDispatcher.class);
     }

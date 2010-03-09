@@ -59,7 +59,7 @@ public class CortileScenery extends HttpServlet implements Filter, Configurable 
     protected Dispatcher dispatcher;
 
     public void init(ServletContext servletContext, String configPath) throws CortileException {
-        dispatcher = ComponentContainer.get(configurator, servletContext, configPath).getComponent(Dispatcher.class);
+        dispatcher = ComponentContainer.get(servletContext, configPath, configurator).getComponent(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws CortileException {
