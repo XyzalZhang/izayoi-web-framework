@@ -24,8 +24,8 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.bindings.BindingsManager;
+import org.withinsea.izayoi.core.bindings.Varstack;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.exception.IzayoiException;
@@ -49,7 +49,7 @@ public abstract class InvokeManagerImpl implements InvokeManager {
     protected abstract boolean processResult(HttpServletRequest request, HttpServletResponse response, Scope scope, Object result) throws GlowwormException;
 
     @Override
-    public void invoke(HttpServletRequest request, HttpServletResponse response, String scriptPath, String asType, Scope scope) throws GlowwormException {
+    public boolean invoke(HttpServletRequest request, HttpServletResponse response, String scriptPath, String asType, Scope scope) throws GlowwormException {
 
         if (!codeManager.exist(scriptPath)) {
             throw new GlowwormException("script " + scriptPath + " does not exist.");
@@ -71,7 +71,7 @@ public abstract class InvokeManagerImpl implements InvokeManager {
             throw new GlowwormException(e.getMessage(), e.getCause());
         }
 
-        processResult(request, response, scope, result);
+        return processResult(request, response, scope, result);
     }
 
     public void setBindingsManager(BindingsManager bindingsManager) {

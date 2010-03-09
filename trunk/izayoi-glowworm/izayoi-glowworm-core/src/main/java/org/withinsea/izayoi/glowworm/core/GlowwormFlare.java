@@ -181,14 +181,18 @@ public class GlowwormFlare implements Filter, Configurable {
 
                     if (servletContext.getAttribute(GLOBAL_INVOKED_FLAG_ATTR) == null) {
                         for (String scriptName : codeManager.listNames(scriptFolder, Pattern.quote(globalPrefix + "-application" + getSuffix() + ".") + "\\w+")) {
-                            invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.APPLICATION);
+                            if (!invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.APPLICATION)) {
+                                return;
+                            }
                         }
                         servletContext.setAttribute(GLOBAL_INVOKED_FLAG_ATTR, true);
                     }
 
                     if (req.getSession().getAttribute(GLOBAL_INVOKED_FLAG_ATTR) == null) {
                         for (String scriptName : codeManager.listNames(scriptFolder, Pattern.quote(globalPrefix + "-session" + getSuffix() + ".") + "\\w+")) {
-                            invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.SESSION);
+                            if (!invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.SESSION)) {
+                                return;
+                            }
                         }
                         req.getSession().setAttribute(GLOBAL_INVOKED_FLAG_ATTR, true);
                     }
@@ -199,7 +203,9 @@ public class GlowwormFlare implements Filter, Configurable {
                         globalFolderPath = globalFolderPath + folderPathSplitItem + "/";
                         if (req.getAttribute(GLOBAL_INVOKED_FLAG_ATTR + "#" + globalFolderPath) == null) {
                             for (String scriptName : codeManager.listNames(globalFolderPath, Pattern.quote(globalPrefix + getSuffix() + ".") + "\\w+")) {
-                                invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.REQUEST);
+                                if (!invokeManager.invoke(req, resp, scriptFolder + "/" + scriptName, null, Scope.REQUEST)) {
+                                    return;
+                                }
                             }
                             req.setAttribute(GLOBAL_INVOKED_FLAG_ATTR + "#" + globalFolderPath, true);
                         }
@@ -211,7 +217,9 @@ public class GlowwormFlare implements Filter, Configurable {
                         Matcher dataMatcher = Pattern.compile(Pattern.quote(folderPath) + "/(.+)" + Pattern.quote(getSuffix()) + "\\.\\w+").matcher(requestPath);
                         if (dataMatcher.matches() && codeManager.exist(requestPath)) {
                             // direct access to glowworm data file
-                            invokeManager.invoke(req, resp, requestPath, null, Scope.REQUEST);
+                            if (!invokeManager.invoke(req, resp, requestPath, null, Scope.REQUEST)) {
+                                return;
+                            }
                             req.setAttribute(INVOKED_FLAG_ATTR, true);
                             req.getRequestDispatcher("/" + dataMatcher.group(1)).forward(req, resp);
                         } else {
@@ -220,7 +228,9 @@ public class GlowwormFlare implements Filter, Configurable {
                             String ext = PathUtils.getExtName(requestPath);
                             for (String scriptName : codeManager.listNames(folderPath,
                                     Pattern.quote(main) + "(|" + Pattern.quote("." + ext) + ")" + Pattern.quote(getSuffix()) + "\\.\\w+")) {
-                                invokeManager.invoke(req, resp, folderPath + "/" + scriptName, null, Scope.REQUEST);
+                                if (!invokeManager.invoke(req, resp, folderPath + "/" + scriptName, null, Scope.REQUEST)) {
+                                    return;
+                                }
                                 req.setAttribute(INVOKED_FLAG_ATTR, true);
                             }
                         }

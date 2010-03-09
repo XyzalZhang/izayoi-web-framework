@@ -22,19 +22,22 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.invoke;
-
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-
+import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-/**
- * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-9
- * Time: 3:26:11
- */
-public interface InvokeManager {
+HttpServletRequest request = request;
+ServletContext servletContext = servletContext;
 
-    boolean invoke(HttpServletRequest request, HttpServletResponse response, String scriptPath, String asType, Scope scope) throws GlowwormException;
-}
+String path = request.getServletPath();
+String folderPath = path.replaceAll("/[^/]*\$", "/");
+
+[
+        "path": [
+                "request": path,
+                "folder": folderPath
+        ],
+        "file": [
+                "webroot": new File(servletContext.getRealPath("/")),
+                "folder": new File(servletContext.getRealPath(folderPath))
+        ]
+]

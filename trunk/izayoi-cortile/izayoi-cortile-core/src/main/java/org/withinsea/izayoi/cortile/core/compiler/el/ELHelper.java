@@ -24,8 +24,8 @@
 
 package org.withinsea.izayoi.cortile.core.compiler.el;
 
-import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.bindings.BindingsManager;
+import org.withinsea.izayoi.core.bindings.Varstack;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 

@@ -45,9 +45,15 @@ public class ActManager extends InjectManager {
                 String url = ((String) result).trim();
                 try {
                     if (url.startsWith("forward:")) {
-                        request.getRequestDispatcher(url.substring("forward:".length()).trim()).forward(request, response);
+                        url = url.substring("forward:".length()).trim();
+                        request.getRequestDispatcher(url).forward(request, response);
+                    } else if (url.startsWith("page:")) {
+                        url = url.substring("page:".length()).trim();
+                        url = (url.startsWith("/")) ? request.getContextPath() + url : url;
+                        response.sendRedirect(url);
                     } else if (url.startsWith("redirect:")) {
-                        response.sendRedirect(url.substring("redirect:".length()).trim());
+                        url = url.substring("redirect:".length()).trim();
+                        response.sendRedirect(url);
                     } else {
                         response.sendRedirect(url);
                     }

@@ -22,8 +22,9 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.commons.js;
+package org.withinsea.izayoi.commons.jsonp;
 
+import org.withinsea.izayoi.commons.js.JSUtils;
 import org.withinsea.izayoi.commons.servlet.ContentWrappingHttpServletResponseWrapper;
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
 
