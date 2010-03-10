@@ -114,7 +114,7 @@ public abstract class DOMCompiler implements GrammarCompiler {
 
         compileTo(result, mapTargetPath(result.getTemplatePath(), null), doc);
 
-        List<RoundoffGrammar> sortedRgs = GrammarUtils.sort(grammars, RoundoffGrammar.class, "roundoffGrammar");
+        List<RoundoffGrammar> sortedRgs = GrammarUtils.sort(grammars, RoundoffGrammar.class, "roundoffCode");
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             for (RoundoffGrammar rg : sortedRgs) {
                 if (rg.acceptRoundoff(e.getValue())) {

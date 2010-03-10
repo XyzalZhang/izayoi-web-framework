@@ -52,6 +52,7 @@ public class ImportsComment implements RoundoffGrammar<HTMLCompiler>, CommentGra
         imports = (imports == null ? "" : imports + ",") + comment.getText().substring("@imports".length())
                 .trim().replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
         result.setAttribute(IMPORTS_ATTR, imports);
+        comment.detach();
     }
 
     @Override
