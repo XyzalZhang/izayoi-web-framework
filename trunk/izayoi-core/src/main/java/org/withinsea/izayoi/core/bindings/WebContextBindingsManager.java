@@ -30,8 +30,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -41,16 +41,17 @@ import java.util.List;
 public class WebContextBindingsManager extends BindingsManagerImpl {
 
     @Override
-    public Object getBean(HttpServletRequest request, String name) {
-        Object obj = lookupConstants(request, name);
+    public Object getBean(HttpServletRequest request, HttpServletResponse response, String name) {
+        Object obj = lookupConstants(request, response, name);
         if (obj == null) obj = lookupRequest(request, name);
-        if (obj == null) obj = lookupCDI(name);
+        if (obj == null) obj = lookupCDI(request, name);
         if (obj == null) obj = lookupJndi(name.replace("_", "/"));
         return obj;
     }
 
-    protected static Object lookupConstants(HttpServletRequest request, String name) {
+    protected static Object lookupConstants(HttpServletRequest request, HttpServletResponse response, String name) {
         return name.equals("request") ? request
+                : name.equals("response") ? response
                 : name.equals("session") ? request.getSession()
                 : name.equals("application") ? request.getSession().getServletContext()
                 : name.equals("servletContext") ? request.getSession().getServletContext()
@@ -65,36 +66,33 @@ public class WebContextBindingsManager extends BindingsManagerImpl {
         return obj;
     }
 
-    protected static Object lookupCDI(String name) {
+    protected static Object lookupCDI(HttpServletRequest request, String name) {
         try {
             Class.forName("javax.enterprise.inject.spi.Bean");
         } catch (ClassNotFoundException e) {
             return null;
         }
-        return CDIHelper.lookupCDI(name);
+        return CDIHelper.lookupCDI(request, name);
     }
 
-    protected static Object lookupJndi(String name) {
-        try {
-            Context ctx = new InitialContext();
-            for (String jndiName : new String[]{
-                    name,
-                    "java:module/" + name,
-                    "java:app/" + name,
-                    "java:global/" + name,
-                    "java:env/" + name,
-                    "java:comp/" + name,
-                    "java:ejb/" + name,
-                    "java:jms/" + name
-            }) {
-                try {
-                    return ctx.lookup(jndiName);
-                } catch (NamingException e) {
-                    // do nothing
+    protected static Object lookupJndi(String... names) {
+        Collection<Context> ctxs = JNDIHelper.getJNDIContexts();
+        Collection<String> prefixes = JNDIHelper.getPrefixes();
+        Collection<String> namespaces = JNDIHelper.getNamespaces();
+        for (String name : names) {
+            for (String ejbName : new String[]{name, name + "Local", name + "Remote"}) { // ejb
+                for (Context ctx : ctxs) {
+                    for (String prefix : prefixes) {
+                        for (String namespace : namespaces) {
+                            try {
+                                return ctx.lookup(prefix + namespace + ejbName);
+                            } catch (NamingException e) {
+                                // do nothing
+                            }
+                        }
+                    }
                 }
             }
-        } catch (NamingException e) {
-            return null;
         }
         return null;
     }
@@ -103,9 +101,11 @@ public class WebContextBindingsManager extends BindingsManagerImpl {
 
     protected static class CDIHelper {
 
-        protected static Object lookupCDI(String name) {
+        public static Object lookupCDI(HttpServletRequest request, String name) {
             @SuppressWarnings("unchecked")
-            BeanManager beanManager = (BeanManager) lookupJndi("java:comp/BeanManager");
+            BeanManager beanManager = (BeanManager) request.getSession().getServletContext().getAttribute(BeanManager.class.getName());
+            if (beanManager == null)
+                beanManager = (BeanManager) lookupJndi("java:comp/BeanManager", "java:app/BeanManager");
             if (beanManager == null) {
                 return null;
             }
@@ -116,6 +116,71 @@ public class WebContextBindingsManager extends BindingsManagerImpl {
                 Bean<?> bean = beans.get(0);
                 return beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean));
             }
+        }
+    }
+
+    // 3rd jndi context providers
+
+    protected static class JNDIHelper {
+
+        public static interface JNDIContextProvider {
+            Context provide() throws NamingException;
+        }
+
+        protected static Collection<String> PREFIXES = new LinkedHashSet<String>(Arrays.asList(
+                "",
+                "java:module/",
+                "java:app/",
+                "java:global/",
+                "java:comp/"
+        ));
+
+        protected static Collection<String> NAMESPACES = new LinkedHashSet<String>(Arrays.asList(
+                "",
+                "env/",
+                "ejb/",
+                "jms/"
+        ));
+
+        protected static Collection<JNDIContextProvider> PROVIDERS = new LinkedHashSet<JNDIContextProvider>(); static {
+            PROVIDERS.add(new JNDIContextProvider() {
+                @Override
+                public Context provide() throws NamingException {
+                    return new InitialContext();
+                }
+            });
+        }
+
+        public static Collection<String> getPrefixes() {
+            return PREFIXES;
+        }
+
+        public static Collection<String> getNamespaces() {
+            return NAMESPACES;
+        }
+
+        public static Collection<Context> getJNDIContexts() {
+            List<Context> ctxs = new ArrayList<Context>();
+            for (JNDIContextProvider provider : PROVIDERS) {
+                try {
+                    ctxs.add(provider.provide());
+                } catch (NamingException e) {
+                    // do nothing
+                }
+            }
+            return ctxs;
+        }
+
+        public static void registerPrefix(String prefix) {
+            PREFIXES.add(prefix);
+        }
+
+        public static void registerNamespace(String namespace) {
+            NAMESPACES.add(namespace);
+        }
+
+        public static void registerJNDIContextProvider(JNDIContextProvider provider) {
+            PROVIDERS.add(provider);
         }
     }
 }

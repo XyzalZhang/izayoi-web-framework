@@ -26,6 +26,7 @@ package org.withinsea.izayoi.core.bindings;
 
 import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,10 +41,10 @@ public abstract class BindingsManagerImpl implements BindingsManager {
 
     protected static final String BINDINGS_MAP_ATTR = BindingsManagerImpl.class.getCanonicalName() + ".BINDINGS_MAP";
 
-    protected abstract Object getBean(HttpServletRequest request, String name);
+    protected abstract Object getBean(HttpServletRequest request, HttpServletResponse response, String name);
 
     @Override
-    public Bindings getBindings(HttpServletRequest request) {
+    public Bindings getBindings(HttpServletRequest request, HttpServletResponse response) {
 
         @SuppressWarnings("unchecked")
         Map<BindingsManager, Bindings> map = (Map<BindingsManager, Bindings>) request.getAttribute(BINDINGS_MAP_ATTR);
@@ -54,7 +55,7 @@ public abstract class BindingsManagerImpl implements BindingsManager {
 
         Bindings bindings = map.get(this);
         if (bindings == null) {
-            bindings = new NameBindings(request);
+            bindings = new NameBindings(request, response);
             map.put(this, bindings);
         }
 
@@ -64,9 +65,11 @@ public abstract class BindingsManagerImpl implements BindingsManager {
     protected class NameBindings implements Bindings {
 
         protected final HttpServletRequest request;
+        protected final HttpServletResponse response;
 
-        public NameBindings(HttpServletRequest request) {
+        public NameBindings(HttpServletRequest request, HttpServletResponse response) {
             this.request = request;
+            this.response = response;
         }
 
         @Override
@@ -76,7 +79,7 @@ public abstract class BindingsManagerImpl implements BindingsManager {
 
         @Override
         public Object get(Object key) {
-            return getBean(request, key.toString());
+            return getBean(request, response, key.toString());
         }
 
         // unsupported

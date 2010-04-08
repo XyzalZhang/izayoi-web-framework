@@ -22,18 +22,24 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.bindings;
+package org.withinsea.izayoi.cortile.core.compiler;
 
-import javax.script.Bindings;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-9
- * Time: 5:48:58
+ * Date: 2010-4-2
+ * Time: 8:51:33
  */
-public interface BindingsManager {
+public class ForwardCompiler implements Compilr {
 
-    Bindings getBindings(HttpServletRequest request, HttpServletResponse response);
+    @Override
+    public String mapEntrancePath(String templatePath) {
+        return templatePath;
+    }
+
+    @Override
+    public Result compile(String templatePath, String templateCode) throws CortileException {
+        return new Result(templatePath);
+    }
 }

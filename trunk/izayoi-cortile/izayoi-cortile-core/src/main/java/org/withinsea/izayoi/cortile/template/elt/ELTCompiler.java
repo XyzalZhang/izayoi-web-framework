@@ -22,18 +22,26 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.bindings;
+package org.withinsea.izayoi.cortile.template.elt;
 
-import javax.script.Bindings;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.withinsea.izayoi.commons.util.StringUtils;
+import org.withinsea.izayoi.cortile.core.compiler.java.JSPCompiler;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-9
- * Time: 5:48:58
+ * Date: 2010-4-9
+ * Time: 1:46:46
  */
-public interface BindingsManager {
+public class ELTCompiler extends JSPCompiler {
 
-    Bindings getBindings(HttpServletRequest request, HttpServletResponse response);
+    @Override
+    public String compileJSP(String jspContent) throws CortileException {
+        return super.compileJSP(StringUtils.replaceAll(jspContent, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
+            @Override
+            public String replace(String... groups) {
+                return "<%=" + el(groups[1].replace("\\}", "}"), true) + "%>";
+            }
+        }));
+    }
 }

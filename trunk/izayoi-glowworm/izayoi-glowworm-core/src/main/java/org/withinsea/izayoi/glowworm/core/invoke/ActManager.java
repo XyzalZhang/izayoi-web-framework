@@ -47,12 +47,9 @@ public class ActManager extends InjectManager {
                     if (url.startsWith("forward:")) {
                         url = url.substring("forward:".length()).trim();
                         request.getRequestDispatcher(url).forward(request, response);
-                    } else if (url.startsWith("page:")) {
-                        url = url.substring("page:".length()).trim();
-                        url = (url.startsWith("/")) ? request.getContextPath() + url : url;
-                        response.sendRedirect(url);
                     } else if (url.startsWith("redirect:")) {
                         url = url.substring("redirect:".length()).trim();
+                        url = (url.startsWith("/")) ? request.getContextPath() + url : url;
                         response.sendRedirect(url);
                     } else {
                         response.sendRedirect(url);

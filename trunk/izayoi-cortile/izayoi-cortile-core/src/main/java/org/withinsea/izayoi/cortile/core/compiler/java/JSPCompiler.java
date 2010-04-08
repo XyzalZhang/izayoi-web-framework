@@ -44,7 +44,7 @@ public abstract class JSPCompiler extends JavaELSupportedCompiler {
         return ComponentContainer.class.getCanonicalName() +
                 ".retrieval(request.getSession().getServletContext(), \"" + componentContainerRetrievalKey + "\")" +
                 ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
-                ".getHelper(request)";
+                ".getHelper(request, response)";
     }
 
     @Override
@@ -53,8 +53,17 @@ public abstract class JSPCompiler extends JavaELSupportedCompiler {
         return folder + templatePath + ".jsp";
     }
 
-    public String jspHeader() throws CortileException {
-        return "<%@ page contentType=\"text/html; charset=" + encoding + "\" pageEncoding=\"" + encoding + "\" %>";
+    @Override
+    public Result compile(String templatePath, String templateCode) throws CortileException {
+        Result result = new Result(templatePath);
+        result.getTargets().put(mapEntrancePath(templatePath), compileJSP(templateCode));
+        return result;
+    }
+
+    public String compileJSP(String jspContent) throws CortileException {
+        return "<%@ page contentType=\"text/html; charset=" + encoding + "\" pageEncoding=\"" + encoding + "\" %>" +
+                "<%" + elInit() + "%>" +
+                jspContent;
     }
 
     // dependency

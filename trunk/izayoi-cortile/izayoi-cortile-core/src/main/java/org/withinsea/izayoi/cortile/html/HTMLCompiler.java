@@ -76,7 +76,7 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
         } catch (IOException e) {
             throw new CortileException(e);
         }
-        return jspCompiler.jspHeader() + buf.toString();
+        return jspCompiler.compileJSP(buf.toString());
     }
 
     // implement el supported compiler

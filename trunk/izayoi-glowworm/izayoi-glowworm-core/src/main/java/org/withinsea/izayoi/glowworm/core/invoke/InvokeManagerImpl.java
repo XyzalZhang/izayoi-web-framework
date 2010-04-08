@@ -60,7 +60,7 @@ public abstract class InvokeManagerImpl implements InvokeManager {
         Code code = codeManager.get(scriptPath);
         Varstack bindings = new Varstack();
         {
-            bindings.push(bindingsManager.getBindings(request));
+            bindings.push(bindingsManager.getBindings(request, response));
             bindings.push();
         }
 

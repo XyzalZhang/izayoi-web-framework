@@ -28,6 +28,7 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,16 +42,20 @@ public class WebappCodeManager implements CodeManager {
     protected String encoding;
 
     public List<String> listNames(String folderPath) {
-        return Arrays.asList(new File(webroot, folderPath).list());
+        File folder = new File(webroot, folderPath);
+        return !folder.isDirectory() ? Collections.<String>emptyList() :
+                Arrays.asList(new File(webroot, folderPath).list());
     }
 
     public List<String> listNames(String folderPath, final String regex) {
-        return Arrays.asList(new File(webroot, folderPath).list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.matches(regex);
-            }
-        }));
+        File folder = new File(webroot, folderPath);
+        return !folder.isDirectory() ? Collections.<String>emptyList() :
+                Arrays.asList(new File(webroot, folderPath).list(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.matches(regex);
+                    }
+                }));
     }
 
     public boolean exist(String path) {

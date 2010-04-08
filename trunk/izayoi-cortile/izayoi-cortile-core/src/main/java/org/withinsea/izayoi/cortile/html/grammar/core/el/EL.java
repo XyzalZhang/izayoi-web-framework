@@ -32,7 +32,6 @@ import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
-import org.withinsea.izayoi.cortile.core.compiler.dom.RoundoffGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.TextGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
@@ -43,18 +42,7 @@ import org.withinsea.izayoi.cortile.html.HTMLCompiler;
  * Date: 2009-12-21
  * Time: 14:19:20
  */
-public class EL implements RoundoffGrammar<HTMLCompiler>, AttrGrammar<HTMLCompiler>, CommentGrammar<HTMLCompiler>, TextGrammar<HTMLCompiler> {
-
-    @Override
-    public boolean acceptRoundoff(String code) {
-        return true;
-    }
-
-    @Override
-    @Priority(-99)
-    public String roundoffCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
-        return "<%" + compiler.elInit() + "%>" + code;
-    }
+public class EL implements AttrGrammar<HTMLCompiler>, CommentGrammar<HTMLCompiler>, TextGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {

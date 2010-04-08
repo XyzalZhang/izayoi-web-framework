@@ -51,40 +51,7 @@ import java.util.regex.Pattern;
  * Date: 2010-1-12
  * Time: 23:49:57
  */
-public class GlowwormFlare implements Filter, Configurable {
-
-    // config
-
-    protected Configurator configurator = new GlowwormConfigurator();
-
-    @Override
-    public void setConfigurator(Configurator configurator) {
-        this.configurator = configurator;
-    }
-
-    // api
-
-    protected DataDispatcher dataDispatcher;
-    protected ActionDispatcher actionDispatcher;
-
-    public void init(ServletContext servletContext, String configPath) throws GlowwormException {
-        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator);
-        dataDispatcher = container.getComponent(DataDispatcher.class);
-        actionDispatcher = container.getComponent(ActionDispatcher.class);
-    }
-
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws GlowwormException {
-        dataDispatcher.doDispatch(req, resp, new FilterChain() {
-            @Override
-            public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                try {
-                    actionDispatcher.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, chain);
-                } catch (GlowwormException e) {
-                    throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
-                }
-            }
-        });
-    }
+public class Glowworm implements Filter, Configurable {
 
     // dispatcher
 
@@ -138,7 +105,7 @@ public class GlowwormFlare implements Filter, Configurable {
 
     public static abstract class Dispatcher {
 
-        protected static final String NAMEPARAM_INVOKED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".NAMEPARAM_INVOKED_FLAG";
+        protected static final String PATHVARIABLE_INVOKED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".PATHVARIABLE_INVOKED_FLAG";
         protected static final String GLOBAL_INVOKED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".GLOBAL_INVOKED_FLAG";
         protected static final String INVOKED_FLAG_ATTR = Dispatcher.class.getCanonicalName() + ".INVOKED_FLAG";
 
@@ -146,6 +113,7 @@ public class GlowwormFlare implements Filter, Configurable {
         protected CodeManager codeManager;
         protected String scriptFolder;
         protected String globalPrefix;
+        protected boolean enablePathVariable;
 
         protected abstract InvokeManager getInvokeManager();
 
@@ -163,15 +131,15 @@ public class GlowwormFlare implements Filter, Configurable {
 
                     // template path parameters mapping
 
-                    if (req.getAttribute(NAMEPARAM_INVOKED_FLAG_ATTR) == null) {
-                        Map<String, String> appendentParams = new LinkedHashMap<String, String>();
-                        String templateRequestPath = matchPathTemplate(appendentParams, "/", requestPath.substring(1));
-                        if (templateRequestPath != null && !templateRequestPath.equals(requestPath) && !appendentParams.isEmpty()) {
+                    if (enablePathVariable && req.getAttribute(PATHVARIABLE_INVOKED_FLAG_ATTR) == null) {
+                        Map<String, String> pathVariables = new LinkedHashMap<String, String>();
+                        String templateRequestPath = matchPathTemplate(pathVariables, "/", requestPath.replaceAll("^/+", ""));
+                        if (templateRequestPath != null && !pathVariables.isEmpty()) {
                             ParamsAdjustHttpServletRequestWrapper reqw = new ParamsAdjustHttpServletRequestWrapper(req);
-                            for (Map.Entry<String, String> e : appendentParams.entrySet()) {
+                            for (Map.Entry<String, String> e : pathVariables.entrySet()) {
                                 reqw.appendParam(e.getKey(), e.getValue());
                             }
-                            req.setAttribute(NAMEPARAM_INVOKED_FLAG_ATTR, true);
+                            req.setAttribute(PATHVARIABLE_INVOKED_FLAG_ATTR, true);
                             reqw.getRequestDispatcher(templateRequestPath).forward(reqw, resp);
                             return;
                         }
@@ -227,7 +195,7 @@ public class GlowwormFlare implements Filter, Configurable {
                             String main = PathUtils.getMainName(requestPath);
                             String ext = PathUtils.getExtName(requestPath);
                             for (String scriptName : codeManager.listNames(folderPath,
-                                    Pattern.quote(main) + "(|" + Pattern.quote("." + ext) + ")" + Pattern.quote(getSuffix()) + "\\.\\w+")) {
+                                    Pattern.quote(main) + "(|" + (ext.equals("") ? "" : Pattern.quote("." + ext)) + ")" + Pattern.quote(getSuffix()) + "\\.\\w+")) {
                                 if (!invokeManager.invoke(req, resp, folderPath + "/" + scriptName, null, Scope.REQUEST)) {
                                     return;
                                 }
@@ -253,7 +221,7 @@ public class GlowwormFlare implements Filter, Configurable {
             return -count;
         }
 
-        protected String matchPathTemplate(Map<String, String> params, String basePath, String path) {
+        protected String matchPathTemplate(Map<String, String> pathVariables, String basePath, String path) {
 
             if (path.equals("")) {
                 return basePath;
@@ -301,10 +269,10 @@ public class GlowwormFlare implements Filter, Configurable {
                     Matcher templateMatcher = Pattern.compile(templateRegexp).matcher(tname);
                     templateMatcher.matches();
                     for (int i = 1; i <= templateMatcher.groupCount(); i++) {
-                        params.put(templateMatcher.group(i), nameMatcher.group(i));
+                        pathVariables.put(templateMatcher.group(i), nameMatcher.group(i));
                     }
                     String ret = codeManager.get(basePath + "/" + tname).isFolder()
-                            ? matchPathTemplate(params, basePath + "/" + tname, path.substring(fname.length() + 1))
+                            ? matchPathTemplate(pathVariables, basePath + "/" + tname, path.substring(fname.length() + 1))
                             : basePath + (basePath.equals("") ? "" : "/") + tname;
                     return (ret == null) ? null : ret.replaceAll("^/+", "/");
                 }
@@ -328,6 +296,45 @@ public class GlowwormFlare implements Filter, Configurable {
         public void setServletContext(ServletContext servletContext) {
             this.servletContext = servletContext;
         }
+
+        public void setEnablePathVariable(boolean enablePathVariable) {
+            this.enablePathVariable = enablePathVariable;
+        }
+    }
+
+    // api
+
+    protected Configurator configurator = new GlowwormConfigurator();
+    protected DataDispatcher dataDispatcher;
+    protected ActionDispatcher actionDispatcher;
+
+    public void init(ServletContext servletContext, String configPath) throws GlowwormException {
+        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator);
+        dataDispatcher = container.getComponent(DataDispatcher.class);
+        actionDispatcher = container.getComponent(ActionDispatcher.class);
+    }
+
+    public String findTemplatePath(String requestPath) {
+        Map<String, String> pathVariables = new LinkedHashMap<String, String>();
+        return dataDispatcher.matchPathTemplate(pathVariables, "/", requestPath.replaceAll("^/+", ""));
+    }
+
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws GlowwormException {
+        dataDispatcher.doDispatch(req, resp, new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
+                try {
+                    actionDispatcher.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, chain);
+                } catch (GlowwormException e) {
+                    throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setConfigurator(Configurator configurator) {
+        this.configurator = configurator;
     }
 
     // as filter
@@ -342,17 +349,11 @@ public class GlowwormFlare implements Filter, Configurable {
     }
 
     @SuppressWarnings("unchecked")
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
-            HttpServletRequest req = (HttpServletRequest) request;
-            HttpServletResponse resp = (HttpServletResponse) response;
-            try {
-                doDispatch(req, resp, chain);
-            } catch (GlowwormException e) {
-                throw new ServletException(e);
-            }
-        } else {
-            chain.doFilter(request, response);
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+        try {
+            doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, chain);
+        } catch (GlowwormException e) {
+            throw new ServletException(e);
         }
     }
 

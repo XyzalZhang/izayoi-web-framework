@@ -26,43 +26,46 @@ package org.withinsea.izayoi.cortile.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.commons.dom.DOMUtils;
-import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.RoundoffGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-4
- * Time: 19:41:58
+ * Date: 2009-12-28
+ * Time: 17:57:38
  */
-public class With implements AttrGrammar<HTMLCompiler> {
+public class ELImports implements AttrGrammar<HTMLCompiler>, RoundoffGrammar<HTMLCompiler> {
+
+    public static final String IMPORTS_ATTR = ELImports.class.getCanonicalName() + ".IMPORTS";
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("with");
+        return attr.getName().equals("imports");
     }
 
     @Override
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+        String imports = result.getAttribute(IMPORTS_ATTR);
+        imports = (imports == null ? "" : imports + ",") + attr.getText().trim()
+                .replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
+        result.setAttribute(IMPORTS_ATTR, imports);
+    }
 
-        String el = attr.getValue().trim();
-        el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
-        if (el.equals("") || el.indexOf("${") > 0 || el.matches(".*[^\\\\]}.*")) {
-            throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
+    @Override
+    public boolean acceptRoundoff(String code) {
+        return true;
+    }
+
+    @Override
+    public String roundoffCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        String imports = result.getAttribute(IMPORTS_ATTR);
+        if (imports == null || imports.equals("")) {
+            return code;
+        } else {
+            return "<%@ page import=\"" + imports + "\"%>" + "<%" + compiler.elImports(imports) + "%>" + code;
         }
-
-        String scopeBegin = compiler.elScope(),
-                scopeEnd = compiler.elScopeEnd(),
-                beanScopeBegin = compiler.elScope(null, "new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + ")");
-        try {
-            DOMUtils.surroundBy(elem, "<%" + beanScopeBegin + scopeBegin + "%>", "<%" + scopeEnd + scopeEnd + "%>");
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
-
-        attr.detach();
     }
 }

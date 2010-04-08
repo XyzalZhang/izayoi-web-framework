@@ -30,6 +30,7 @@ import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -46,10 +47,10 @@ public class ELHelper {
     protected InterpretManager interpretManager;
     protected Map<String, Interpreter> interpreters;
 
-    public synchronized Helper getHelper(HttpServletRequest request) {
+    public synchronized Helper getHelper(HttpServletRequest request, HttpServletResponse response) {
         Helper helper = (Helper) request.getAttribute(HELPER_ATTR);
         if (helper == null) {
-            helper = new Helper(request);
+            helper = new Helper(request, response);
             request.setAttribute(HELPER_ATTR, helper);
         }
         return helper;
@@ -61,10 +62,10 @@ public class ELHelper {
         protected final Deque<String> elTypeStack = new LinkedList<String>();
         protected final Varstack varstack = new Varstack();
 
-        protected Helper(HttpServletRequest request) {
+        protected Helper(HttpServletRequest request, HttpServletResponse response) {
             this.importedClasses = new LinkedHashSet<String>();
             elTypeStack.push(elType);
-            varstack.push(bindingsManager.getBindings(request));
+            varstack.push(bindingsManager.getBindings(request, response));
             varstack.push();
         }
 

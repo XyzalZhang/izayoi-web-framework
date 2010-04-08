@@ -37,7 +37,8 @@ public class PathUtils {
     }
 
     public static String getFolderPath(String path) {
-        return normalizePath(path).replaceAll("/[^/]*$", "");
+        path = normalizePath(path);
+        return (path.indexOf("/") < 0) ? "" : path.replaceAll("/[^/]*$", "");
     }
 
     public static String getName(String path) {
@@ -49,6 +50,7 @@ public class PathUtils {
     }
 
     public static String getExtName(String path) {
-        return getName(path).replaceAll(".*\\.", "");
+        String name = getName(path);
+        return (name.indexOf(".") < 0) ? "" : name.replaceAll(".*\\.", "");
     }
 }

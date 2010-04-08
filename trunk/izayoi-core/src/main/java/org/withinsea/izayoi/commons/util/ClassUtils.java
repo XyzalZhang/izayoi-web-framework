@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.commons.util;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -43,7 +44,53 @@ import java.util.jar.JarFile;
  */
 public class ClassUtils {
 
+    public static Set<String> getSubPackageNames(String packageName) throws IOException {
+
+        Set<String> packageNames = new LinkedHashSet<String>();
+
+        String packagePath = packageName.replace('.', '/');
+
+        Enumeration<URL> resourceEnum = Thread.currentThread().getContextClassLoader().getResources(packagePath);
+        while (resourceEnum.hasMoreElements()) {
+            URL url = resourceEnum.nextElement();
+            String protocol = url.getProtocol();
+            if ("jar".equals(protocol)) {
+                JarFile jar = ((JarURLConnection) url.openConnection()).getJarFile();
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    if (entry.isDirectory()) {
+                        String name = entry.getName().replaceAll("/$", "");
+                        if (name.startsWith(packagePath) && name.length() > packagePath.length()) {
+                            packageNames.add(name.replace("/", "."));
+                        }
+                    }
+                }
+            } else if ("file".equals(protocol)) {
+                File folder = new File(URLDecoder.decode(url.getFile(), "UTF-8"));
+                if (!folder.exists() || !folder.isDirectory()) {
+                    break;
+                }
+                for (File subfolder : folder.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return file.isDirectory();
+                    }
+                })) {
+                    String shortname = subfolder.getName();
+                    packageNames.add(packageName + '.' + shortname);
+                }
+            }
+        }
+
+        return packageNames;
+    }
+
     public static Set<String> getPackageClassNames(String packageName) throws IOException {
+        return getPackageClassNames(packageName, false);
+    }
+
+    public static Set<String> getPackageClassNames(String packageName, boolean recursive) throws IOException {
 
         Set<String> classNames = new LinkedHashSet<String>();
 
@@ -77,6 +124,12 @@ public class ClassUtils {
                     String className = file.getName().substring(0, file.getName().length() - 6);
                     classNames.add(packageName + '.' + className);
                 }
+            }
+        }
+
+        if (recursive) {
+            for (String subPackageName : getSubPackageNames(packageName)) {
+                classNames.addAll(getPackageClassNames(subPackageName, recursive));
             }
         }
 
