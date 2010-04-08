@@ -22,17 +22,13 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.demo.samples;
-
-import javax.ejb.Stateless;
-import javax.inject.Named;
+package org.withinsea.izayoi.demo.samples.intergration.javaee;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-3-3
  * Time: 1:48:45
  */
-@Named("demoEjbCDINamed")
-@Stateless(name = "demoEjb")
 public class DemoEjb {
+
 }
