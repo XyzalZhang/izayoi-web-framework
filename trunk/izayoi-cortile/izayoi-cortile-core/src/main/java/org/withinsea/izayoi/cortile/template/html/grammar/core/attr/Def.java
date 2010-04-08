@@ -22,32 +22,39 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.comment;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
-import org.dom4j.Comment;
+import org.dom4j.Attribute;
+import org.dom4j.Element;
 import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.parser.HTMLReader;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
- * Time: 23:02:01
+ * Time: 22:04:16
  */
-public class ScriptletComment implements CommentGrammar<HTMLCompiler> {
+public class Def implements AttrGrammar<HTMLCompiler> {
 
     @Override
-    public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("%");
+    public boolean acceptAttr(Element elem, Attribute attr) {
+        return attr.getName().equals("def");
     }
 
     @Override
-    @Priority(-50)
-    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
-            DOMUtils.replaceBy(comment, "<%" + comment.getText().substring("%".length()).replaceAll("%$", "") + "%>");
+            String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
+            attr.detach();
+            Element range = DOMUtils.surroundBy(elem, HTMLReader.ANONYMOUS_TAG_NAME);
+            compiler.compileTo(result, funcPath, range);
+            DOMUtils.replaceBy(range, "<% " + compiler.elScope() + " %>" +
+                    "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                    "<% " + compiler.elScopeEnd() + " %>");
         } catch (Exception e) {
             throw new CortileException(e);
         }

@@ -22,58 +22,45 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.attr;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.dom4j.Node;
-import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
-
-import java.util.HashSet;
-import java.util.List;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-28
- * Time: 23:21:31
+ * Date: 2010-1-11
+ * Time: 15:14:01
  */
-public class Mock implements AttrGrammar<HTMLCompiler> {
+public class Out implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("mock");
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        return attrname.startsWith("attr.") || attrname.equals("content");
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    @Priority(99)
+    @Priority(-99)
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-
-        String mockType = attr.getValue();
-
-        java.util.Set<Node> mocks = new HashSet<Node>();
-        List<Node> siblings = (List<Node>) DOMUtils.parent(elem).content();
-        if (mockType.equals("siblings")) {
-            mocks.addAll(siblings);
-        } else if (mockType.equals("neighbors")) {
-            mocks.addAll(siblings);
-            mocks.remove(elem);
-        } else if (mockType.equals("below")) {
-            mocks.addAll(siblings.subList(siblings.indexOf(elem) + 1, siblings.size()));
-        } else if (mockType.equals("toend")) {
-            mocks.addAll(siblings.subList(siblings.indexOf(elem), siblings.size()));
+        String attrname = attr.getName().replaceAll("[:_-]", ".");
+        if (attrname.startsWith("attr.")) {
+            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue()
+                    .replace("<%=", "<%=" + Out.class.getCanonicalName() + ".escapeAttrValue(")
+                    .replace("%>", ")%>")
+            );
         } else {
-            mocks.add(elem);
+            elem.clearContent();
+            elem.addText(attr.getValue());
         }
-
-        for (Node mock : mocks) {
-            mock.detach();
-        }
-
         attr.detach();
+    }
+
+    public static String escapeAttrValue(Object value) {
+        return (value == null) ? "null" : value.toString().replace("\"", "&quot;");
     }
 }

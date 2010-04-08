@@ -22,45 +22,47 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.attr;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
+import org.withinsea.izayoi.commons.util.BeanMap;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-1-11
- * Time: 15:14:01
+ * Date: 2010-1-4
+ * Time: 19:41:58
  */
-public class Out implements AttrGrammar<HTMLCompiler> {
+public class With implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        String attrname = attr.getName().replaceAll("[:_-]", ".");
-        return attrname.startsWith("attr.") || attrname.equals("content");
+        return attr.getName().equals("with");
     }
 
     @Override
-    @Priority(-99)
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
-        String attrname = attr.getName().replaceAll("[:_-]", ".");
-        if (attrname.startsWith("attr.")) {
-            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue()
-                    .replace("<%=", "<%=" + Out.class.getCanonicalName() + ".escapeAttrValue(")
-                    .replace("%>", ")%>")
-            );
-        } else {
-            elem.clearContent();
-            elem.addText(attr.getValue());
-        }
-        attr.detach();
-    }
 
-    public static String escapeAttrValue(Object value) {
-        return (value == null) ? "null" : value.toString().replace("\"", "&quot;");
+        String el = attr.getValue().trim();
+        el = (el.startsWith("${") && el.endsWith("}")) ? el.substring(2, el.length() - 1).trim() : el;
+        if (el.equals("") || el.indexOf("${") > 0 || el.matches(".*[^\\\\]}.*")) {
+            throw new CortileException("\"" + attr.getValue() + "\" is not a valid EL script.");
+        }
+
+        String scopeBegin = compiler.elScope(),
+                scopeEnd = compiler.elScopeEnd(),
+                beanScopeBegin = compiler.elScope(null, "new " + BeanMap.class.getCanonicalName() + "(" + compiler.compileEL(el) + ")");
+        try {
+            DOMUtils.surroundBy(elem, "<%" + beanScopeBegin + scopeBegin + "%>", "<%" + scopeEnd + scopeEnd + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
+        }
+
+        attr.detach();
     }
 }

@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.el;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.el;
 
 import org.dom4j.Attribute;
 import org.dom4j.Comment;
@@ -35,7 +35,7 @@ import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.dom.TextGrammar;
 import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

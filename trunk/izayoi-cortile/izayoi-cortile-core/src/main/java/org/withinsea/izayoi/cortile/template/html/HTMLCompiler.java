@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html;
+package org.withinsea.izayoi.cortile.template.html;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;
@@ -30,8 +30,8 @@ import org.withinsea.izayoi.cortile.core.compiler.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.el.ELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.compiler.java.JSPCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.parser.HTMLReader;
-import org.withinsea.izayoi.cortile.html.parser.HTMLWriter;
+import org.withinsea.izayoi.cortile.template.html.parser.HTMLReader;
+import org.withinsea.izayoi.cortile.template.html.parser.HTMLWriter;
 
 import java.io.IOException;
 import java.io.StringReader;

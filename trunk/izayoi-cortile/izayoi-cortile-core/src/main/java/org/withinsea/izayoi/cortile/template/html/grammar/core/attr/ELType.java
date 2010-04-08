@@ -22,29 +22,36 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.comment;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
+import org.dom4j.Attribute;
+import org.dom4j.Element;
+import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
-import org.withinsea.izayoi.cortile.html.parser.HTMLReader;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-28
- * Time: 23:16:41
+ * Date: 2010-3-6
+ * Time: 22:48:37
  */
-public class AnonymousElemComment implements PretreatGrammar<HTMLCompiler> {
+public class ELType implements AttrGrammar<HTMLCompiler> {
 
     @Override
-    public boolean acceptPretreat(String code) {
-        return true;
+    public boolean acceptAttr(Element elem, Attribute attr) {
+        return attr.getName().equals("elType");
     }
 
     @Override
-    public String pretreatCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
-        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
-                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
+    public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
+        String elType = attr.getValue();
+        try {
+            DOMUtils.surroundBy(elem, "<%" + compiler.elScope(elType) + "%>", "<%" + compiler.elScopeEnd() + "%>");
+        } catch (Exception e) {
+            throw new CortileException(e);
+        }
+        attr.detach();
     }
 }

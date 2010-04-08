@@ -22,34 +22,29 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.comment;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.comment;
 
-import org.dom4j.Comment;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
-import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
+import org.withinsea.izayoi.cortile.core.compiler.dom.PretreatGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
-import org.withinsea.izayoi.cortile.html.grammar.core.attr.ELImports;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.parser.HTMLReader;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
- * Time: 17:57:38
+ * Time: 23:16:41
  */
-public class ELImportsComment implements CommentGrammar<HTMLCompiler> {
+public class AnonymousElemComment implements PretreatGrammar<HTMLCompiler> {
 
     @Override
-    public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("@imports");
+    public boolean acceptPretreat(String code) {
+        return true;
     }
 
     @Override
-    @Priority(99)
-    public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        String imports = result.getAttribute(ELImports.IMPORTS_ATTR);
-        imports = (imports == null ? "" : imports + ",") + comment.getText().substring("@imports".length()).trim()
-                .replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
-        result.setAttribute(ELImports.IMPORTS_ATTR, imports);
-        comment.detach();
+    public String pretreatCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
+        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
+                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
     }
 }

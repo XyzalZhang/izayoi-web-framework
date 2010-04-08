@@ -22,37 +22,34 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.comment;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.comment;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.CommentGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
+import org.withinsea.izayoi.cortile.template.html.grammar.core.attr.ELImports;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2009-12-21
- * Time: 14:19:20
+ * Date: 2009-12-28
+ * Time: 17:57:38
  */
-public class ELComment implements CommentGrammar<HTMLCompiler> {
+public class ELImportsComment implements CommentGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptComment(Comment comment) {
-        return comment.getText().startsWith("$");
+        return comment.getText().startsWith("@imports");
     }
 
     @Override
+    @Priority(99)
     public void processComment(HTMLCompiler compiler, Compilr.Result result, Comment comment) throws CortileException {
-        try {
-            if (comment.getText().startsWith("$=")) {
-                DOMUtils.replaceBy(comment, "<%=" + compiler.compileEL(comment.getText().substring("$=".length())) + "%>");
-            } else if (comment.getText().startsWith("$")) {
-                DOMUtils.replaceBy(comment, "<%" + compiler.compileEL(comment.getText().substring("$".length())) + ";%>");
-            }
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
+        String imports = result.getAttribute(ELImports.IMPORTS_ATTR);
+        imports = (imports == null ? "" : imports + ",") + comment.getText().substring("@imports".length()).trim()
+                .replaceAll("[\\s;,]+", ",").replaceAll("^\\s*,?|,?\\s*$", "");
+        result.setAttribute(ELImports.IMPORTS_ATTR, imports);
+        comment.detach();
     }
 }

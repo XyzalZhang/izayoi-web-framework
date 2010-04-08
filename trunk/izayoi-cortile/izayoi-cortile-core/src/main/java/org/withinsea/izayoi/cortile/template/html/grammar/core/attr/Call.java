@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.html.grammar.core.attr;
+package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
@@ -30,31 +30,37 @@ import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.dom.AttrGrammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.html.HTMLCompiler;
-import org.withinsea.izayoi.cortile.html.parser.HTMLReader;
+import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-28
- * Time: 22:04:16
+ * Time: 22:07:55
  */
-public class Def implements AttrGrammar<HTMLCompiler> {
+public class Call implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
-        return attr.getName().equals("def");
+        return attr.getName().equals("call");
     }
 
     @Override
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
-            String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
-            attr.detach();
-            Element range = DOMUtils.surroundBy(elem, HTMLReader.ANONYMOUS_TAG_NAME);
-            compiler.compileTo(result, funcPath, range);
-            DOMUtils.replaceBy(range, "<% " + compiler.elScope() + " %>" +
-                    "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                    "<% " + compiler.elScopeEnd() + " %>");
+            if (attr.getValue().indexOf(":") < 0) {
+                String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
+                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
+                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                        "<% " + compiler.elScopeEnd() + " %>");
+            } else {
+                String[] value = attr.getValue().split(":");
+                String templatePath = value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0];
+                String funcPath = compiler.mapTargetPath(templatePath, value[1]);
+                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
+                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                        "<% " + compiler.elScopeEnd() + " %>");
+                result.getRelativeTemplatePaths().add(templatePath);
+            }
         } catch (Exception e) {
             throw new CortileException(e);
         }
