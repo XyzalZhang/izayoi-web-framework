@@ -88,9 +88,14 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
             String templatePath = findTemplatePath(requestPath);
             try {
                 if (templatePath != null) {
-                    req.getRequestDispatcher(compileManager.update(templatePath, null, false)).forward(req, resp);
-                    resp.setCharacterEncoding(encoding);
-                    resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + encoding);
+                    String entrancePath = compileManager.update(templatePath, null, false);
+                    if (entrancePath.equals(requestPath)) {
+                        chain.doFilter(req, resp);
+                    } else {
+                        req.getRequestDispatcher(entrancePath).forward(req, resp);
+                        resp.setCharacterEncoding(encoding);
+                        resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + encoding);
+                    }
                 } else if (chain != null) {
                     chain.doFilter(req, resp);
                 } else {
