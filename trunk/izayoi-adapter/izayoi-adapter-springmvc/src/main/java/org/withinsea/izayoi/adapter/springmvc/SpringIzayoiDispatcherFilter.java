@@ -75,12 +75,7 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
         String configPath = filterConfig.getInitParameter("config-path");
 
         glowworm = new Glowworm();
-        glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
-                new SpringGlowwormConfigurator(getWebApplicationContext()));
-
         cortile = new Cortile();
-        cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
-                new SpringCortileConfigurator(getWebApplicationContext()));
 
         super.init(new ServletConfig() {
 
@@ -104,6 +99,11 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
                 return filterConfig.getInitParameterNames();
             }
         });
+
+        glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
+                new SpringGlowwormConfigurator(getWebApplicationContext()));
+        cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
+                new SpringCortileConfigurator(getWebApplicationContext()));
 
         try {
             glowworm.init(servletContext, configPath);

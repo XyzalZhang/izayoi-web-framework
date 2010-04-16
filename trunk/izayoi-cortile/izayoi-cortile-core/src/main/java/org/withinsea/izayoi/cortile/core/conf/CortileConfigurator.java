@@ -57,7 +57,7 @@ public class CortileConfigurator extends IzayoiConfigurator {
                     Set<Grammar> grammarGroup = new LinkedHashSet<Grammar>();
                     {
                         for (String className : trimClassNames(conf.getProperty(propname))) {
-                            Class<?> claz = Class.forName(className);
+                            Class<?> claz = Class.forName(className.trim());
                             if (Grammar.class.isAssignableFrom(claz)) {
                                 grammarGroup.add((Grammar) container.getComponent(claz));
                             }
@@ -74,7 +74,7 @@ public class CortileConfigurator extends IzayoiConfigurator {
             for (String propname : conf.stringPropertyNames()) {
                 if (propname.startsWith("class.compiler")) {
                     String type = propname.substring("class.compiler".length()).replaceAll("^\\.", "");
-                    Class<?> claz = Class.forName(conf.getProperty(propname));
+                    Class<?> claz = Class.forName(conf.getProperty(propname).trim());
                     if (Compilr.class.isAssignableFrom(claz)) {
                         compilers.put(type, (Compilr) container.getComponent(claz));
                     }
@@ -83,7 +83,7 @@ public class CortileConfigurator extends IzayoiConfigurator {
         }
         container.addComponent("compilers", compilers);
 
-        container.addComponent("compileManager", Class.forName(conf.getProperty("class.compileManager")));
+        container.addComponent("compileManager", Class.forName(conf.getProperty("class.compileManager").trim()));
     }
 
     protected static Collection<String> trimClassNames(String classNames) throws IOException {

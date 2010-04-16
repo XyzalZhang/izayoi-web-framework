@@ -60,10 +60,6 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
         protected String findTemplatePath(String requestPath) throws CortileException {
 
-            if (codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
-                return requestPath;
-            }
-
             String folder = PathUtils.getFolderPath(requestPath);
             String name = PathUtils.getName(requestPath);
             String templateNameRegex = Pattern.quote(name + templateSuffix + ".") + "(\\w+)";
@@ -76,6 +72,10 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                 if (codeManager.exist(templatePath) && !codeManager.get(templatePath).isFolder()) {
                     return templatePath;
                 }
+            }
+
+            if (codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
+                return requestPath;
             }
 
             return null;

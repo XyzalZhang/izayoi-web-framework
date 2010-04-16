@@ -48,7 +48,7 @@ public class IzayoiConfigurator implements Configurator {
 
     public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
 
-        container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager")));
+        container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager").trim()));
         container.addComponent("bindingsManager", Class.forName(conf.getProperty("class.bindingsManager").trim()));
 
         Map<String, Interpreter> interpreters = new LinkedHashMap<String, Interpreter>();
@@ -57,7 +57,7 @@ public class IzayoiConfigurator implements Configurator {
                 if (name.startsWith("class.interpreter.")) {
                     String type = name.substring("class.interpreter.".length());
                     try {
-                        Class<?> claz = Class.forName(conf.getProperty(name));
+                        Class<?> claz = Class.forName(conf.getProperty(name).trim());
                         if (Interpreter.class.isAssignableFrom(claz)) {
                             interpreters.put(type, (Interpreter) container.getComponent(claz));
                         }
