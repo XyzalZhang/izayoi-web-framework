@@ -24,11 +24,12 @@
 
 package org.withinsea.izayoi.core.bindings;
 
+import org.withinsea.izayoi.core.bindings.scope.Scope;
+
 import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,39 +38,23 @@ import java.util.Set;
  * Date: 2010-3-9
  * Time: 5:49:42
  */
-public abstract class BindingsManagerImpl implements BindingsManager {
-
-    protected static final String BINDINGS_MAP_ATTR = BindingsManagerImpl.class.getCanonicalName() + ".BINDINGS_MAP";
-
-    protected abstract Object getBean(HttpServletRequest request, HttpServletResponse response, String name);
+public class DefaultBindingsManager implements BindingsManager {
 
     @Override
-    public Bindings getBindings(HttpServletRequest request, HttpServletResponse response) {
-
-        @SuppressWarnings("unchecked")
-        Map<BindingsManager, Bindings> map = (Map<BindingsManager, Bindings>) request.getAttribute(BINDINGS_MAP_ATTR);
-        if (map == null) {
-            map = new LinkedHashMap<BindingsManager, Bindings>();
-            request.setAttribute(BINDINGS_MAP_ATTR, map);
-        }
-
-        Bindings bindings = map.get(this);
-        if (bindings == null) {
-            bindings = new NameBindings(request, response);
-            map.put(this, bindings);
-        }
-
-        return bindings;
+    public Bindings getBindings(HttpServletRequest request, HttpServletResponse response, Scope scope) {
+        return new NameBindings(request, response, scope);
     }
 
     protected class NameBindings implements Bindings {
 
         protected final HttpServletRequest request;
         protected final HttpServletResponse response;
+        protected final Scope scope;
 
-        public NameBindings(HttpServletRequest request, HttpServletResponse response) {
+        public NameBindings(HttpServletRequest request, HttpServletResponse response, Scope scope) {
             this.request = request;
             this.response = response;
+            this.scope = scope;
         }
 
         @Override
@@ -79,7 +64,7 @@ public abstract class BindingsManagerImpl implements BindingsManager {
 
         @Override
         public Object get(Object key) {
-            return getBean(request, response, key.toString());
+            return scope.getBean(request, response, key.toString());
         }
 
         // unsupported

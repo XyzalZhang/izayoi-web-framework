@@ -37,21 +37,21 @@
     <packaging>jar</packaging>
     <version>0.2.0-SNAPSHOT</version>
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>org.withinsea.izayoi</groupId>-->
-        <!--<artifactId>izayoi-bundle</artifactId>-->
-        <!--<version>0.2.0-SNAPSHOT</version>-->
-        <!--<scope>provided</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
-            <artifactId>izayoi-cortile-core</artifactId>
+            <artifactId>izayoi-cloister-core</artifactId>
             <version>0.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-glowworm-core</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.withinsea.izayoi</groupId>
+            <artifactId>izayoi-cortile-core</artifactId>
             <version>0.2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>

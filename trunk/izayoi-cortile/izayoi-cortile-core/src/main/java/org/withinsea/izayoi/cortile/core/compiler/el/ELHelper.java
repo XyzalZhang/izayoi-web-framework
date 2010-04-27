@@ -26,6 +26,7 @@ package org.withinsea.izayoi.cortile.core.compiler.el;
 
 import org.withinsea.izayoi.core.bindings.BindingsManager;
 import org.withinsea.izayoi.core.bindings.Varstack;
+import org.withinsea.izayoi.core.bindings.scope.Scope;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 
@@ -43,6 +44,7 @@ public class ELHelper {
     protected static final String HELPER_ATTR = ELHelper.class.getCanonicalName() + ".HELPER";
 
     protected String elType;
+    protected Scope elScope;
     protected BindingsManager bindingsManager;
     protected InterpretManager interpretManager;
     protected Map<String, Interpreter> interpreters;
@@ -65,7 +67,7 @@ public class ELHelper {
         protected Helper(HttpServletRequest request, HttpServletResponse response) {
             this.importedClasses = new LinkedHashSet<String>();
             elTypeStack.push(elType);
-            varstack.push(bindingsManager.getBindings(request, response));
+            varstack.push(bindingsManager.getBindings(request, response, elScope));
             varstack.push();
         }
 
@@ -109,7 +111,7 @@ public class ELHelper {
         this.interpreters = interpreters;
     }
 
-    public void setDependencyManager(BindingsManager bindingsManager) {
+    public void setBindingsManager(BindingsManager bindingsManager) {
         this.bindingsManager = bindingsManager;
     }
 
@@ -123,5 +125,9 @@ public class ELHelper {
 
     public void setElType(String elType) {
         this.elType = elType;
+    }
+
+    public void setElScope(Scope elScope) {
+        this.elScope = elScope;
     }
 }

@@ -24,8 +24,8 @@
 
 package org.withinsea.izayoi.adapter.springmvc;
 
-import org.picocontainer.MutablePicoContainer;
 import org.springframework.context.ApplicationContext;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 
 import javax.servlet.ServletContext;
@@ -47,12 +47,11 @@ public class SpringGlowwormConfigurator extends GlowwormConfigurator {
     @Override
     protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
         super.loadDefaultConf(conf, servletContext);
-        conf.setProperty("class.bindingsManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextBindingsManager");
-        conf.setProperty("pathVariable.enable", "false");
+        conf.setProperty("class.contextScope", "org.withinsea.izayoi.adapter.springmvc.SpringContextScope");
     }
 
     @Override
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
         container.addComponent("applicationContext", applicationContext);
         super.initComponents(container, conf);
     }

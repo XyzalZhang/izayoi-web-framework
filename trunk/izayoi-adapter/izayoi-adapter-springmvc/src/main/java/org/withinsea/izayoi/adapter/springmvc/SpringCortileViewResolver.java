@@ -27,10 +27,7 @@ package org.withinsea.izayoi.adapter.springmvc;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.cortile.core.Cortile;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.exception.CortileRuntimeException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -82,22 +79,11 @@ public class SpringCortileViewResolver extends UrlBasedViewResolver implements A
 
     @Override
     protected void initServletContext(ServletContext servletContext) {
-
         super.initServletContext(servletContext);
-
         if (cortile == null) {
-
-            try {
-
-                Configurator configurator = new SpringCortileConfigurator(getApplicationContext());
-
-                cortile = new Cortile();
-                cortile.setConfigurator(configurator);
-                cortile.init(servletContext, configPath);
-
-            } catch (CortileException e) {
-                throw new CortileRuntimeException(e);
-            }
+            cortile = new Cortile();
+            cortile.setConfigurator(new SpringCortileConfigurator(getApplicationContext()));
+            cortile.init(servletContext, configPath);
         }
     }
 

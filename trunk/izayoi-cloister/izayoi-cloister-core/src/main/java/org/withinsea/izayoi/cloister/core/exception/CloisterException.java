@@ -22,35 +22,29 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.code;
+package org.withinsea.izayoi.cloister.core.exception;
+
+import org.withinsea.izayoi.core.exception.IzayoiException;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-5
- * Time: 1:02:24
+ * Date: 2009-12-25
+ * Time: 16:10:02
  */
-public class PathUtils {
+public class CloisterException extends IzayoiException {
 
-    public static String normalizePath(String path) {
-        path = path.replaceAll("/+", "/").trim();
-        return path.endsWith("/") ? path.substring(path.length() - 1) : path;
+    public CloisterException() {
     }
 
-    public static String getFolderPath(String path) {
-        path = normalizePath(path);
-        return (path.indexOf("/") < 0) ? "" : path.replaceAll("/[^/]*$", "");
+    public CloisterException(Throwable cause) {
+        super(cause);
     }
 
-    public static String getName(String path) {
-        return normalizePath(path).replaceAll(".*/", "");
+    public CloisterException(String message) {
+        super(message);
     }
 
-    public static String getMainName(String path) {
-        return getName(path).replaceAll("\\.[^\\.]*$", "");
-    }
-
-    public static String getExtName(String path) {
-        String name = getName(path);
-        return (name.indexOf(".") < 0) ? "" : name.replaceAll(".*\\.", "");
+    public CloisterException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

@@ -40,8 +40,9 @@
     <modules>
         <module>izayoi-base</module>
         <module>izayoi-core</module>
-        <module>izayoi-cortile</module>
         <module>izayoi-glowworm</module>
+        <module>izayoi-cloister</module>
+        <module>izayoi-cortile</module>
         <module>izayoi-adapter</module>
         <module>izayoi-bundle</module>
         <module>izayoi-demo</module>

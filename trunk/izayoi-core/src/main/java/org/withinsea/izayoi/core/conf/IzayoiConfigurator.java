@@ -24,11 +24,7 @@
 
 package org.withinsea.izayoi.core.conf;
 
-import org.picocontainer.MutablePicoContainer;
-import org.withinsea.izayoi.core.interpreter.Interpreter;
-
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -41,35 +37,43 @@ public class IzayoiConfigurator implements Configurator {
 
     protected static final String DEFAULT_CONFIG_PATH = "/WEB-INF/izayoi.properties";
 
+    @Override
     public void loadConf(Properties conf, ServletContext servletContext, String configPath) throws Exception {
         loadDefaultConf(conf, servletContext);
         loadCustomizedConf(conf, servletContext, configPath);
     }
 
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
+    @Override
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
 
-        container.addComponent("codeManager", Class.forName(conf.getProperty("class.codeManager").trim()));
-        container.addComponent("bindingsManager", Class.forName(conf.getProperty("class.bindingsManager").trim()));
+        container.addComponent("codeManager", getClass(conf, "codeManager"));
+        container.addComponent("bindingsManager", getClass(conf, "bindingsManager"));
 
-        Map<String, Interpreter> interpreters = new LinkedHashMap<String, Interpreter>();
-        {
-            for (String name : conf.stringPropertyNames()) {
-                if (name.startsWith("class.interpreter.")) {
-                    String type = name.substring("class.interpreter.".length());
-                    try {
-                        Class<?> claz = Class.forName(conf.getProperty(name).trim());
-                        if (Interpreter.class.isAssignableFrom(claz)) {
-                            interpreters.put(type, (Interpreter) container.getComponent(claz));
-                        }
-                    } catch (Exception e) {
-                        throw new ServletException(e);
-                    }
-                }
+        container.addComponent("interpreters", getComponentMap(container, conf, "interpreter"));
+        container.addComponent("interpretManager", getClass(conf, "interpretManager"));
+
+        container.addComponent("contextScope", getClass(conf, "contextScope"));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> Map<String, T> getComponentMap(ComponentContainer container, Properties conf, String typeName) throws Exception {
+        String prefix = "class." + typeName + ".";
+        Map<String, T> components = new LinkedHashMap<String, T>();
+        for (String propName : conf.stringPropertyNames()) {
+            if (propName.startsWith(prefix)) {
+                String name = propName.substring(prefix.length());
+                components.put(name, (T) container.getComponent(Class.forName(conf.getProperty(propName).trim())));
             }
         }
-        container.addComponent("interpreters", interpreters);
+        return components;
+    }
 
-        container.addComponent("interpretManager", Class.forName(conf.getProperty("class.interpretManager").trim()));
+    protected Class<?> getClass(Properties conf, String typeName) throws Exception {
+        return Class.forName(conf.getProperty("class." + typeName).trim());
+    }
+
+    protected List<String> getList(Properties conf, String typeName) throws Exception {
+        return Arrays.asList(conf.getProperty("list." + typeName).trim().split("[,; ]+"));
     }
 
     protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {

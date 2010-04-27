@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.conf;
 
-import org.picocontainer.MutablePicoContainer;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
 
 import java.util.Properties;
@@ -37,11 +37,14 @@ import java.util.Properties;
 public class GlowwormConfigurator extends IzayoiConfigurator {
 
     @Override
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
 
         super.initComponents(container, conf);
 
-        container.addComponent("injectManager", Class.forName(conf.getProperty("class.injectManager").trim()));
-        container.addComponent("actManager", Class.forName(conf.getProperty("class.actManager").trim()));
+        container.addComponent("invokers", getComponentMap(container, conf, "invoker"));
+        container.addComponent("invokersOrder", getList(conf, "invokersOrder"));
+        container.addComponent("scopes", getComponentMap(container, conf, "scope"));
+        container.addComponent("scopesOrder", getList(conf, "scopesOrder"));
+        container.addComponent("invokeManager", getClass(conf, "invokeManager"));
     }
 }

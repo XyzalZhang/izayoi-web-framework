@@ -44,7 +44,7 @@ public class AnonymousElemComment implements PretreatGrammar<HTMLCompiler> {
 
     @Override
     public String pretreatCode(HTMLCompiler compiler, Compilr.Result result, String code) throws CortileException {
-        return code.replaceAll("<!--</\\s*>-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
-                .replaceAll("<!--<([\\s\\S]*?)>-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
+        return code.replaceAll("<!--</\\s*-->", "</" + HTMLReader.ANONYMOUS_TAG_NAME + ">")
+                .replaceAll("<!--<([^>]*?)-->", "<" + HTMLReader.ANONYMOUS_TAG_NAME + " $1>");
     }
 }

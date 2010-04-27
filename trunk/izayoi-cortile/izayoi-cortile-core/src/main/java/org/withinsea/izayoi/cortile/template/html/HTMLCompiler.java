@@ -36,6 +36,7 @@ import org.withinsea.izayoi.cortile.template.html.parser.HTMLWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -69,6 +70,15 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
     }
 
     @Override
+    public Result compile(String templatePath, String templateCode) throws CortileException {
+        Result result = super.compile(templatePath, templateCode);
+        for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
+            result.getTargets().put(e.getKey(), jspCompiler.compileJSP(e.getValue()));
+        }
+        return result;
+    }
+
+    @Override
     protected String buildTarget(Branch root) throws CortileException {
         StringWriter buf = new StringWriter();
         try {
@@ -76,7 +86,7 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
         } catch (IOException e) {
             throw new CortileException(e);
         }
-        return jspCompiler.compileJSP(buf.toString());
+        return buf.toString();
     }
 
     // implement el supported compiler
@@ -140,7 +150,7 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
         jspCompiler.setEncoding(encoding);
     }
 
-    public void setTargetPath(String targetPath) {
-        jspCompiler.setTargetPath(targetPath);
+    public void setJspFolder(String jspFolder) {
+        jspCompiler.setJspFolder(jspFolder);
     }
 }

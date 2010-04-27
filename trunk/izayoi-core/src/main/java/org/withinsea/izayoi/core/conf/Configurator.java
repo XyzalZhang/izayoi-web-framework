@@ -24,8 +24,6 @@
 
 package org.withinsea.izayoi.core.conf;
 
-import org.picocontainer.MutablePicoContainer;
-
 import javax.servlet.ServletContext;
 import java.util.Properties;
 
@@ -38,5 +36,5 @@ public interface Configurator {
 
     void loadConf(Properties conf, ServletContext servletContext, String configPath) throws Exception;
 
-    void initComponents(MutablePicoContainer container, Properties conf) throws Exception;
+    void initComponents(ComponentContainer container, Properties conf) throws Exception;
 }

@@ -25,36 +25,34 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.core.bindings.WebContextBindingsManager;
+import org.withinsea.izayoi.cloister.core.conf.CloisterConfigurator;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
+import java.util.Properties;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-3
- * Time: 1:06:51
+ * Date: 2010-3-13
+ * Time: 1:04:43
  */
-public class SpringWebContextBindingsManager extends WebContextBindingsManager {
+public class SpringCloisterConfigurator extends CloisterConfigurator {
 
     protected ApplicationContext applicationContext;
 
-    @Override
-    public Object getBean(HttpServletRequest request, HttpServletResponse response, String name) {
-        Object obj = super.getBean(request, response, name);
-        if (obj == null) obj = lookupSpring(name);
-        return obj;
-    }
-
-    protected Object lookupSpring(String name) {
-        try {
-            return name.equals("applicationContext") ? applicationContext : applicationContext.getBean(name);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public SpringCloisterConfigurator(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
+        super.loadDefaultConf(conf, servletContext);
+        conf.setProperty("class.contextScope", "org.withinsea.izayoi.adapter.springmvc.SpringContextScope");
+    }
+
+    @Override
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
+        container.addComponent("applicationContext", applicationContext);
+        super.initComponents(container, conf);
     }
 }

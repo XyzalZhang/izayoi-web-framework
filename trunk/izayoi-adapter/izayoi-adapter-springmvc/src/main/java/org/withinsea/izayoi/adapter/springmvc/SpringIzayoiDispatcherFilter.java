@@ -25,19 +25,17 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.RequestToViewNameTranslator;
-import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.*;
 import org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator;
+import org.withinsea.izayoi.cloister.core.Cloister;
+import org.withinsea.izayoi.commons.servlet.FilterUtils;
 import org.withinsea.izayoi.core.conf.Configurator;
-import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 import org.withinsea.izayoi.cortile.core.Cortile;
 import org.withinsea.izayoi.glowworm.core.Glowworm;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -52,21 +50,18 @@ import java.util.List;
  */
 public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements Filter {
 
-    protected static class ChainCarrier extends HttpServletRequestWrapper {
+    protected static final String CARRIER_CHAIN_ATTR = SpringIzayoiDispatcherFilter.class.getCanonicalName() + ".CARRIER_CHAIN";
 
-        protected final FilterChain chain;
+    protected boolean usingDefaultViewResolver = false;
 
-        public ChainCarrier(HttpServletRequest httpServletRequest, FilterChain chain) {
-            super(httpServletRequest);
-            this.chain = chain;
-        }
-    }
-
+    protected Configurator cloisterConfigurator;
     protected Configurator glowwormConfigurator;
-    protected Glowworm glowworm;
-
     protected Configurator cortileConfigurator;
+    protected Cloister cloister;
+    protected Glowworm glowworm;
     protected Cortile cortile;
+    protected SpringGlowwormInterceptor izayoiInterceptor;
+    protected SpringCloisterCortileViewResolver izayoiViewResolver;
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -74,8 +69,11 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
         ServletContext servletContext = filterConfig.getServletContext();
         String configPath = filterConfig.getInitParameter("config-path");
 
+        cloister = new Cloister();
         glowworm = new Glowworm();
         cortile = new Cortile();
+        izayoiInterceptor = new SpringGlowwormInterceptor(glowworm);
+        izayoiViewResolver = new SpringCloisterCortileViewResolver(cortile, cloister);
 
         super.init(new ServletConfig() {
 
@@ -100,65 +98,52 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
             }
         });
 
+        cloister.setConfigurator((this.cloisterConfigurator != null) ? this.cloisterConfigurator :
+                new SpringCloisterConfigurator(getWebApplicationContext()));
         glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
                 new SpringGlowwormConfigurator(getWebApplicationContext()));
         cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
                 new SpringCortileConfigurator(getWebApplicationContext()));
 
-        try {
-            glowworm.init(servletContext, configPath);
-            cortile.init(servletContext, configPath);
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        cloister.init(servletContext, configPath);
+        glowworm.init(servletContext, configPath);
+        cortile.init(servletContext, configPath);
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, final FilterChain chain) throws IOException, ServletException {
-        try {
-            glowworm.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
-                @Override
-                public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                    service(new ChainCarrier((HttpServletRequest) req, chain), (HttpServletResponse) resp);
-                }
-            });
-        } catch (IzayoiException e) {
-            throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
+        req.setAttribute(CARRIER_CHAIN_ATTR, chain);
+        service(req, resp);
+        req.removeAttribute(CARRIER_CHAIN_ATTR);
+    }
+
+    @Override
+    protected HandlerExecutionChain getHandler(HttpServletRequest request, boolean cache) throws Exception {
+        HandlerExecutionChain mappedHandler = super.getHandler(request, cache);
+        if (mappedHandler == null || mappedHandler.getHandler() == null) {
+            return mappedHandler;
+        } else {
+            HandlerInterceptor[] originalInterceptors = mappedHandler.getInterceptors();
+            HandlerInterceptor[] interceptors = new HandlerInterceptor[originalInterceptors.length + 1];
+            interceptors[0] = izayoiInterceptor;
+            System.arraycopy(originalInterceptors, 0, interceptors, 1, originalInterceptors.length);
+            return new HandlerExecutionChain(mappedHandler.getHandler(), interceptors);
         }
     }
 
     @Override
     protected void noHandlerFound(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        if (req instanceof ChainCarrier) {
-            cortile.doDispatch(req, resp, null, new FilterChain() {
-                @Override
-                public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                    if (req instanceof ChainCarrier) {
-                        ((ChainCarrier) req).chain.doFilter(req, resp);
-                    } else {
-                        try {
-                            noHandlerFound0((HttpServletRequest) req, (HttpServletResponse) resp);
-                        } catch (Exception e) {
-                            throw new SecurityException(e);
-                        }
-                    }
-                }
-            });
-        } else {
+        FilterChain chain = (FilterChain) req.getAttribute(CARRIER_CHAIN_ATTR);
+        req.removeAttribute(CARRIER_CHAIN_ATTR);
+        if (chain == null) {
             noHandlerFound0(req, resp);
+        } else {
+            FilterUtils.chain(req, resp, chain, cloister, glowworm, cortile);
         }
     }
 
     protected void noHandlerFound0(HttpServletRequest request, HttpServletResponse response) throws Exception {
         super.noHandlerFound(request, response);
-    }
-
-    protected boolean usingDefaultViewResolver = false;
-
-    @Override
-    protected void initStrategies(ApplicationContext context) {
-        super.initStrategies(context);
-        appendDefaultCortileViewResolver(context);
     }
 
     @Override
@@ -176,23 +161,22 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
         return strategies;
     }
 
-    protected void appendDefaultCortileViewResolver(ApplicationContext context) {
-
-        SpringCortilePathVariablesViewResolver cortileViewResolver = (SpringCortilePathVariablesViewResolver)
-                context.getAutowireCapableBeanFactory().initializeBean(
-                        new SpringCortilePathVariablesViewResolver(cortile, glowworm), "cortilePathVariablesViewResolver");
-
+    @Override
+    protected void initStrategies(ApplicationContext context) {
+        super.initStrategies(context);
+        SpringCloisterCortileViewResolver cloisterCortileViewResolver = (SpringCloisterCortileViewResolver)
+                context.getAutowireCapableBeanFactory().initializeBean(izayoiViewResolver, "cortilePathVariablesViewResolver");
         try {
             Field field = DispatcherServlet.class.getDeclaredField("viewResolvers");
             field.setAccessible(true);
             @SuppressWarnings("unchecked")
             List<ViewResolver> viewResolvers = (List<ViewResolver>) field.get(this);
             if (viewResolvers == null) {
-                field.set(this, Arrays.asList(cortileViewResolver));
+                field.set(this, Arrays.asList(cloisterCortileViewResolver));
             } else if (usingDefaultViewResolver) {
-                viewResolvers.add(0, cortileViewResolver);
+                viewResolvers.add(0, cloisterCortileViewResolver);
             } else {
-                viewResolvers.add(cortileViewResolver);
+                viewResolvers.add(cloisterCortileViewResolver);
             }
         } catch (Exception e) {
             throw new IzayoiRuntimeException(e);
@@ -202,6 +186,10 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
     @Override
     public void destroy() {
         super.destroy();
+    }
+
+    public void setCloisterConfigurator(Configurator cloisterConfigurator) {
+        this.cloisterConfigurator = cloisterConfigurator;
     }
 
     public void setGlowwormConfigurator(Configurator glowwormConfigurator) {

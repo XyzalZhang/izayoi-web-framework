@@ -47,33 +47,31 @@ public class Controllr {
     @Resource
     PicService picService;
 
-
     @RequestMapping("/index.html")
     public ModelAndView index(ModelAndView mv) {
         mv.addObject(userService);
         mv.addObject(picService);
-        mv.setViewName("/index");
+//        mv.setViewName("/index");
         return mv;
     }
 
-    @RequestMapping("/detail.html")
+    @RequestMapping("detail.html")
     public ModelAndView detail(@RequestParam(required = false, defaultValue = "1") Integer id,
                                ModelAndView mv) {
         User user = userService.getById(id);
         mv.addObject("user", user);
         mv.addObject(picService);
-        mv.setViewName("/detail");
         return mv;
     }
 
-    @RequestMapping("/list.html")
+    @RequestMapping("list.html")
     public ModelAndView list(@RequestParam(required = false, defaultValue = "1") Integer pageNumber,
                              @RequestParam(required = false, defaultValue = "30") Integer pageSize,
                              ModelAndView mv) {
         List<User> userList = userService.findUsers(pageNumber, pageSize);
         mv.addObject("userList", userList);
         mv.addObject(picService);
-        mv.setViewName("/list");
+//        mv.setViewName("/list");
         return mv;
     }
 

@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.cortile.core;
 
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.code.PathUtils;
+import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.Configurable;
 import org.withinsea.izayoi.core.conf.Configurator;
@@ -60,15 +60,19 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
         protected String findTemplatePath(String requestPath) throws CortileException {
 
-            String folder = PathUtils.getFolderPath(requestPath);
-            String name = PathUtils.getName(requestPath);
-            String templateNameRegex = Pattern.quote(name + templateSuffix + ".") + "(\\w+)";
-            List<String> templateNames = codeManager.listNames(folder, templateNameRegex);
+            if (compileManager.isTemplate(requestPath)) {
+                return null;
+            }
+
+            Path parsedPath = new Path(requestPath);
+
+            String templateNameRegex = Pattern.quote(parsedPath.getName() + "." + templateSuffix + ".") + ".+";
+            List<String> templateNames = codeManager.listNames(parsedPath.getFolder(), templateNameRegex);
             if (!templateNames.isEmpty()) {
                 if (templateNames.size() > 1) {
                     throw new CortileException("Request on " + requestPath + " has ambiguous mirage templates.");
                 }
-                String templatePath = folder + "/" + templateNames.get(0);
+                String templatePath = parsedPath.getFolder() + "/" + templateNames.get(0);
                 if (codeManager.exist(templatePath) && !codeManager.get(templatePath).isFolder()) {
                     return templatePath;
                 }
@@ -81,14 +85,19 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
             return null;
         }
 
-        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {
 
             requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
 
-            String templatePath = findTemplatePath(requestPath);
+            if (compileManager.isTemplate(requestPath)) {
+                resp.sendError(404);
+                return;
+            }
+
             try {
+                String templatePath = findTemplatePath(requestPath);
                 if (templatePath != null) {
-                    String entrancePath = compileManager.update(templatePath, null, false);
+                    String entrancePath = compileManager.update(templatePath, false);
                     if (entrancePath.equals(requestPath)) {
                         chain.doFilter(req, resp);
                     } else {
@@ -101,8 +110,8 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                 } else {
                     resp.sendError(404, requestPath);
                 }
-            } catch (Exception e) {
-                throw new CortileException(e);
+            } catch (CortileException e) {
+                throw new ServletException(e);
             }
         }
 
@@ -132,12 +141,8 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     protected Configurator configurator = new CortileConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath) throws CortileException {
+    public void init(ServletContext servletContext, String configPath) {
         dispatcher = ComponentContainer.get(servletContext, configPath, configurator).getComponent(Dispatcher.class);
-    }
-
-    public String getTemplateSuffix() {
-        return dispatcher.templateSuffix;
     }
 
     public String findTemplatePath(String requestPath) {
@@ -148,7 +153,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
         }
     }
 
-    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws CortileException {
+    public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {
         dispatcher.doDispatch(req, resp, requestPath, chain);
     }
 
@@ -162,39 +167,23 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        try {
-            init(config.getServletContext(), config.getInitParameter("config-path"));
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+        init(config.getServletContext(), config.getInitParameter("config-path"));
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            doDispatch(req, resp, req.getServletPath(), null);
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+        doDispatch(req, resp, req.getServletPath(), null);
     }
 
     // as filter
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        try {
-            init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
-        try {
-            doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, null, chain);
-        } catch (CortileException e) {
-            throw new ServletException(e);
-        }
+        doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, null, chain);
     }
 }

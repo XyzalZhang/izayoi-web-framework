@@ -22,15 +22,15 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.glowworm.core.invoke;
+package org.withinsea.izayoi.cloister.core.conf;
+
+import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-7
- * Time: 6:49:11
+ * Date: 2010-1-11
+ * Time: 14:36:57
  */
-public enum Scope {
-    APPLICATION,
-    SESSION,
-    REQUEST
+public class CloisterConfigurator extends IzayoiConfigurator {
+
 }

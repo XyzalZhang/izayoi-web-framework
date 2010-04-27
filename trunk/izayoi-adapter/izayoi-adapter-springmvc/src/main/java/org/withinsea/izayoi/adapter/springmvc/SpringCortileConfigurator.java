@@ -24,8 +24,9 @@
 
 package org.withinsea.izayoi.adapter.springmvc;
 
-import org.picocontainer.MutablePicoContainer;
 import org.springframework.context.ApplicationContext;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
+import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 
 import javax.servlet.ServletContext;
 import java.util.Properties;
@@ -35,7 +36,7 @@ import java.util.Properties;
  * Date: 2010-3-13
  * Time: 1:04:43
  */
-public class SpringCortileConfigurator extends org.withinsea.izayoi.cortile.core.conf.CortileConfigurator {
+public class SpringCortileConfigurator extends CortileConfigurator {
 
     protected ApplicationContext applicationContext;
 
@@ -46,11 +47,11 @@ public class SpringCortileConfigurator extends org.withinsea.izayoi.cortile.core
     @Override
     protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
         super.loadDefaultConf(conf, servletContext);
-        conf.setProperty("class.bindingsManager", "org.withinsea.izayoi.adapter.springmvc.SpringWebContextBindingsManager");
+        conf.setProperty("class.contextScope", "org.withinsea.izayoi.adapter.springmvc.SpringContextScope");
     }
 
     @Override
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
         container.addComponent("applicationContext", applicationContext);
         super.initComponents(container, conf);
     }

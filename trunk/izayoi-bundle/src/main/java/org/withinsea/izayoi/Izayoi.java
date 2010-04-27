@@ -24,11 +24,12 @@
 
 package org.withinsea.izayoi;
 
+import org.withinsea.izayoi.cloister.core.Cloister;
+import org.withinsea.izayoi.cloister.core.conf.CloisterConfigurator;
+import org.withinsea.izayoi.commons.servlet.FilterUtils;
 import org.withinsea.izayoi.core.conf.Configurator;
-import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.cortile.core.Cortile;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.glowworm.core.Glowworm;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 
@@ -44,9 +45,11 @@ import java.io.IOException;
  */
 public class Izayoi implements Filter {
 
+    protected Configurator cloisterConfigurator;
     protected Configurator glowwormConfigurator;
     protected Configurator cortileConfigurator;
 
+    protected Cloister cloister;
     protected Glowworm glowworm;
     protected Cortile cortile;
 
@@ -55,6 +58,10 @@ public class Izayoi implements Filter {
 
         ServletContext servletContext = filterConfig.getServletContext();
         String configPath = filterConfig.getInitParameter("config-path");
+
+        cloister = new Cloister();
+        cloister.setConfigurator((this.cloisterConfigurator != null) ? this.cloisterConfigurator :
+                new CloisterConfigurator());
 
         glowworm = new Glowworm();
         glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
@@ -65,6 +72,7 @@ public class Izayoi implements Filter {
                 new CortileConfigurator());
 
         try {
+            cloister.init(servletContext, configPath);
             glowworm.init(servletContext, configPath);
             cortile.init(servletContext, configPath);
         } catch (Exception e) {
@@ -74,25 +82,7 @@ public class Izayoi implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, final FilterChain chain) throws IOException, ServletException {
-        try {
-            glowworm.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, new FilterChain() {
-                @Override
-                public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                    try {
-                        cortile.doDispatch((HttpServletRequest) req, (HttpServletResponse) resp, null, new FilterChain() {
-                            @Override
-                            public void doFilter(ServletRequest req, ServletResponse resp) throws IOException, ServletException {
-                                chain.doFilter(req, resp);
-                            }
-                        });
-                    } catch (CortileException e) {
-                        throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
-                    }
-                }
-            });
-        } catch (IzayoiException e) {
-            throw (e.getCause() instanceof ServletException) ? (ServletException) e.getCause() : new ServletException(e);
-        }
+        FilterUtils.chain((HttpServletRequest) req, (HttpServletResponse) resp, chain, cloister, glowworm, cortile);
     }
 
     @Override

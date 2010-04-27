@@ -24,10 +24,9 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
-import org.withinsea.izayoi.commons.util.LazyLinkedHashMap;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.code.PathUtils;
+import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
@@ -44,27 +43,56 @@ import java.util.Set;
  */
 public class WebappCompileManager implements CompileManager {
 
+    protected class Cache {
+
+        protected final Map<String, Set<String>> relatives = new HashMap<String, Set<String>>();
+        protected final Map<String, Set<String>> targets = new HashMap<String, Set<String>>();
+
+        public boolean cached(String templatePath) {
+            return (relatives.containsKey(templatePath) && targets.containsKey(templatePath));
+        }
+
+        public void cache(String templatePath, Compilr.Result result) {
+            relatives.put(templatePath, result.getRelativeTemplatePaths());
+            targets.put(templatePath, result.getTargets().keySet());
+        }
+
+        public void remove(String templatePath) {
+            relatives.remove(templatePath);
+            targets.remove(templatePath);
+        }
+
+        public Set<String> relatives(String templatePath) {
+            return relatives.get(templatePath);
+        }
+
+        public Set<String> targets(String templatePath) {
+            return targets.get(templatePath);
+        }
+    }
+
+    protected Cache cache = new Cache();
+
     protected CodeManager codeManager;
     protected Map<String, Compilr> compilers;
 
     @Override
-    public boolean isUpdated(String templatePath, String asType) throws CortileException {
-
-        String type = checkType(templatePath, asType);
-        Compilr compiler = getCompiler(type);
-        Cache cache = caches.get(compiler);
-
-        return cache.cached(templatePath) && checkUpdated(templatePath, type, true);
+    public boolean isTemplate(String path) {
+        Path parsedPath = new Path(path);
+        return parsedPath.getRole().equals("template");
     }
 
     @Override
-    public String update(String templatePath, String asType, boolean focus) throws CortileException {
+    public boolean isUpdated(String templatePath) throws CortileException {
+        return cache.cached(templatePath) && checkUpdated(templatePath, true);
+    }
 
-        String type = checkType(templatePath, asType);
-        Compilr compiler = getCompiler(type);
-        Cache cache = caches.get(compiler);
+    @Override
+    public String update(String templatePath, boolean focus) throws CortileException {
 
-        if (focus || !isUpdated(templatePath, asType)) {
+        Compilr compiler = getCompiler(templatePath);
+
+        if (focus || !isUpdated(templatePath)) {
             Set<String> done = new HashSet<String>();
             Set<String> todo = new HashSet<String>();
             todo.add(templatePath);
@@ -74,7 +102,7 @@ public class WebappCompileManager implements CompileManager {
                     codeManager.delete(compiler.mapEntrancePath(templatePath));
                     cache.remove(templatePath);
                     throw new CortileException(todoTemplatePath + " not exist.");
-                } else if (focus || !checkUpdated(todoTemplatePath, asType, false)) {
+                } else if (focus || !checkUpdated(todoTemplatePath, false)) {
                     Compilr.Result result = compiler.compile(todoTemplatePath, codeManager.get(todoTemplatePath).getCode());
                     cache.cache(todoTemplatePath, result);
                     for (Map.Entry<String, String> target : result.getTargets().entrySet()) {
@@ -89,11 +117,7 @@ public class WebappCompileManager implements CompileManager {
         return compiler.mapEntrancePath(templatePath);
     }
 
-    protected boolean checkUpdated(String templatePath, String asType, boolean checkRelatives) {
-
-        String type = checkType(templatePath, asType);
-        Compilr compiler = getCompiler(type);
-        Cache cache = caches.get(compiler);
+    protected boolean checkUpdated(String templatePath, boolean checkRelatives) {
 
         Set<String> toChecks = new HashSet<String>();
         toChecks.add(templatePath);
@@ -114,51 +138,13 @@ public class WebappCompileManager implements CompileManager {
         return true;
     }
 
-    protected String checkType(String path, String asType) {
-        if (asType == null || asType.equals("")) asType = PathUtils.getExtName(path);
-        return asType;
-    }
-
-    protected Compilr getCompiler(String type) {
-        return compilers.get(compilers.containsKey(type) ? type : "default");
-    }
-
-    // cache
-
-    protected final Map<Compilr, Cache> caches = new LazyLinkedHashMap<Compilr, Cache>() {
-        @Override
-        protected Cache createValue(Compilr type) {
-            return new Cache();
+    protected Compilr getCompiler(String templatePath) throws CortileException {
+        String type = new Path(templatePath).getType();
+        Compilr compiler = compilers.get(compilers.containsKey(type) ? type : "default");
+        if (compiler == null) {
+            throw new CortileException("template type " + type + " does not exist.");
         }
-    };
-
-    protected static class Cache {
-
-        private final Map<String, Set<String>> relatives = new HashMap<String, Set<String>>();
-        private final Map<String, Set<String>> targets = new HashMap<String, Set<String>>();
-
-        public boolean cached(String templatePath) {
-            return (relatives.containsKey(templatePath)
-                    && targets.containsKey(templatePath));
-        }
-
-        public void cache(String templatePath, Compilr.Result result) {
-            relatives.put(templatePath, result.getRelativeTemplatePaths());
-            targets.put(templatePath, result.getTargets().keySet());
-        }
-
-        public void remove(String templatePath) {
-            relatives.remove(templatePath);
-            targets.remove(templatePath);
-        }
-
-        public Set<String> relatives(String templatePath) {
-            return relatives.get(templatePath);
-        }
-
-        public Set<String> targets(String templatePath) {
-            return targets.get(templatePath);
-        }
+        return compiler;
     }
 
     // dependency

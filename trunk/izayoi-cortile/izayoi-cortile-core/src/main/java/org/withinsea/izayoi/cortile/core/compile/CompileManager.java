@@ -33,7 +33,9 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  */
 public interface CompileManager {
 
-    boolean isUpdated(String templatePath, String asType) throws CortileException;
+    boolean isTemplate(String path);
 
-    String update(String templatePath, String asType, boolean focus) throws CortileException;
+    boolean isUpdated(String templatePath) throws CortileException;
+
+    String update(String templatePath, boolean focus) throws CortileException;
 }

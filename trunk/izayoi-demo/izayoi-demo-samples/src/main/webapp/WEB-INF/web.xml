@@ -40,12 +40,16 @@
 
     <filter-mapping>
         <filter-name>spring</filter-name>
-        <url-pattern>/intergration/springmvc/*</url-pattern>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
     <filter-mapping>
         <filter-name>izayoi</filter-name>
         <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
 
     <welcome-file-list>

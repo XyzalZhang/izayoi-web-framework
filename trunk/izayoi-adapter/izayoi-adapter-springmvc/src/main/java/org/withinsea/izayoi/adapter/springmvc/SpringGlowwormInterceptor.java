@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.withinsea.izayoi.commons.servlet.FlagChain;
-import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.glowworm.core.Glowworm;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,20 +46,23 @@ public class SpringGlowwormInterceptor extends HandlerInterceptorAdapter impleme
     protected String configPath;
 
     public SpringGlowwormInterceptor() {
-        this(null);
+        this((String) null);
     }
 
     public SpringGlowwormInterceptor(String configPath) {
         this.configPath = configPath;
     }
 
+    public SpringGlowwormInterceptor(Glowworm glowworm) {
+        this.glowworm = glowworm;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         if (glowworm == null) {
-            Configurator configurator = new SpringGlowwormConfigurator(applicationContext);
             glowworm = new Glowworm();
-            glowworm.setConfigurator(configurator);
+            glowworm.setConfigurator(new SpringGlowwormConfigurator(applicationContext));
             glowworm.init(request.getSession().getServletContext(), configPath);
         }
 

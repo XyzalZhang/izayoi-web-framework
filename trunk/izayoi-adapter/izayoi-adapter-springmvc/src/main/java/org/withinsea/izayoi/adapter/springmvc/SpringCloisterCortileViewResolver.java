@@ -24,11 +24,8 @@
 
 package org.withinsea.izayoi.adapter.springmvc;
 
-import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.cloister.core.Cloister;
 import org.withinsea.izayoi.cortile.core.Cortile;
-import org.withinsea.izayoi.glowworm.core.Glowworm;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormRuntimeException;
 
 import javax.servlet.ServletContext;
 import java.util.Locale;
@@ -38,7 +35,7 @@ import java.util.Locale;
  * Date: 2010-3-13
  * Time: 13:10:10
  */
-public class SpringCortilePathVariablesViewResolver extends SpringCortileViewResolver {
+public class SpringCloisterCortileViewResolver extends SpringCortileViewResolver {
 
     protected class CortilePathVariablesView extends CortileView {
         @Override
@@ -46,45 +43,34 @@ public class SpringCortilePathVariablesViewResolver extends SpringCortileViewRes
             if (super.checkResource(locale)) {
                 return true;
             } else {
-                setUrl(glowworm.findTemplatePath(getUrl()));
+                setUrl(cloister.findTemplatePath(getUrl()));
                 return super.checkResource(locale);
             }
         }
     }
 
-    protected Glowworm glowworm;
+    protected Cloister cloister;
 
-    public SpringCortilePathVariablesViewResolver() {
+    public SpringCloisterCortileViewResolver() {
         super();
     }
 
-    public SpringCortilePathVariablesViewResolver(String configPath) {
+    public SpringCloisterCortileViewResolver(String configPath) {
         super(configPath);
     }
 
-    public SpringCortilePathVariablesViewResolver(Cortile scenery, Glowworm glowworm) {
-        super(scenery);
-        this.glowworm = glowworm;
+    public SpringCloisterCortileViewResolver(Cortile cortile, Cloister cloister) {
+        super(cortile);
+        this.cloister = cloister;
     }
 
     @Override
     protected void initServletContext(ServletContext servletContext) {
-
         super.initServletContext(servletContext);
-
-        if (glowworm == null) {
-
-            try {
-
-                Configurator configurator = new SpringGlowwormConfigurator(getApplicationContext());
-
-                glowworm = new Glowworm();
-                glowworm.setConfigurator(configurator);
-                glowworm.init(servletContext, configPath);
-
-            } catch (GlowwormException e) {
-                throw new GlowwormRuntimeException(e);
-            }
+        if (cloister == null) {
+            cloister = new Cloister();
+            cloister.setConfigurator(new SpringCloisterConfigurator(getApplicationContext()));
+            cloister.init(servletContext, configPath);
         }
     }
 
@@ -93,7 +79,7 @@ public class SpringCortilePathVariablesViewResolver extends SpringCortileViewRes
         return new CortilePathVariablesView();
     }
 
-    public void setGlowworm(Glowworm glowworm) {
-        this.glowworm = glowworm;
+    public void setCloister(Cloister cloister) {
+        this.cloister = cloister;
     }
 }

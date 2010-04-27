@@ -24,10 +24,9 @@
 
 package org.withinsea.izayoi.cortile.core.conf;
 
-import org.picocontainer.MutablePicoContainer;
 import org.withinsea.izayoi.commons.util.ClassUtils;
+import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
-import org.withinsea.izayoi.cortile.core.compiler.Compilr;
 import org.withinsea.izayoi.cortile.core.compiler.el.ELHelper;
 import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
 
@@ -42,48 +41,37 @@ import java.util.*;
 public class CortileConfigurator extends IzayoiConfigurator {
 
     @Override
-    public void initComponents(MutablePicoContainer container, Properties conf) throws Exception {
+    public void initComponents(ComponentContainer container, Properties conf) throws Exception {
 
         super.initComponents(container, conf);
 
+        container.addComponent("elScope", getClass(conf, "elScope"));
         container.addComponent("elHelper", ELHelper.class);
 
+        container.addComponent("grammars", getGrammarMap(container, conf));
+        container.addComponent("compilers", getComponentMap(container, conf, "compiler"));
+        container.addComponent("compileManager", getClass(conf, "compileManager"));
+    }
+
+    protected Map<String, Set<Grammar>> getGrammarMap(ComponentContainer container, Properties conf) throws Exception {
         Map<String, Set<Grammar>> grammars = new LinkedHashMap<String, Set<Grammar>>();
-        {
-            grammars.put("", Collections.<Grammar>emptySet());
-            for (String propname : conf.stringPropertyNames()) {
-                if (propname.startsWith("class.grammars")) {
-                    String namespace = propname.substring("class.grammars".length()).replaceAll("^\\.", "");
-                    Set<Grammar> grammarGroup = new LinkedHashSet<Grammar>();
-                    {
-                        for (String className : trimClassNames(conf.getProperty(propname))) {
-                            Class<?> claz = Class.forName(className.trim());
-                            if (Grammar.class.isAssignableFrom(claz)) {
-                                grammarGroup.add((Grammar) container.getComponent(claz));
-                            }
+        grammars.put("", Collections.<Grammar>emptySet());
+        for (String propname : conf.stringPropertyNames()) {
+            if (propname.startsWith("class.grammars")) {
+                String namespace = propname.substring("class.grammars".length()).replaceAll("^\\.", "");
+                Set<Grammar> grammarGroup = new LinkedHashSet<Grammar>();
+                {
+                    for (String className : trimClassNames(conf.getProperty(propname))) {
+                        Class<?> claz = Class.forName(className.trim());
+                        if (Grammar.class.isAssignableFrom(claz)) {
+                            grammarGroup.add((Grammar) container.getComponent(claz));
                         }
                     }
-                    grammars.put(namespace, grammarGroup);
                 }
+                grammars.put(namespace, grammarGroup);
             }
         }
-        container.addComponent("grammars", grammars);
-
-        Map<String, Compilr> compilers = new LinkedHashMap<String, Compilr>();
-        {
-            for (String propname : conf.stringPropertyNames()) {
-                if (propname.startsWith("class.compiler")) {
-                    String type = propname.substring("class.compiler".length()).replaceAll("^\\.", "");
-                    Class<?> claz = Class.forName(conf.getProperty(propname).trim());
-                    if (Compilr.class.isAssignableFrom(claz)) {
-                        compilers.put(type, (Compilr) container.getComponent(claz));
-                    }
-                }
-            }
-        }
-        container.addComponent("compilers", compilers);
-
-        container.addComponent("compileManager", Class.forName(conf.getProperty("class.compileManager").trim()));
+        return grammars;
     }
 
     protected static Collection<String> trimClassNames(String classNames) throws IOException {

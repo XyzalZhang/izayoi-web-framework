@@ -24,6 +24,8 @@
 
 package org.withinsea.izayoi.core.bindings;
 
+import org.withinsea.izayoi.core.bindings.scope.Scope;
+
 import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,5 +37,5 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface BindingsManager {
 
-    Bindings getBindings(HttpServletRequest request, HttpServletResponse response);
+    Bindings getBindings(HttpServletRequest request, HttpServletResponse response, Scope scope);
 }

@@ -36,7 +36,7 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
 public abstract class JSPCompiler extends JavaELSupportedCompiler {
 
     protected String encoding;
-    protected String targetPath;
+    protected String jspFolder;
     protected String componentContainerRetrievalKey;
 
     @Override
@@ -49,7 +49,7 @@ public abstract class JSPCompiler extends JavaELSupportedCompiler {
 
     @Override
     public String mapEntrancePath(String templatePath) {
-        String folder = "/" + targetPath.trim().replaceAll("^/|/$", "");
+        String folder = "/" + jspFolder.trim().replaceAll("^/|/$", "");
         return folder + templatePath + ".jsp";
     }
 
@@ -76,7 +76,7 @@ public abstract class JSPCompiler extends JavaELSupportedCompiler {
         this.encoding = encoding;
     }
 
-    public void setTargetPath(String targetPath) {
-        this.targetPath = targetPath;
+    public void setJspFolder(String jspFolder) {
+        this.jspFolder = jspFolder;
     }
 }
