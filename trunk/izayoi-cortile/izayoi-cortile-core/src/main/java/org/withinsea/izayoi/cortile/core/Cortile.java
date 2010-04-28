@@ -73,12 +73,12 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                     throw new CortileException("Request on " + requestPath + " has ambiguous mirage templates.");
                 }
                 String templatePath = parsedPath.getFolder() + "/" + templateNames.get(0);
-                if (codeManager.exist(templatePath) && !codeManager.get(templatePath).isFolder()) {
+                if (codeManager.exist(templatePath) && !codeManager.isFolder(templatePath)) {
                     return templatePath;
                 }
             }
 
-            if (codeManager.exist(requestPath) && !codeManager.get(requestPath).isFolder()) {
+            if (codeManager.exist(requestPath) && !codeManager.isFolder(requestPath)) {
                 return requestPath;
             }
 
@@ -87,7 +87,8 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {
 
-            requestPath = (requestPath == null) ? req.getServletPath() : requestPath;
+            if (requestPath == null) requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            if (requestPath == null) requestPath = req.getServletPath();
 
             if (compileManager.isTemplate(requestPath)) {
                 resp.sendError(404);

@@ -39,6 +39,8 @@ public interface CodeManager {
 
     boolean exist(String path);
 
+    boolean isFolder(String path);
+
     Code get(String path);
 
     void update(String path, String code);

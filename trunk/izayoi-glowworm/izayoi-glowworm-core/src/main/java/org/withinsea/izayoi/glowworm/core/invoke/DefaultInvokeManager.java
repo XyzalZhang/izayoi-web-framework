@@ -17,21 +17,27 @@ import java.util.*;
  */
 public class DefaultInvokeManager implements InvokeManager {
 
-    protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
+    protected static class Cache extends HashMap<String, Long> {
 
-    protected class Cache {
+        protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
-        protected boolean cached(HttpServletRequest request, HttpServletResponse response, ScriptPath scriptPath) throws GlowwormException {
-            Long lastModified = getScope(scriptPath).getBean(request, response, LAST_MODIFIED_ATTR);
-            return (lastModified != null && lastModified.equals(codeManager.get(scriptPath.getPath()).getLastModified()));
+        public static synchronized Cache get(HttpServletRequest request, HttpServletResponse response, Scope scope) throws GlowwormException {
+            Cache lastModifieds = scope.getBean(request, response, LAST_MODIFIED_ATTR);
+            if (lastModifieds == null) {
+                lastModifieds = new Cache();
+                scope.setBean(request, response, LAST_MODIFIED_ATTR, lastModifieds);
+            }
+            return lastModifieds;
         }
 
-        protected void cache(HttpServletRequest request, HttpServletResponse response, ScriptPath scriptPath) throws GlowwormException {
-            getScope(scriptPath).setBean(request, response, LAST_MODIFIED_ATTR, codeManager.get(scriptPath.getPath()).getLastModified());
+        public boolean cached(Code code) {
+            return containsKey(code.getPath()) && (get(code.getPath()) >= code.getLastModified());
+        }
+
+        public void cache(Code code) {
+            put(code.getPath(), code.getLastModified());
         }
     }
-
-    protected Cache cache = new Cache();
 
     protected CodeManager codeManager;
     protected Map<String, Invoker> invokers;
@@ -56,12 +62,13 @@ public class DefaultInvokeManager implements InvokeManager {
                 throw new GlowwormException("script " + parsedPath.getPath() + " does not exist.");
             }
 
-            if (!cache.cached(request, response, parsedPath)) {
+            Scope scope = getScope(parsedPath);
+            Cache cache = Cache.get(request, response, scope);
+            Code code = codeManager.get(parsedPath.getPath());
+            if (!cache.cached(code)) {
                 Invoker invoker = getInvoker(parsedPath);
-                Scope scope = getScope(parsedPath);
-                Code code = codeManager.get(parsedPath.getPath());
                 boolean toContinue = invoker.process(request, response, code, parsedPath.getType(), scope);
-                cache.cache(request, response, parsedPath);
+                cache.cache(code);
                 if (!toContinue) {
                     return false;
                 }

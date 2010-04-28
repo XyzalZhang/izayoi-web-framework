@@ -24,10 +24,6 @@ public class Application extends Singleton {
 
     @Override
     protected Object lookupAttribute(HttpServletRequest request, HttpServletResponse response, String name) {
-        if (request.getSession() == null) {
-            System.out.print("name=");
-            System.out.println(name);
-        }
         Object obj = request.getSession().getServletContext().getAttribute(name);
         if (obj == null) obj = super.lookupAttribute(request, response, name);
         return obj;

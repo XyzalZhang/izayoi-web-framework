@@ -59,7 +59,8 @@ public class Cloister implements Filter, Configurable {
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-            String requestPath = req.getServletPath();
+            String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            if (requestPath == null) requestPath = req.getServletPath();
 
             Boolean mapped = (Boolean) req.getAttribute(MAPPED_ATTR);
             if (mapped != null && mapped) {
@@ -68,13 +69,13 @@ public class Cloister implements Filter, Configurable {
             }
 
             Map<String, String> pathVariables = new LinkedHashMap<String, String>();
-            String templateRequestPath = matchPathTemplate(pathVariables, "/", requestPath.replaceAll("^/+", ""));
+            String templateRequestPath = matchPathTemplate(pathVariables, requestPath);
             if (templateRequestPath == null || pathVariables.isEmpty()) {
                 chain.doFilter(req, resp);
                 return;
             }
 
-            if (codeManager.get(templateRequestPath).isFolder() && !templateRequestPath.endsWith("/")
+            if (codeManager.isFolder(templateRequestPath) && !templateRequestPath.endsWith("/")
                     && !isMappedServlet(req.getSession().getServletContext(), templateRequestPath)) {
                 resp.sendRedirect(req.getSession().getServletContext().getContextPath() + requestPath + "/");
                 return;
@@ -108,18 +109,30 @@ public class Cloister implements Filter, Configurable {
             return -count;
         }
 
-        protected String matchPathTemplate(Map<String, String> pathVariables, String basePath, String path) {
-
-            if (path.equals("") || path.equals("/")) {
-                return basePath + path;
+        protected String matchPathTemplate(Map<String, String> pathVariables, String path) {
+            path = path.trim();
+            if (codeManager.exist(path)) {
+                return path;
+            } else {
+                return matchPathTemplate(pathVariables, "/", path).replaceAll("/+", "/");
             }
+        }
+
+        protected String matchPathTemplate(Map<String, String> pathVariables, String folder, String path) {
 
             path = path.replaceAll("^/+", "");
-            String fname = path.replaceAll("/.*", "");
+            if (path.equals("")) {
+                return folder;
+            }
+
+            String pathName = path.replaceAll("/.*", "");
+            if (codeManager.isFolder(folder + "/" + pathName) || codeManager.isFolder(appendantFolder + folder + "/" + pathName)) {
+                return matchPathTemplate(pathVariables, folder + "/" + pathName, path.substring(pathName.length()));
+            }
 
             Set<String> codeNameSet = new LinkedHashSet<String>();
-            codeNameSet.addAll(codeManager.listNames(basePath));
-            codeNameSet.addAll(codeManager.listNames(appendantFolder + "/" + basePath));
+            codeNameSet.addAll(codeManager.listNames(folder));
+            codeNameSet.addAll(codeManager.listNames(appendantFolder + "/" + folder));
             List<String> codeNames = new ArrayList<String>(codeNameSet);
             Collections.sort(codeNames, new Comparator<String>() {
                 @Override
@@ -128,10 +141,12 @@ public class Cloister implements Filter, Configurable {
                 }
             });
 
-            for (String tname : codeNames) {
-                String tnameMain = tname.replaceAll("\\..*$", "");
-                String nameRegexp = StringUtils.replaceAll(
-                        tnameMain, "\\{\\w+\\}", new StringUtils.Replace() {
+            for (String codeName : codeNames) {
+
+                String codeMainName = codeName.replaceAll("\\..*$", "");
+
+                Matcher pathMatcher = Pattern.compile(StringUtils.replaceAll(
+                        codeMainName, "\\{\\w+\\}", new StringUtils.Replace() {
                             @Override
                             public String replace(String... groups) {
                                 return "(.+)";
@@ -142,11 +157,12 @@ public class Cloister implements Filter, Configurable {
                                 return Pattern.quote(str);
                             }
                         }
-                ) + ".*?";
-                Matcher nameMatcher = Pattern.compile(nameRegexp).matcher(fname);
-                if (nameMatcher.matches()) {
-                    String templateRegexp = StringUtils.replaceAll(
-                            tnameMain, "\\{(\\w+)\\}", new StringUtils.Replace() {
+                ) + ".*?").matcher(pathName);
+
+                if (pathMatcher.matches()) {
+
+                    Matcher codeMatcher = Pattern.compile(StringUtils.replaceAll(
+                            codeMainName, "\\{(\\w+)\\}", new StringUtils.Replace() {
                                 @Override
                                 public String replace(String... groups) {
                                     return "\\{(" + groups[1] + ")\\}";
@@ -157,17 +173,18 @@ public class Cloister implements Filter, Configurable {
                                     return Pattern.quote(str);
                                 }
                             }
-                    ) + ".*?";
-                    Matcher templateMatcher = Pattern.compile(templateRegexp).matcher(tname);
-                    templateMatcher.matches();
-                    for (int i = 1; i <= templateMatcher.groupCount(); i++) {
-                        pathVariables.put(templateMatcher.group(i), nameMatcher.group(i));
+                    ) + ".*?").matcher(codeName);
+
+                    codeMatcher.matches();
+                    for (int i = 1; i <= codeMatcher.groupCount(); i++) {
+                        pathVariables.put(codeMatcher.group(i), pathMatcher.group(i));
                     }
-                    String ret = (codeManager.get(basePath + "/" + tname).isFolder()
-                            || codeManager.get(appendantFolder + "/" + basePath + "/" + tname).isFolder())
-                            ? matchPathTemplate(pathVariables, basePath + "/" + tname, path.substring(fname.length()))
-                            : basePath + (basePath.equals("") ? "" : "/") + tname;
-                    return (ret == null) ? null : ret.replaceAll("^/+", "/");
+
+                    if (codeManager.isFolder(folder + "/" + codeName) || codeManager.isFolder(appendantFolder + folder + "/" + codeName)) {
+                        return matchPathTemplate(pathVariables, folder + "/" + codeName, path.substring(codeName.length()));
+                    } else {
+                        return folder + "/" + codeName;
+                    }
                 }
             }
 
@@ -195,7 +212,7 @@ public class Cloister implements Filter, Configurable {
 
     public String findTemplatePath(String requestPath) {
         Map<String, String> pathVariables = new LinkedHashMap<String, String>();
-        return dispatcher.matchPathTemplate(pathVariables, "/", requestPath.replaceAll("^/+", ""));
+        return dispatcher.matchPathTemplate(pathVariables, requestPath.replaceAll("^/+", ""));
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws ServletException, IOException {

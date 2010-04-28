@@ -48,21 +48,32 @@ public class Call implements AttrGrammar<HTMLCompiler> {
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
             if (attr.getValue().indexOf(":") < 0) {
-                String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
-                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
-                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                        "<% " + compiler.elScopeEnd() + " %>");
+                processAttr(compiler, result, elem, result.getTemplatePath(), attr.getValue());
             } else {
                 String[] value = attr.getValue().split(":");
-                String templatePath = value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0];
-                String funcPath = compiler.mapTargetPath(templatePath, value[1]);
-                DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
-                        "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                        "<% " + compiler.elScopeEnd() + " %>");
+                processAttr(compiler, result, elem,
+                        value[0].startsWith("/") ? value[0] : result.getTemplatePath().replaceAll("/[^/]*$", "") + "/" + value[0],
+                        (value.length > 1) ? value[1] : null
+                );
+            }
+        } catch (Exception e) {
+            throw new CortileException(e);
+        }
+    }
+
+    protected void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem,
+                               String templatePath, String funcName) throws CortileException {
+        try {
+            String funcPath = compiler.mapTargetPath(templatePath, funcName);
+            DOMUtils.replaceBy(elem, "<% " + compiler.elScope() + " %>" +
+                    "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
+                    "<% " + compiler.elScopeEnd() + " %>");
+            if (!result.getTemplatePath().equals(templatePath)) {
                 result.getRelativeTemplatePaths().add(templatePath);
             }
         } catch (Exception e) {
             throw new CortileException(e);
         }
     }
+
 }

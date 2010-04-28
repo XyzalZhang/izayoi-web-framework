@@ -24,11 +24,14 @@
 
 package org.withinsea.izayoi.core.interpret;
 
+import org.withinsea.izayoi.core.code.Code;
+import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.exception.IzayoiException;
-import org.withinsea.izayoi.core.interpreter.ImportableInterpreter;
+import org.withinsea.izayoi.core.interpreter.CompilableInterpreter;
 import org.withinsea.izayoi.core.interpreter.Interpreter;
 
 import javax.script.Bindings;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,22 +41,51 @@ import java.util.Map;
  */
 public class DefaultInterpretManager implements InterpretManager {
 
+    protected static class Cache {
+        public Map<String, Long> lastModified = new HashMap<String, Long>();
+        public Map<String, CompilableInterpreter.CompiledInterpreter> interpreter = new HashMap<String, CompilableInterpreter.CompiledInterpreter>();
+    }
+
+    protected Cache cache = new Cache();
+
     protected Map<String, Interpreter> interpreters;
 
     @Override
-    public Object interpret(String script, Bindings bindings, String asType, String... importedClasses) throws IzayoiException {
-
+    public Object interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
         Interpreter interpreter = interpreters.get(interpreters.containsKey(asType) ? asType : "default");
-
         if (asType == null || interpreter == null) {
             return null;
-        } else if (interpreter instanceof ImportableInterpreter) {
-            return ((ImportableInterpreter) interpreter).interpret(script, bindings, asType, importedClasses);
-        } else if (importedClasses.length == 0) {
-            return interpreter.interpret(script, bindings, asType);
-        } else {
-            return null;
         }
+        return interpreter.interpret(script, asType, bindings, importedClasses);
+    }
+
+    @Override
+    public Object interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
+
+        Path parsedPath = new Path(code.getPath());
+
+        String type = parsedPath.getType();
+        Interpreter interpreter = interpreters.get(interpreters.containsKey(type) ? type : "default");
+        if (!(interpreter instanceof CompilableInterpreter)) {
+            return interpreter.interpret(code.getCode(), type, bindings, importedClasses);
+        }
+
+        String key = parsedPath.getPath();
+        CompilableInterpreter.CompiledInterpreter compiledInterpreter = cache.interpreter.get(key);
+        if (compiledInterpreter != null && cache.lastModified.get(key) >= code.getLastModified()) {
+            System.out.println("run cached compiled script: " + code.getPath());
+            return compiledInterpreter.interpret(bindings);
+        }
+
+        CompilableInterpreter compilableInterpreter = (CompilableInterpreter) interpreter;
+        compiledInterpreter = compilableInterpreter.compile(code.getCode(), type);
+        if (compiledInterpreter != null) {
+            cache.interpreter.put(key, compiledInterpreter);
+            cache.lastModified.put(key, code.getLastModified());
+            return compiledInterpreter.interpret(bindings);
+        }
+
+        return interpreter.interpret(code.getCode(), type, bindings, importedClasses);
     }
 
     public void setInterpreters(Map<String, Interpreter> interpreters) {

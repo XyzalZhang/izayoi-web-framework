@@ -73,7 +73,9 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
     public Result compile(String templatePath, String templateCode) throws CortileException {
         Result result = super.compile(templatePath, templateCode);
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
-            result.getTargets().put(e.getKey(), jspCompiler.compileJSP(e.getValue()));
+            if (e.getKey().endsWith(".jsp")) {
+                result.getTargets().put(e.getKey(), jspCompiler.compileJSP(e.getValue()));
+            }
         }
         return result;
     }
@@ -150,7 +152,11 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
         jspCompiler.setEncoding(encoding);
     }
 
-    public void setJspFolder(String jspFolder) {
-        jspCompiler.setJspFolder(jspFolder);
+    public void setOutputFolder(String outputFolder) {
+        jspCompiler.setOutputFolder(outputFolder);
+    }
+
+    public void setOutputSuffix(String outputSuffix) {
+        jspCompiler.setOutputSuffix(outputSuffix);
     }
 }

@@ -30,10 +30,14 @@ import javax.script.Bindings;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-5
- * Time: 4:46:49
+ * Date: 2010-3-4
+ * Time: 13:58:32
  */
-public interface ImportableInterpreter extends Interpreter {
+public interface CompilableInterpreter extends Interpreter {
 
-    <T> T interpret(String script, Bindings bindings, String asType, String... importedClasses) throws IzayoiException;
+    public static interface CompiledInterpreter {
+        <T> T interpret(Bindings bindings) throws IzayoiException;
+    }
+
+    CompiledInterpreter compile(String script, String asType) throws IzayoiException;
 }

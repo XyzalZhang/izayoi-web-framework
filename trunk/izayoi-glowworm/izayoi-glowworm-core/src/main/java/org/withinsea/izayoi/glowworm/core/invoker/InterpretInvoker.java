@@ -34,7 +34,7 @@ public abstract class InterpretInvoker implements Invoker {
 
         Object result;
         try {
-            result = interpretManager.interpret(code.getCode(), bindings, asType);
+            result = interpretManager.interpret(code, bindings);
         } catch (IzayoiException e) {
             throw new GlowwormException(e.getMessage(), e.getCause());
         }

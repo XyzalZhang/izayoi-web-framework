@@ -55,17 +55,27 @@ public class Glowworm implements Filter, Configurable {
         protected CodeManager codeManager;
         protected InvokeManager invokeManager;
         protected String appendantFolder;
+        protected String outputFolder;
+        protected String outputSuffix;
         protected String globalPrefix;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-            String requestPath = req.getServletPath();
+            String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            if (requestPath == null) requestPath = req.getServletPath();
 
             if (invokeManager.isScript(requestPath)) {
                 resp.sendError(404);
                 return;
             }
 
+            if (requestPath.startsWith(outputFolder)) {
+                requestPath = requestPath.substring(outputFolder.length());
+                int i = requestPath.lastIndexOf("." + outputSuffix);
+                if (i >= 0) {
+                    requestPath = requestPath.substring(0, i);
+                }
+            }
             Path parsedPath = new Path(requestPath);
 
             try {
@@ -73,8 +83,8 @@ public class Glowworm implements Filter, Configurable {
                 List<String> scriptPaths = new ArrayList<String>();
 
                 String folder = appendantFolder;
-                for (String folderItem : parsedPath.getFolder().equals("") ? new String[]{""} : ("/" + parsedPath.getFolder()).split("/")) {
-                    folder = folder + folderItem + "/";
+                for (String folderItem : parsedPath.getFolder().equals("/") ? new String[]{""} : parsedPath.getFolder().split("/")) {
+                    folder = folder + "/" + folderItem;
                     for (String scriptName : codeManager.listNames(folder, Pattern.quote(globalPrefix) + ".*" + "\\.[^\\.]+\\.[^\\.]+$")) {
                         scriptPaths.add(folder + "/" + scriptName);
                     }
@@ -83,7 +93,8 @@ public class Glowworm implements Filter, Configurable {
                     scriptPaths.add(folder + "/" + scriptName);
                 }
 
-                if (!invokeManager.invoke(req, resp, scriptPaths)) {
+                boolean toContinue = invokeManager.invoke(req, resp, scriptPaths);
+                if (!toContinue) {
                     return;
                 }
 
@@ -108,6 +119,14 @@ public class Glowworm implements Filter, Configurable {
 
         public void setInvokeManager(InvokeManager invokeManager) {
             this.invokeManager = invokeManager;
+        }
+
+        public void setOutputFolder(String outputFolder) {
+            this.outputFolder = outputFolder;
+        }
+
+        public void setOutputSuffix(String outputSuffix) {
+            this.outputSuffix = outputSuffix;
         }
     }
 

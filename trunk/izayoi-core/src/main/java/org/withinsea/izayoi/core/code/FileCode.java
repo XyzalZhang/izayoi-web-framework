@@ -54,18 +54,13 @@ public class FileCode implements Code {
     }
 
     @Override
-    public boolean isFolder() {
-        return getFile().isDirectory();
-    }
-
-    @Override
     public String getPath() {
         return path;
     }
 
     @Override
     public String getCode() {
-        if (isFolder()) {
+        if (getFile().isDirectory()) {
             return null;
         } else {
             try {

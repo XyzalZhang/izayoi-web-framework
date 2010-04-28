@@ -15,9 +15,9 @@ public class Path {
 
     public Path(String path) {
 
-        path = path.replaceAll("/+", "/").trim();
-        this.path = path;
-        this.folder = (path.indexOf("/") < 0) ? "" : path.replaceAll("/[^/]*$", "");
+        path = ("/" + path.trim()).replaceAll("/+", "/").trim();
+        this.path = (!path.equals("/") && path.endsWith("/")) ? path.substring(0, path.length() - 1) : path;
+        this.folder = path.replaceAll("/[^/]*$", "/");
         this.name = path.replaceAll(".*/", "");
 
         String[] split = name.split("\\.");

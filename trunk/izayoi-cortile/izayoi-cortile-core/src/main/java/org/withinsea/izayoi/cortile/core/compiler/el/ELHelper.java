@@ -75,7 +75,7 @@ public class ELHelper {
             String elType = elTypeStack.peek();
             Object ret;
             try {
-                ret = interpretManager.interpret(el, varstack, elType, importedClasses.toArray(new String[importedClasses.size()]));
+                ret = interpretManager.interpret(el, elType, varstack, importedClasses.toArray(new String[importedClasses.size()]));
             } catch (Exception e) {
                 ret = null; // silent exception stack trace
             }

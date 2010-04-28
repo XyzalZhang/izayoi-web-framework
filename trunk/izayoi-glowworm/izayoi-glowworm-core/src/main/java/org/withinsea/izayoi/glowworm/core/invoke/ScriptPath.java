@@ -7,7 +7,7 @@ import org.withinsea.izayoi.core.code.Path;
  * Date: 2010-4-23
  * Time: 15:25:56
  */
-class ScriptPath extends Path {
+public class ScriptPath extends Path {
 
     protected final String invokerType;
     protected final String scopeType;

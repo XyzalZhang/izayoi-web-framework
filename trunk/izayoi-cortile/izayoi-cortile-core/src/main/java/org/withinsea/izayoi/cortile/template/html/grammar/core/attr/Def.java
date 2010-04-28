@@ -38,7 +38,7 @@ import org.withinsea.izayoi.cortile.template.html.parser.HTMLReader;
  * Date: 2009-12-28
  * Time: 22:04:16
  */
-public class Def implements AttrGrammar<HTMLCompiler> {
+public class Def extends Call implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
@@ -48,13 +48,11 @@ public class Def implements AttrGrammar<HTMLCompiler> {
     @Override
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         try {
-            String funcPath = compiler.mapTargetPath(result.getTemplatePath(), attr.getValue());
+            String funcName = attr.getValue();
             attr.detach();
             Element range = DOMUtils.surroundBy(elem, HTMLReader.ANONYMOUS_TAG_NAME);
-            compiler.compileTo(result, funcPath, range);
-            DOMUtils.replaceBy(range, "<% " + compiler.elScope() + " %>" +
-                    "<jsp:include page=\"" + funcPath + "\" flush=\"true\" />" +
-                    "<% " + compiler.elScopeEnd() + " %>");
+            compiler.compileTo(result, compiler.mapTargetPath(result.getTemplatePath(), funcName), range);
+            processAttr(compiler, result, range, result.getTemplatePath(), funcName);
         } catch (Exception e) {
             throw new CortileException(e);
         }

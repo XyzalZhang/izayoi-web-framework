@@ -41,7 +41,7 @@ public class Properties implements Interpreter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
+    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
         try {
             java.util.Properties props = new java.util.Properties();
             props.load(new StringReader(script));

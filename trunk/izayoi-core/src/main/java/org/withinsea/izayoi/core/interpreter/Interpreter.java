@@ -35,5 +35,5 @@ import javax.script.Bindings;
  */
 public interface Interpreter {
 
-    <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException;
+    <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException;
 }

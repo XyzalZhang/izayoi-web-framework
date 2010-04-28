@@ -62,7 +62,12 @@ public class WebappCodeManager implements CodeManager {
 
     @Override
     public boolean exist(String path) {
-        return new FileCode(webroot, path, encoding).getFile().exists();
+        return new File(webroot, path).exists();
+    }
+
+    @Override
+    public boolean isFolder(String path) {
+        return new File(webroot, path).isDirectory();
     }
 
     @Override

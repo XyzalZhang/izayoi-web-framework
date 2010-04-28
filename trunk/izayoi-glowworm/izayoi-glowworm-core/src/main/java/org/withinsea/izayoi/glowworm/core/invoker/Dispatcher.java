@@ -20,7 +20,11 @@ public class Dispatcher extends InterpretInvoker {
         if (result instanceof String) {
             String url = ((String) result).trim();
             try {
-                if (url.startsWith("forward:")) {
+                if (url.startsWith("continue:")) {
+                    return true;
+                } else if (url.startsWith("stop:")) {
+
+                } else if (url.startsWith("forward:")) {
                     url = url.substring("forward:".length()).trim();
                     request.getRequestDispatcher(url).forward(request, response);
                 } else if (url.startsWith("redirect:")) {

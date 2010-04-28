@@ -37,7 +37,7 @@ public class Text implements Interpreter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T interpret(String script, Bindings bindings, String asType) throws IzayoiException {
+    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
         return (T) script;
     }
 }
