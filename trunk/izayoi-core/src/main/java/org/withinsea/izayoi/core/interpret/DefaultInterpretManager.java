@@ -73,7 +73,6 @@ public class DefaultInterpretManager implements InterpretManager {
         String key = parsedPath.getPath();
         CompilableInterpreter.CompiledInterpreter compiledInterpreter = cache.interpreter.get(key);
         if (compiledInterpreter != null && cache.lastModified.get(key) >= code.getLastModified()) {
-            System.out.println("run cached compiled script: " + code.getPath());
             return compiledInterpreter.interpret(bindings);
         }
 
