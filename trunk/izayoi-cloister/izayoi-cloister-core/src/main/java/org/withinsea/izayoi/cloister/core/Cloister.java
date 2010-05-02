@@ -114,7 +114,8 @@ public class Cloister implements Filter, Configurable {
             if (codeManager.exist(path)) {
                 return path;
             } else {
-                return matchPathTemplate(pathVariables, "/", path).replaceAll("/+", "/");
+                String match = matchPathTemplate(pathVariables, "/", path);
+                return (match == null) ? null : match.replaceAll("/+", "/");
             }
         }
 
