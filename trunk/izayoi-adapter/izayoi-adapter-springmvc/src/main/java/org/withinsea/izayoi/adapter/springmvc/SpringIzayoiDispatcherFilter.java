@@ -28,7 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.servlet.*;
 import org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator;
 import org.withinsea.izayoi.cloister.core.Cloister;
-import org.withinsea.izayoi.commons.servlet.FilterUtils;
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 import org.withinsea.izayoi.cortile.core.Cortile;
@@ -66,9 +66,6 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
 
-        ServletContext servletContext = filterConfig.getServletContext();
-        String configPath = filterConfig.getInitParameter("config-path");
-
         cloister = new Cloister();
         glowworm = new Glowworm();
         cortile = new Cortile();
@@ -105,9 +102,9 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
         cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
                 new SpringCortileConfigurator(getWebApplicationContext()));
 
-        cloister.init(servletContext, configPath);
-        glowworm.init(servletContext, configPath);
-        cortile.init(servletContext, configPath);
+        cloister.init(filterConfig);
+        glowworm.init(filterConfig);
+        cortile.init(filterConfig);
     }
 
     @Override
@@ -138,7 +135,7 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
         if (chain == null) {
             noHandlerFound0(req, resp);
         } else {
-            FilterUtils.chain(req, resp, chain, cloister, glowworm, cortile);
+            ServletFilterUtils.chain(req, resp, chain, cloister, glowworm, cortile);
         }
     }
 

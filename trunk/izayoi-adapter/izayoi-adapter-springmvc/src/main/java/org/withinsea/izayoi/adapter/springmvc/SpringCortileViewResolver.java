@@ -32,6 +32,7 @@ import org.withinsea.izayoi.cortile.core.Cortile;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -83,7 +84,7 @@ public class SpringCortileViewResolver extends UrlBasedViewResolver implements A
         if (cortile == null) {
             cortile = new Cortile();
             cortile.setConfigurator(new SpringCortileConfigurator(getApplicationContext()));
-            cortile.init(servletContext, configPath);
+            cortile.init(servletContext, configPath, Collections.<String, String>emptyMap());
         }
     }
 

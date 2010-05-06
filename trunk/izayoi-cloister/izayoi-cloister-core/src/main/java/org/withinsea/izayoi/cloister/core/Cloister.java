@@ -27,6 +27,7 @@ package org.withinsea.izayoi.cloister.core;
 import org.withinsea.izayoi.cloister.core.conf.CloisterConfigurator;
 import org.withinsea.izayoi.cloister.util.ServletRegistrationsUtils;
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
@@ -56,11 +57,17 @@ public class Cloister implements Filter, Configurable {
 
         protected CodeManager codeManager;
         protected String appendantFolder;
+        protected String bypass;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
             String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = req.getServletPath();
+
+            if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
+                chain.doFilter(req, resp);
+                return;
+            }
 
             Boolean mapped = (Boolean) req.getAttribute(MAPPED_ATTR);
             if (mapped != null && mapped) {
@@ -199,6 +206,10 @@ public class Cloister implements Filter, Configurable {
         public void setAppendantFolder(String appendantFolder) {
             this.appendantFolder = appendantFolder;
         }
+
+        public void setBypass(String bypass) {
+            this.bypass = bypass;
+        }
     }
 
     // api
@@ -206,8 +217,8 @@ public class Cloister implements Filter, Configurable {
     protected Configurator configurator = new CloisterConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath) {
-        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator);
+    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
+        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator, confOverrides);
         dispatcher = container.getComponent(Dispatcher.class);
     }
 
@@ -229,11 +240,9 @@ public class Cloister implements Filter, Configurable {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        try {
-            init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
+        confOverrides.remove("config-path");
+        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
     }
 
     @SuppressWarnings("unchecked")

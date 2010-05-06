@@ -26,7 +26,7 @@ package org.withinsea.izayoi;
 
 import org.withinsea.izayoi.cloister.core.Cloister;
 import org.withinsea.izayoi.cloister.core.conf.CloisterConfigurator;
-import org.withinsea.izayoi.commons.servlet.FilterUtils;
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.cortile.core.Cortile;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
@@ -56,9 +56,6 @@ public class Izayoi implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
-        ServletContext servletContext = filterConfig.getServletContext();
-        String configPath = filterConfig.getInitParameter("config-path");
-
         cloister = new Cloister();
         cloister.setConfigurator((this.cloisterConfigurator != null) ? this.cloisterConfigurator :
                 new CloisterConfigurator());
@@ -72,9 +69,9 @@ public class Izayoi implements Filter {
                 new CortileConfigurator());
 
         try {
-            cloister.init(servletContext, configPath);
-            glowworm.init(servletContext, configPath);
-            cortile.init(servletContext, configPath);
+            cloister.init(filterConfig);
+            glowworm.init(filterConfig);
+            cortile.init(filterConfig);
         } catch (Exception e) {
             throw new ServletException(e);
         }
@@ -82,7 +79,7 @@ public class Izayoi implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, final FilterChain chain) throws IOException, ServletException {
-        FilterUtils.chain((HttpServletRequest) req, (HttpServletResponse) resp, chain, cloister, glowworm, cortile);
+        ServletFilterUtils.chain((HttpServletRequest) req, (HttpServletResponse) resp, chain, cloister, glowworm, cortile);
     }
 
     @Override

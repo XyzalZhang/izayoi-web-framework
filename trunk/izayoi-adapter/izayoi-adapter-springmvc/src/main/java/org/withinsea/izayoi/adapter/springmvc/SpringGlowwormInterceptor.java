@@ -33,6 +33,7 @@ import org.withinsea.izayoi.glowworm.core.Glowworm;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -63,7 +64,7 @@ public class SpringGlowwormInterceptor extends HandlerInterceptorAdapter impleme
         if (glowworm == null) {
             glowworm = new Glowworm();
             glowworm.setConfigurator(new SpringGlowwormConfigurator(applicationContext));
-            glowworm.init(request.getSession().getServletContext(), configPath);
+            glowworm.init(request.getSession().getServletContext(), configPath, Collections.<String, String>emptyMap());
         }
 
         FlagChain chain = new FlagChain();

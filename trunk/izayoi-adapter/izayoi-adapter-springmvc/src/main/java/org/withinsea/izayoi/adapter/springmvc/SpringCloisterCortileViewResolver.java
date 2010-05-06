@@ -28,6 +28,7 @@ import org.withinsea.izayoi.cloister.core.Cloister;
 import org.withinsea.izayoi.cortile.core.Cortile;
 
 import javax.servlet.ServletContext;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -70,7 +71,7 @@ public class SpringCloisterCortileViewResolver extends SpringCortileViewResolver
         if (cloister == null) {
             cloister = new Cloister();
             cloister.setConfigurator(new SpringCloisterConfigurator(getApplicationContext()));
-            cloister.init(servletContext, configPath);
+            cloister.init(servletContext, configPath, Collections.<String, String>emptyMap());
         }
     }
 

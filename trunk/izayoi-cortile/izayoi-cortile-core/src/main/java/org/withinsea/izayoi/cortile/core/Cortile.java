@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core;
 
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
@@ -39,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -57,6 +59,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
         protected CompileManager compileManager;
         protected String templateSuffix;
         protected String encoding;
+        protected String bypass;
 
         protected String findTemplatePath(String requestPath) throws CortileException {
 
@@ -89,6 +92,11 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
             if (requestPath == null) requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = req.getServletPath();
+
+            if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
+                chain.doFilter(req, resp);
+                return;
+            }
 
             if (compileManager.isTemplate(requestPath)) {
                 resp.sendError(404);
@@ -135,6 +143,10 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
         public void setTemplateSuffix(String templateSuffix) {
             this.templateSuffix = templateSuffix;
         }
+
+        public void setBypass(String bypass) {
+            this.bypass = bypass;
+        }
     }
 
     // api
@@ -142,8 +154,9 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     protected Configurator configurator = new CortileConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath) {
-        dispatcher = ComponentContainer.get(servletContext, configPath, configurator).getComponent(Dispatcher.class);
+    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
+        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator, confOverrides);
+        dispatcher = container.getComponent(Dispatcher.class);
     }
 
     public String findTemplatePath(String requestPath) {
@@ -168,7 +181,9 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        init(config.getServletContext(), config.getInitParameter("config-path"));
+        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(config);
+        confOverrides.remove("config-path");
+        init(config.getServletContext(), config.getInitParameter("config-path"), confOverrides);
     }
 
     @Override
@@ -180,7 +195,9 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
+        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
+        confOverrides.remove("config-path");
+        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
     }
 
     @Override

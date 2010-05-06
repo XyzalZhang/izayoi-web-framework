@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core;
 
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
@@ -39,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -58,11 +60,17 @@ public class Glowworm implements Filter, Configurable {
         protected String outputFolder;
         protected String outputSuffix;
         protected String globalPrefix;
+        protected String bypass;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
             String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = req.getServletPath();
+
+            if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
+                chain.doFilter(req, resp);
+                return;
+            }
 
             if (invokeManager.isScript(requestPath)) {
                 resp.sendError(404);
@@ -128,6 +136,10 @@ public class Glowworm implements Filter, Configurable {
         public void setOutputSuffix(String outputSuffix) {
             this.outputSuffix = outputSuffix;
         }
+
+        public void setBypass(String bypass) {
+            this.bypass = bypass;
+        }
     }
 
     // api
@@ -135,8 +147,8 @@ public class Glowworm implements Filter, Configurable {
     protected Configurator configurator = new GlowwormConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath) {
-        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator);
+    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
+        ComponentContainer container = ComponentContainer.get(servletContext, configPath, configurator, confOverrides);
         dispatcher = container.getComponent(Dispatcher.class);
     }
 
@@ -153,11 +165,9 @@ public class Glowworm implements Filter, Configurable {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        try {
-            init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"));
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
+        confOverrides.remove("config-path");
+        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
     }
 
     @SuppressWarnings("unchecked")

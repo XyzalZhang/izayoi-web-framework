@@ -29,6 +29,7 @@ import org.picocontainer.behaviors.Behaviors;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 
 import javax.servlet.ServletContext;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -56,6 +57,10 @@ public class ComponentContainer extends DefaultPicoContainer {
     }
 
     public static ComponentContainer get(ServletContext servletContext, String configPath, Configurator configurator) {
+        return get(servletContext, configPath, configurator, Collections.<String, String>emptyMap());
+    }
+
+    public static ComponentContainer get(ServletContext servletContext, String configPath, Configurator configurator, Map<String, String> confOverrides) {
         try {
             @SuppressWarnings("unchecked")
             Map<String, ComponentContainer> containers = (Map<String, ComponentContainer>) servletContext.getAttribute(CONTAINERS_ATTR);
@@ -69,6 +74,7 @@ public class ComponentContainer extends DefaultPicoContainer {
                 Properties conf = new Properties();
                 {
                     configurator.loadConf(conf, servletContext, configPath);
+                    conf.putAll(confOverrides);
                 }
                 container = new ComponentContainer();
                 {
