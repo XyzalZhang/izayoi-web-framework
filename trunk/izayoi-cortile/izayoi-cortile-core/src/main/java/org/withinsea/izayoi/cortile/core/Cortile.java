@@ -25,23 +25,21 @@
 package org.withinsea.izayoi.cortile.core;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.Configurable;
 import org.withinsea.izayoi.core.conf.Configurator;
-import org.withinsea.izayoi.cortile.core.compile.CompileManager;
+import org.withinsea.izayoi.core.exception.IzayoiException;
+import org.withinsea.izayoi.core.scope.context.ContextScope;
+import org.withinsea.izayoi.core.scope.custom.Request;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import org.withinsea.izayoi.cortile.core.respond.RespondManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -54,98 +52,55 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
     public static class Dispatcher {
 
-        protected ServletContext servletContext;
-        protected CodeManager codeManager;
-        protected CompileManager compileManager;
-        protected String templateSuffix;
-        protected String encoding;
+        protected RespondManager respondManager;
+        protected ContextScope contextScope;
         protected String bypass;
 
-        protected String findTemplatePath(String requestPath) throws CortileException {
+        public void doDispatch(HttpServletRequest request, HttpServletResponse response, String requestPath, FilterChain chain) throws ServletException, IOException {
 
-            if (compileManager.isTemplate(requestPath)) {
-                return null;
-            }
-
-            Path parsedPath = new Path(requestPath);
-
-            String templateNameRegex = Pattern.quote(parsedPath.getName() + "." + templateSuffix + ".") + ".+";
-            List<String> templateNames = codeManager.listNames(parsedPath.getFolder(), templateNameRegex);
-            if (!templateNames.isEmpty()) {
-                if (templateNames.size() > 1) {
-                    throw new CortileException("Request on " + requestPath + " has ambiguous mirage templates.");
-                }
-                String templatePath = parsedPath.getFolder() + "/" + templateNames.get(0);
-                if (codeManager.exist(templatePath) && !codeManager.isFolder(templatePath)) {
-                    return templatePath;
-                }
-            }
-
-            if (codeManager.exist(requestPath) && !codeManager.isFolder(requestPath)) {
-                return requestPath;
-            }
-
-            return null;
-        }
-
-        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {
-
-            if (requestPath == null) requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
-            if (requestPath == null) requestPath = req.getServletPath();
+            if (requestPath == null)
+                requestPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            if (requestPath == null) requestPath = request.getServletPath();
 
             if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
-                chain.doFilter(req, resp);
+                chain.doFilter(request, response);
                 return;
             }
 
-            if (compileManager.isTemplate(requestPath)) {
-                resp.sendError(404);
+            if (respondManager.isResponder(requestPath)) {
+                response.sendError(404);
+                return;
+            }
+
+            Request scope = new Request(contextScope, request, response, chain);
+
+            String responderPath = respondManager.findResponderPath(requestPath, scope);
+            if (responderPath == null) {
+                if (chain != null) {
+                    chain.doFilter(request, response);
+                } else {
+                    response.sendError(404, requestPath);
+                }
                 return;
             }
 
             try {
-                String templatePath = findTemplatePath(requestPath);
-                if (templatePath != null) {
-                    String entrancePath = compileManager.update(templatePath, false);
-                    if (entrancePath.equals(requestPath)) {
-                        chain.doFilter(req, resp);
-                    } else {
-                        req.getRequestDispatcher(entrancePath).forward(req, resp);
-                        resp.setCharacterEncoding(encoding);
-                        resp.setContentType(servletContext.getMimeType(requestPath) + "; charset=" + encoding);
-                    }
-                } else if (chain != null) {
-                    chain.doFilter(req, resp);
-                } else {
-                    resp.sendError(404, requestPath);
-                }
-            } catch (CortileException e) {
+                respondManager.invoke(responderPath, scope);
+            } catch (IzayoiException e) {
                 throw new ServletException(e);
             }
         }
 
-        public void setCompileManager(CompileManager compileManager) {
-            this.compileManager = compileManager;
-        }
-
-        public void setServletContext(ServletContext servletContext) {
-            this.servletContext = servletContext;
-        }
-
-        public void setCodeManager(CodeManager codeManager) {
-            this.codeManager = codeManager;
-        }
-
-        public void setEncoding(String encoding) {
-            this.encoding = encoding;
-        }
-
-        public void setTemplateSuffix(String templateSuffix) {
-            this.templateSuffix = templateSuffix;
-        }
-
         public void setBypass(String bypass) {
             this.bypass = bypass;
+        }
+
+        public void setRespondManager(RespondManager respondManager) {
+            this.respondManager = respondManager;
+        }
+
+        public void setContextScope(ContextScope contextScope) {
+            this.contextScope = contextScope;
         }
     }
 
@@ -159,12 +114,8 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
         dispatcher = container.getComponent(Dispatcher.class);
     }
 
-    public String findTemplatePath(String requestPath) {
-        try {
-            return dispatcher.findTemplatePath(requestPath);
-        } catch (CortileException e) {
-            return null;
-        }
+    public boolean hasResponders(String requestPath) {
+        return dispatcher.respondManager.hasResponders(requestPath);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {

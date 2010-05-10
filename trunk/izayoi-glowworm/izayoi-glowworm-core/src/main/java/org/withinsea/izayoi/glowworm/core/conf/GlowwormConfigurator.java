@@ -41,10 +41,8 @@ public class GlowwormConfigurator extends IzayoiConfigurator {
 
         super.initComponents(container, conf);
 
-        container.addComponent("invokers", getComponentMap(container, conf, "invoker"));
-        container.addComponent("invokersOrder", getList(conf, "invokersOrder"));
-        container.addComponent("scopes", getComponentMap(container, conf, "scope"));
-        container.addComponent("scopesOrder", getList(conf, "scopesOrder"));
-        container.addComponent("invokeManager", getClass(conf, "invokeManager"));
+        container.addComponent("decorators", getComponentMap(container, conf, "decorator"));
+        container.addComponent("decoratorsOrder", getList(conf, "decoratorsOrder"));
+        container.addComponent("decorateManager", getClass(conf, "decorateManager"));
     }
 }

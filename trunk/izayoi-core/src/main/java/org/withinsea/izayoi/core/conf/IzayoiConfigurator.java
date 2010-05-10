@@ -45,14 +45,26 @@ public class IzayoiConfigurator implements Configurator {
 
     @Override
     public void initComponents(ComponentContainer container, Properties conf) throws Exception {
-
+        container.addComponent("mimeTypes", getPropertyMap(conf, "mimeType", true));
+        container.addComponent("contextScope", getClass(conf, "contextScope"));
         container.addComponent("codeManager", getClass(conf, "codeManager"));
-        container.addComponent("bindingsManager", getClass(conf, "bindingsManager"));
-
         container.addComponent("interpreters", getComponentMap(container, conf, "interpreter"));
         container.addComponent("interpretManager", getClass(conf, "interpretManager"));
+        container.addComponent("serializers", getComponentMap(container, conf, "serializer"));
+        container.addComponent("serializeManager", getClass(conf, "serializeManager"));
+    }
 
-        container.addComponent("contextScope", getClass(conf, "contextScope"));
+    protected Map<String, String> getPropertyMap(Properties conf, String typeName, boolean trim) throws Exception {
+        String prefix = typeName + ".";
+        Map<String, String> props = new LinkedHashMap<String, String>();
+        for (String propName : conf.stringPropertyNames()) {
+            if (propName.startsWith(prefix)) {
+                String name = propName.substring(prefix.length());
+                String value = conf.getProperty(propName);
+                props.put(name, trim ? value.trim() : value);
+            }
+        }
+        return props;
     }
 
     @SuppressWarnings("unchecked")

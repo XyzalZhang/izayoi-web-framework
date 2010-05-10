@@ -25,23 +25,25 @@
 package org.withinsea.izayoi.glowworm.core;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.Configurable;
 import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.core.exception.IzayoiException;
+import org.withinsea.izayoi.core.scope.Scope;
+import org.withinsea.izayoi.core.scope.context.ContextScope;
+import org.withinsea.izayoi.core.scope.custom.Application;
+import org.withinsea.izayoi.core.scope.custom.Request;
+import org.withinsea.izayoi.core.scope.custom.Session;
+import org.withinsea.izayoi.core.scope.custom.Singleton;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
-import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.invoke.InvokeManager;
+import org.withinsea.izayoi.glowworm.core.decorate.DecorateManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -54,26 +56,19 @@ public class Glowworm implements Filter, Configurable {
 
     public static class Dispatcher {
 
-        protected CodeManager codeManager;
-        protected InvokeManager invokeManager;
-        protected String appendantFolder;
+        protected DecorateManager decorateManager;
+        protected ContextScope contextScope;
         protected String outputFolder;
         protected String outputSuffix;
-        protected String globalPrefix;
         protected String bypass;
 
-        public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
+        public void doDispatch(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-            String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
-            if (requestPath == null) requestPath = req.getServletPath();
+            String requestPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            if (requestPath == null) requestPath = request.getServletPath();
 
             if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
-                chain.doFilter(req, resp);
-                return;
-            }
-
-            if (invokeManager.isScript(requestPath)) {
-                resp.sendError(404);
+                chain.doFilter(request, response);
                 return;
             }
 
@@ -84,49 +79,49 @@ public class Glowworm implements Filter, Configurable {
                     requestPath = requestPath.substring(0, i);
                 }
             }
-            Path parsedPath = new Path(requestPath);
+
+            if (decorateManager.isDecorator(requestPath)) {
+                response.sendError(404);
+                return;
+            }
 
             try {
 
-                List<String> scriptPaths = new ArrayList<String>();
-
-                String folder = appendantFolder;
-                for (String folderItem : parsedPath.getFolder().equals("/") ? new String[]{""} : parsedPath.getFolder().split("/")) {
-                    folder = folder + "/" + folderItem;
-                    for (String scriptName : codeManager.listNames(folder, Pattern.quote(globalPrefix) + ".*" + "\\.[^\\.]+\\.[^\\.]+$")) {
-                        scriptPaths.add(folder + "/" + scriptName);
+                Map<String, Scope> scopes = new LinkedHashMap<String, Scope>();
+                {
+                    scopes.put("singleton", new Singleton(contextScope));
+                    scopes.put("application", new Application(contextScope, request.getSession().getServletContext()));
+                    scopes.put("session", new Session(contextScope, request.getSession()));
+                    scopes.put("request", new Request(contextScope, request, response, chain));
+                }
+                for (Map.Entry<String, Scope> scopeE : scopes.entrySet()) {
+                    for (String decoratorPath : decorateManager.findScopedDecoratorPaths(scopeE.getKey(), scopeE.getValue())) {
+                        if (!decorateManager.invoke(decoratorPath, scopeE.getValue())) {
+                            break;
+                        }
                     }
                 }
-                for (String scriptName : codeManager.listNames(folder, Pattern.quote(parsedPath.getName()) + "\\.[^\\.]+\\.[^\\.]+$")) {
-                    scriptPaths.add(folder + "/" + scriptName);
+
+                Request scope = new Request(contextScope, request, response, chain);
+                for (String decoratorPath : decorateManager.findRequestDecoratorPaths(requestPath)) {
+                    if (!decorateManager.invoke(decoratorPath, scope)) {
+                        return;
+                    }
                 }
 
-                boolean toContinue = invokeManager.invoke(req, resp, scriptPaths);
-                if (!toContinue) {
-                    return;
-                }
+                chain.doFilter(request, response);
 
-                chain.doFilter(req, resp);
-
-            } catch (GlowwormException e) {
-                throw new ServletException(e);
+            } catch (IzayoiException e) {
+                throw new SecurityException(e);
             }
         }
 
-        public void setAppendantFolder(String appendantFolder) {
-            this.appendantFolder = appendantFolder;
+        public void setBypass(String bypass) {
+            this.bypass = bypass;
         }
 
-        public void setCodeManager(CodeManager codeManager) {
-            this.codeManager = codeManager;
-        }
-
-        public void setGlobalPrefix(String globalPrefix) {
-            this.globalPrefix = globalPrefix;
-        }
-
-        public void setInvokeManager(InvokeManager invokeManager) {
-            this.invokeManager = invokeManager;
+        public void setDecorateManager(DecorateManager decorateManager) {
+            this.decorateManager = decorateManager;
         }
 
         public void setOutputFolder(String outputFolder) {
@@ -137,8 +132,8 @@ public class Glowworm implements Filter, Configurable {
             this.outputSuffix = outputSuffix;
         }
 
-        public void setBypass(String bypass) {
-            this.bypass = bypass;
+        public void setContextScope(ContextScope contextScope) {
+            this.contextScope = contextScope;
         }
     }
 

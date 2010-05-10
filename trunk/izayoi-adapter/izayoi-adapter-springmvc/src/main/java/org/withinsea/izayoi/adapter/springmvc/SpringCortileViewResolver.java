@@ -48,8 +48,7 @@ public class SpringCortileViewResolver extends UrlBasedViewResolver implements A
         @Override
         public boolean checkResource(Locale locale) throws Exception {
             String url = getUrl();
-            return !((url.startsWith("redirect:") || url.startsWith("forward:"))) &&
-                    (cortile.findTemplatePath(url) != null);
+            return !((url.startsWith("redirect:") || url.startsWith("forward:"))) && cortile.hasResponders(url);
         }
 
         @Override

@@ -27,8 +27,8 @@ package org.withinsea.izayoi.cortile.core.conf;
 import org.withinsea.izayoi.commons.util.ClassUtils;
 import org.withinsea.izayoi.core.conf.ComponentContainer;
 import org.withinsea.izayoi.core.conf.IzayoiConfigurator;
-import org.withinsea.izayoi.cortile.core.compiler.el.ELHelper;
-import org.withinsea.izayoi.cortile.core.compiler.grammar.Grammar;
+import org.withinsea.izayoi.cortile.template.compiler.el.ELHelper;
+import org.withinsea.izayoi.cortile.template.compiler.grammar.Grammar;
 
 import java.io.IOException;
 import java.util.*;
@@ -45,12 +45,12 @@ public class CortileConfigurator extends IzayoiConfigurator {
 
         super.initComponents(container, conf);
 
-        container.addComponent("elScope", getClass(conf, "elScope"));
         container.addComponent("elHelper", ELHelper.class);
-
         container.addComponent("grammars", getGrammarMap(container, conf));
         container.addComponent("compilers", getComponentMap(container, conf, "compiler"));
         container.addComponent("compileManager", getClass(conf, "compileManager"));
+        container.addComponent("responders", getComponentMap(container, conf, "responder"));
+        container.addComponent("respondManager", getClass(conf, "respondManager"));
     }
 
     protected Map<String, Set<Grammar>> getGrammarMap(ComponentContainer container, Properties conf) throws Exception {

@@ -78,4 +78,19 @@ public class ServletFilterUtils {
         }
         return false;
     }
+
+    public static boolean matchContentType(String mimeType, String contentType) {
+        if (contentType == null || contentType.equals("")) {
+            return false;
+        } else if (mimeType == null || mimeType.equals("")) {
+            return true;
+        } else {
+            for (String ctItem : contentType.trim().split("[,;\\s]+")) {
+                if (ctItem.indexOf("/") >= 0 && mimeType.matches(ctItem.replace("*", ".+"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

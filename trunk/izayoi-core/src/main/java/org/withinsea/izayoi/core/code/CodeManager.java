@@ -46,4 +46,6 @@ public interface CodeManager {
     void update(String path, String code);
 
     boolean delete(String path);
+
+    String getMimeType(String extName);
 }

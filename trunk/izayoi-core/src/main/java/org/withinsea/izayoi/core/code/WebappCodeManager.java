@@ -30,6 +30,7 @@ import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -38,8 +39,10 @@ import java.util.List;
  */
 public class WebappCodeManager implements CodeManager {
 
-    protected File webroot;
+    protected ServletContext servletContext;
     protected String encoding;
+    protected Map<String, String> mimeTypes;
+    protected File webroot;
 
     @Override
     public List<String> listNames(String folderPath) {
@@ -85,11 +88,24 @@ public class WebappCodeManager implements CodeManager {
         return new FileCode(webroot, path, encoding).getFile().delete();
     }
 
+    @Override
+    public String getMimeType(String extName) {
+        extName = (extName == null) ? "" : extName;
+        String mimeType = servletContext.getMimeType("f." + extName);
+        if (mimeType == null) mimeType = mimeTypes.get(extName);
+        return mimeType;
+    }
+
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
     public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
         this.webroot = new File(servletContext.getRealPath("/").replace("%20", " "));
+    }
+
+    public void setMimeTypes(Map<String, String> mimeTypes) {
+        this.mimeTypes = mimeTypes;
     }
 }

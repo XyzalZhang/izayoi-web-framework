@@ -1,10 +1,7 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.core.bindings.scope.DefaultContextScope;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.withinsea.izayoi.core.scope.context.DefaultContextScope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -17,9 +14,9 @@ public class SpringContextScope extends DefaultContextScope {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getBean(HttpServletRequest request, HttpServletResponse response, String name) {
+    public <T> T getBean(String name) {
         Object obj = lookupSpring(name);
-        if (obj == null) obj = super.getBean(request, response, name);
+        if (obj == null) obj = super.getBean(name);
         return (T) obj;
     }
 

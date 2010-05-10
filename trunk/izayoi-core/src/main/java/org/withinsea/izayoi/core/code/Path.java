@@ -10,8 +10,13 @@ public class Path {
     protected final String path;
     protected final String folder;
     protected final String name;
-    protected final String role;
     protected final String type;
+
+    protected boolean appendant;
+    protected final String mainName;
+    protected final String mainType;
+    protected final String appendantRole;
+    protected final String appendantType;
 
     public Path(String path) {
 
@@ -21,12 +26,36 @@ public class Path {
         this.name = path.replaceAll(".*/", "");
 
         String[] split = name.split("\\.");
-        this.role = (split.length < 2) ? "" : split[split.length - 2];
-        this.type = (split.length < 1) ? "" : split[split.length - 1];
+        this.type = split.length > 1 ? split[split.length - 1] : "";
+        this.appendant = split.length > 2;
+        this.appendantRole = appendant ? split[split.length - 2] : "";
+        this.appendantType = appendant ? split[split.length - 1] : "";
+        this.mainName = appendant ? name.substring(0, name.length() - appendantRole.length() - appendantType.length() - 2) : name;
+        this.mainType = appendant ? (split.length > 3 ? split[split.length - 3] : "") : (split.length > 1 ? split[split.length - 1] : "");
+    }
+
+    public boolean isAppendant() {
+        return appendant;
+    }
+
+    public String getAppendantRole() {
+        return appendantRole;
+    }
+
+    public String getAppendantType() {
+        return appendantType;
     }
 
     public String getFolder() {
         return folder;
+    }
+
+    public String getMainName() {
+        return mainName;
+    }
+
+    public String getMainType() {
+        return mainType;
     }
 
     public String getName() {
@@ -35,10 +64,6 @@ public class Path {
 
     public String getPath() {
         return path;
-    }
-
-    public String getRole() {
-        return role;
     }
 
     public String getType() {

@@ -24,6 +24,8 @@
 
 package org.withinsea.izayoi.commons.util;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,13 +99,17 @@ public class StringUtils {
     }
 
     public static String join(String splitter, String... strs) {
-        if (strs.length == 0) {
+        return join(splitter, Arrays.asList(strs));
+    }
+
+    public static String join(String splitter, Collection<String> strs) {
+        if (strs.size() == 0) {
             return "";
         }
-        StringBuffer buf = new StringBuffer(strs[0]);
-        for (int i = 1; i < strs.length; i++) {
-            buf.append(splitter).append(strs[i]);
+        StringBuffer buf = new StringBuffer();
+        for (String str : strs) {
+            buf.append(str).append(splitter);
         }
-        return buf.toString();
+        return buf.substring(0, buf.length() - splitter.length());
     }
 }
