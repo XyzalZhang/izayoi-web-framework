@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.core.interpreter;
 
+import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
 import javax.script.Bindings;
@@ -36,4 +37,6 @@ import javax.script.Bindings;
 public interface Interpreter {
 
     <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException;
+
+    <T> T interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException;
 }

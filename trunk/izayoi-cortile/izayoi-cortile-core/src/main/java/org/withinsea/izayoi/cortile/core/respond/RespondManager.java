@@ -25,7 +25,8 @@
 package org.withinsea.izayoi.cortile.core.respond;
 
 import org.withinsea.izayoi.core.invoke.InvokeManager;
-import org.withinsea.izayoi.core.scope.custom.Request;
+
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -36,7 +37,5 @@ public interface RespondManager extends InvokeManager {
 
     boolean isResponder(String codePath);
 
-    boolean hasResponders(String requestPath);
-
-    String findResponderPath(String requestPath, Request scope);
+    List<String> findResponderPaths(String requestPath);
 }

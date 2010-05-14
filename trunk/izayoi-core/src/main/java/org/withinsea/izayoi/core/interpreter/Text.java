@@ -33,7 +33,7 @@ import javax.script.Bindings;
  * Date: 2010-3-4
  * Time: 13:59:24
  */
-public class Text implements Interpreter {
+public class Text extends InlineInterpreter implements Interpreter {
 
     @Override
     @SuppressWarnings("unchecked")

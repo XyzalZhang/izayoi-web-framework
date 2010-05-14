@@ -1,3 +1,27 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF
+ *
+ * ANY KIND, either express or implied. See the License for the specific language governing rights and
+ *
+ * limitations under the License.
+ *
+ * The Original Code is the IZAYOI web framework.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ *   Mo Chen <withinsea@gmail.com>
+ *
+ * Portions created by the Initial Developer are Copyright (C) 2009-2010
+ * the Initial Developer. All Rights Reserved.
+ */
+
 package org.withinsea.izayoi.cortile.core.responder;
 
 import org.withinsea.izayoi.core.code.CodeManager;
@@ -31,29 +55,44 @@ public class Template implements Invoker<Request> {
         FilterChain chain = scope.getChain();
 
         String entrancePath = compileManager.update(codePath, false);
-        try {
-            if (!entrancePath.equals(codePath)) {
-                response.setCharacterEncoding(encoding);
-                String mimeType = codeManager.getMimeType(new Path(codePath).getMainType());
-                if (mimeType != null) {
-                    response.setContentType(mimeType + "; charset=" + encoding);
-                }
-                request.getRequestDispatcher(entrancePath).forward(request, response);
-                if (mimeType != null) {
-                    response.setContentType(mimeType + "; charset=" + encoding);
-                }
-            } else {
-                if (chain != null) {
-                    chain.doFilter(request, response);
-                } else {
-                    response.sendError(404, codePath);
-                }
-            }
-        } catch (Exception e) {
-            throw new CortileException(e);
-        }
 
-        return false;
+        if (!entrancePath.equals(codePath)) {
+
+            response.setCharacterEncoding(encoding);
+
+            Path parsedPath = new Path(codePath);
+            String mimeType = codeManager.getMimeType(parsedPath.getMainType());
+            if (mimeType == null) mimeType = codeManager.getMimeType(parsedPath.getType());
+            if (mimeType != null) {
+                response.setContentType(mimeType + "; charset=" + encoding);
+            }
+
+            try {
+                request.getRequestDispatcher(entrancePath).forward(request, response);
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+
+            if (mimeType != null) {
+                response.setContentType(mimeType + "; charset=" + encoding);
+            }
+
+            return true;
+
+        } else if (chain != null) {
+
+            try {
+                chain.doFilter(request, response);
+            } catch (Exception e) {
+                throw new CortileException(e);
+            }
+
+            return true;
+
+        } else {
+
+            return false;
+        }
     }
 
     public void setCompileManager(CompileManager compileManager) {

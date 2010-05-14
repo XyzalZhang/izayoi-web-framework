@@ -68,15 +68,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
             }
 
             if (respondManager.isResponder(requestPath)) {
-                response.sendError(404);
-                return;
-            }
-
-            Request scope = new Request(contextScope, request, response, chain);
-
-            String responderPath = respondManager.findResponderPath(requestPath, scope);
-            if (responderPath == null) {
-                if (chain != null) {
+                if (chain != null && (ServletFilterUtils.isIncluded(request) || ServletFilterUtils.isForwarded(request))) {
                     chain.doFilter(request, response);
                 } else {
                     response.sendError(404, requestPath);
@@ -84,10 +76,22 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                 return;
             }
 
+            Request scope = new Request(contextScope, request, response, chain);
+
             try {
-                respondManager.invoke(responderPath, scope);
+                for (String responderPath : respondManager.findResponderPaths(requestPath)) {
+                    if (respondManager.invoke(responderPath, scope)) {
+                        return;
+                    }
+                }
             } catch (IzayoiException e) {
                 throw new ServletException(e);
+            }
+
+            if (chain != null) {
+                chain.doFilter(request, response);
+            } else {
+                response.sendError(404, requestPath);
             }
         }
 
@@ -115,7 +119,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     }
 
     public boolean hasResponders(String requestPath) {
-        return dispatcher.respondManager.hasResponders(requestPath);
+        return !dispatcher.respondManager.findResponderPaths(requestPath).isEmpty();
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {

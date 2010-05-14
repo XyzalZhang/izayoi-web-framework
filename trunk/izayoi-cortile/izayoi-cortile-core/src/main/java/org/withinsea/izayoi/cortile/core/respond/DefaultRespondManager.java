@@ -1,12 +1,34 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF
+ *
+ * ANY KIND, either express or implied. See the License for the specific language governing rights and
+ *
+ * limitations under the License.
+ *
+ * The Original Code is the IZAYOI web framework.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ *   Mo Chen <withinsea@gmail.com>
+ *
+ * Portions created by the Initial Developer are Copyright (C) 2009-2010
+ * the Initial Developer. All Rights Reserved.
+ */
+
 package org.withinsea.izayoi.cortile.core.respond;
 
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.invoke.ScopeInvokeManager;
+import org.withinsea.izayoi.core.invoke.DefaultInvokeManager;
 import org.withinsea.izayoi.core.invoker.Invoker;
-import org.withinsea.izayoi.core.scope.custom.Request;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +39,10 @@ import java.util.regex.Pattern;
  * Date: 2010-5-7
  * Time: 15:45:39
  */
-public class DefaultRespondManager extends ScopeInvokeManager implements RespondManager {
+public class DefaultRespondManager extends DefaultInvokeManager implements RespondManager {
 
-    protected Map<String, String> mimeTypes;
     protected Map<String, Invoker> responders;
+    protected List<String> respondersOrder;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -37,24 +59,7 @@ public class DefaultRespondManager extends ScopeInvokeManager implements Respond
     }
 
     @Override
-    public boolean hasResponders(String requestPath) {
-        return !findResponderPaths(requestPath).isEmpty();
-    }
-
-    @Override
-    public String findResponderPath(String requestPath, Request scope) {
-
-        HttpServletRequest request = scope.getRequest();
-
-        List<String> responderPaths = findResponderPaths(requestPath);
-        if (responderPaths.isEmpty()) {
-            return null;
-        }
-
-        return responderPaths.get(0);
-    }
-
-    protected List<String> findResponderPaths(String requestPath) {
+    public List<String> findResponderPaths(String requestPath) {
 
         List<String> responderPaths = new ArrayList<String>();
 
@@ -62,7 +67,7 @@ public class DefaultRespondManager extends ScopeInvokeManager implements Respond
         String standinNameRegex = Pattern.quote(parsedPath.getName())
                 + "\\.(" + StringUtils.join("|", responders.keySet()) + ")"
                 + "\\.[^\\.]+$";
-        for (String standinName : codeManager.listNames(parsedPath.getFolder(), standinNameRegex)) {
+        for (String standinName : sort(codeManager.listNames(parsedPath.getFolder(), standinNameRegex))) {
             responderPaths.add(parsedPath.getFolder() + "/" + standinName);
         }
 
@@ -73,11 +78,16 @@ public class DefaultRespondManager extends ScopeInvokeManager implements Respond
         return responderPaths;
     }
 
+    @Override
+    protected List<String> getInvokersOrder() {
+        return respondersOrder;
+    }
+
     public void setResponders(Map<String, Invoker> responders) {
         this.responders = responders;
     }
 
-    public void setMimeTypes(Map<String, String> mimeTypes) {
-        this.mimeTypes = mimeTypes;
+    public void setRespondersOrder(List<String> respondersOrder) {
+        this.respondersOrder = respondersOrder;
     }
 }

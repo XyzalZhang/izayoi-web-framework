@@ -22,27 +22,22 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.interpreter;
+package org.withinsea.izayoi.glowworm.core.decorator;
 
-import org.withinsea.izayoi.commons.js.JSUtils;
 import org.withinsea.izayoi.core.exception.IzayoiException;
-
-import javax.script.Bindings;
+import org.withinsea.izayoi.core.invoker.DelegateInvoker;
+import org.withinsea.izayoi.core.scope.Scope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 13:59:24
+ * Date: 2010-5-14
+ * Time: 13:48:45
  */
-public class JSON extends InlineInterpreter implements Interpreter {
+public class DelegatedDecorator<S extends Scope> extends DelegateInvoker<S> {
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
-        try {
-            return (T) JSUtils.json2java(script);
-        } catch (Exception e) {
-            throw new IzayoiException(e);
-        }
+    public boolean invoke(String codePath, S scope) throws IzayoiException {
+        super.invoke(codePath, scope);
+        return false;
     }
 }

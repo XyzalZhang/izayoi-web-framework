@@ -24,25 +24,22 @@
 
 package org.withinsea.izayoi.core.interpreter;
 
-import org.withinsea.izayoi.commons.js.JSUtils;
+import org.withinsea.izayoi.core.code.Code;
+import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
 import javax.script.Bindings;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 13:59:24
+ * Date: 2010-5-14
+ * Time: 6:33:12
  */
-public class JSON extends InlineInterpreter implements Interpreter {
+public abstract class InlineInterpreter implements Interpreter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
-        try {
-            return (T) JSUtils.json2java(script);
-        } catch (Exception e) {
-            throw new IzayoiException(e);
-        }
+    public <T> T interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
+        return (T) interpret(code.getCode(), new Path(code.getPath()).getType(), bindings, importedClasses);
     }
 }

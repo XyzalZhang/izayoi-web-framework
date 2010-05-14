@@ -43,11 +43,11 @@ import java.util.Set;
  */
 public abstract class DOMCompiler implements GrammarCompiler {
 
+    public static final String ANONYMOUS_TAG_NAME = "ANONYMOUS";
 
     // grammar
 
     protected Map<String, Set<Grammar>> grammars;
-    public static final String ANONYMOUS_TAG_NAME = "ANONYMOUS";
 
     @Override
     public void setGrammars(Map<String, Set<Grammar>> grammars) {

@@ -67,7 +67,7 @@ public class DefaultInterpretManager implements InterpretManager {
         String type = parsedPath.getType();
         Interpreter interpreter = interpreters.get(interpreters.containsKey(type) ? type : "default");
         if (!(interpreter instanceof CompilableInterpreter)) {
-            return interpreter.interpret(code.getCode(), type, bindings, importedClasses);
+            return interpreter.interpret(code, bindings, importedClasses);
         }
 
         String key = parsedPath.getPath();
@@ -84,7 +84,7 @@ public class DefaultInterpretManager implements InterpretManager {
             return compiledInterpreter.interpret(bindings);
         }
 
-        return interpreter.interpret(code.getCode(), type, bindings, importedClasses);
+        return interpreter.interpret(code, bindings, importedClasses);
     }
 
     public void setInterpreters(Map<String, Interpreter> interpreters) {

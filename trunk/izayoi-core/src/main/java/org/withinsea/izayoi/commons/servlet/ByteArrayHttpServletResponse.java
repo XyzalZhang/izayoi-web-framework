@@ -30,6 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -40,15 +41,10 @@ import java.util.*;
  * Date: 2009-12-25
  * Time: 16:37:49
  */
-public class MockHttpServletResponse implements HttpServletResponse {
+public class ByteArrayHttpServletResponse implements HttpServletResponse {
 
-    protected static final ServletOutputStream NUL_OS = new ServletOutputStream() {
-        @Override
-        public void write(int b) throws IOException {
-        }
-    };
-
-    protected static final PrintWriter NUL_WRITER = new PrintWriter(NUL_OS);
+    protected final ByteArrayServletOutputStream buffer = new ByteArrayServletOutputStream();
+    protected PrintWriter bufferWriter;
 
     protected int status = 200;
     protected String charset = "UTF-8";
@@ -64,6 +60,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
         }
     };
 
+    public byte[] getContent() {
+        return buffer.toByteArray();
+    }
+
     @Override
     public String getCharacterEncoding() {
         return charset;
@@ -76,12 +76,15 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return NUL_OS;
+        return buffer;
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
-        return NUL_WRITER;
+    public synchronized PrintWriter getWriter() throws IOException {
+        if (bufferWriter == null) {
+            bufferWriter = new PrintWriter(new OutputStreamWriter(buffer, this.getCharacterEncoding()));
+        }
+        return bufferWriter;
     }
 
     @Override

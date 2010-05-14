@@ -54,7 +54,7 @@ public class ByContent implements AttrGrammar<HTMLCompiler> {
 
     @Override
     @SuppressWarnings("unchecked")
-    @Priority(50)
+    @Priority(99)
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String prefix = attr.getNamespacePrefix();
         List<Attribute> attrs = new ArrayList<Attribute>((List<Attribute>) elem.attributes());

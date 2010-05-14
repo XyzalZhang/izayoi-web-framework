@@ -33,7 +33,7 @@ import javax.script.*;
  * Date: 2010-3-4
  * Time: 13:59:24
  */
-public class JSR223 implements Interpreter, CompilableInterpreter {
+public class JSR223 extends InlineInterpreter implements Interpreter, CompilableInterpreter {
 
     @Override
     @SuppressWarnings("unchecked")

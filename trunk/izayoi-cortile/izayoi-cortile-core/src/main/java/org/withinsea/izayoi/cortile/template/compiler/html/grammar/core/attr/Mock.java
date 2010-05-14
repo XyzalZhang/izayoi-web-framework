@@ -50,7 +50,7 @@ public class Mock implements AttrGrammar<HTMLCompiler> {
 
     @Override
     @SuppressWarnings("unchecked")
-    @Priority(99)
+    @Priority(50)
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String mockType = attr.getValue();

@@ -67,11 +67,6 @@ public class Glowworm implements Filter, Configurable {
             String requestPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = request.getServletPath();
 
-            if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
-                chain.doFilter(request, response);
-                return;
-            }
-
             if (requestPath.startsWith(outputFolder)) {
                 requestPath = requestPath.substring(outputFolder.length());
                 int i = requestPath.lastIndexOf("." + outputSuffix);
@@ -80,8 +75,17 @@ public class Glowworm implements Filter, Configurable {
                 }
             }
 
+            if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {
+                chain.doFilter(request, response);
+                return;
+            }
+
             if (decorateManager.isDecorator(requestPath)) {
-                response.sendError(404);
+                if (chain != null && (ServletFilterUtils.isIncluded(request) || ServletFilterUtils.isForwarded(request))) {
+                    chain.doFilter(request, response);
+                } else {
+                    response.sendError(404, requestPath);
+                }
                 return;
             }
 

@@ -24,25 +24,52 @@
 
 package org.withinsea.izayoi.core.interpreter;
 
-import org.withinsea.izayoi.commons.js.JSUtils;
+import org.withinsea.izayoi.commons.servlet.ByteArrayHttpServletResponse;
+import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
 import javax.script.Bindings;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-3-4
- * Time: 13:59:24
+ * Date: 2010-5-14
+ * Time: 6:16:04
  */
-public class JSON extends InlineInterpreter implements Interpreter {
+public class JSP implements Interpreter {
+
+    protected String encoding;
+
+    @Override
+    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T interpret(String script, String asType, Bindings bindings, String... importedClasses) throws IzayoiException {
+    public String interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
+
+        HttpServletRequest request = (HttpServletRequest) bindings.get("request");
+        HttpServletResponse response = (HttpServletResponse) bindings.get("response");
+
+        if (request == null || response == null) {
+            return null;
+        }
+
         try {
-            return (T) JSUtils.json2java(script);
+            request.getRequestDispatcher(code.getPath()).forward(request, response);
+            if (response instanceof ByteArrayHttpServletResponse) {
+                return new String(((ByteArrayHttpServletResponse) response).getContent(), encoding);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             throw new IzayoiException(e);
         }
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 }

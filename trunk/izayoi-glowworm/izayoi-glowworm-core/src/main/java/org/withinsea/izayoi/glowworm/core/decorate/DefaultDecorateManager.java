@@ -1,14 +1,40 @@
+/*
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF
+ *
+ * ANY KIND, either express or implied. See the License for the specific language governing rights and
+ *
+ * limitations under the License.
+ *
+ * The Original Code is the IZAYOI web framework.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ *   Mo Chen <withinsea@gmail.com>
+ *
+ * Portions created by the Initial Developer are Copyright (C) 2009-2010
+ * the Initial Developer. All Rights Reserved.
+ */
+
 package org.withinsea.izayoi.glowworm.core.decorate;
 
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.invoke.ScopeInvokeManager;
+import org.withinsea.izayoi.core.invoke.DefaultInvokeManager;
 import org.withinsea.izayoi.core.invoker.Invoker;
 import org.withinsea.izayoi.core.scope.Scope;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 
@@ -17,7 +43,7 @@ import java.util.regex.Pattern;
  * Date: 2010-5-9
  * Time: 5:57:19
  */
-public class DefaultDecorateManager extends ScopeInvokeManager implements DecorateManager {
+public class DefaultDecorateManager extends DefaultInvokeManager implements DecorateManager {
 
     protected String appendantFolder;
     protected String globalPrefix;
@@ -95,20 +121,9 @@ public class DefaultDecorateManager extends ScopeInvokeManager implements Decora
         return false;
     }
 
-    protected List<String> sort(Collection<String> names) {
-        List<String> sorted = new ArrayList<String>(names);
-        Collections.sort(sorted, new Comparator<String>() {
-            @Override
-            public int compare(String p1, String p2) {
-                return getPriority(p2) - getPriority(p1);
-            }
-        });
-        return sorted;
-    }
-
-    protected int getPriority(String name) {
-        String type = new Path(name).getAppendantRole();
-        return decoratorsOrder.contains(type) ? decoratorsOrder.indexOf(type) : Integer.MIN_VALUE;
+    @Override
+    protected List<String> getInvokersOrder() {
+        return decoratorsOrder;
     }
 
     public void setDecorators(Map<String, Invoker> decorators) {
