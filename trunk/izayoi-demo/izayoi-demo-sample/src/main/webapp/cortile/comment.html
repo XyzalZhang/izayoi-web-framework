@@ -1,0 +1,58 @@
+<!--
+  ~ The contents of this file are subject to the Mozilla Public License
+  ~ Version 1.1 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS"
+  ~ basis, WITHOUT WARRANTY OF
+  ~
+  ~ ANY KIND, either express or implied. See the License for the specific language governing rights and
+  ~
+  ~ limitations under the License.
+  ~
+  ~ The Original Code is the IZAYOI web framework.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~
+  ~   Mo Chen <withinsea@gmail.com>
+  ~
+  ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
+  ~ the Initial Developer. All Rights Reserved.
+  -->
+<!--@imports java.util.* -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Cortile Comment Grammars</title>
+</head>
+<body>
+    <ol>
+        <li><h2>JSP Fragment Comment</h2>
+            <!--= <p><%= "OK" %></p> -->
+        </li>
+        <li><h2>Scriptlet Comment</h2>
+            <!--%= "OK" %-->
+        </li>
+        <li><h2>"JSP Comment" Comment</h2>
+            Nothing Here: <!--// This comment will not be output, too.  -->
+        </li>
+        <li><h2>ELScript Comment</h2>
+            6*7 = <!--$= 6*7 -->
+        </li>
+        <li><h2>Imports Comment</h2>
+            a map: <!--%= new HashMap() %-->
+        </li>
+        <li><h2>Range Comment</h2>
+            two elements will be all replaced:
+            <!--<c:content="REPLACED"-->
+            <p>P1</p>
+
+            <p>P2</p>
+            <!--</-->
+        </li>
+    </ol>
+</body>
+</html>
