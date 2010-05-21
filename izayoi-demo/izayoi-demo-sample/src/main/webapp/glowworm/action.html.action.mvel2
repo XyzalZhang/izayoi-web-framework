@@ -1,0 +1,10 @@
+return [
+
+    [
+        "injectedObject": new java.util.Date()
+    ],
+
+
+    "forward: action-target.html"
+
+];

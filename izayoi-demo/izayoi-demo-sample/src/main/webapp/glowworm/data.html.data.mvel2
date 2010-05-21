@@ -1,0 +1,3 @@
+return [
+    "injectedObject": new java.util.Date()
+];

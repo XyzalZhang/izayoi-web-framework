@@ -1,0 +1,96 @@
+<!--
+  ~ The contents of this file are subject to the Mozilla Public License
+  ~ Version 1.1 (the "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.mozilla.org/MPL/
+  ~
+  ~ Software distributed under the License is distributed on an "AS IS"
+  ~ basis, WITHOUT WARRANTY OF
+  ~
+  ~ ANY KIND, either express or implied. See the License for the specific language governing rights and
+  ~
+  ~ limitations under the License.
+  ~
+  ~ The Original Code is the IZAYOI web framework.
+  ~
+  ~ The Initial Developer of the Original Code is
+  ~
+  ~   Mo Chen <withinsea@gmail.com>
+  ~
+  ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
+  ~ the Initial Developer. All Rights Reserved.
+  -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Cortile Attr Grammars</title>
+</head>
+<body>
+    <ol>
+        <li><h2>Def, Call & Set</h2>
+
+            <div c:set.f="${new java.io.File(application.getRealPath('/'))}">
+                <h3 c:content="[${f.name}]">[BASE]</h3>
+                <ul c:def="dir">
+                    <li c:for.f="f.listFiles()">
+                        <div c:if="f.isDirectory()">
+                            <span c:content="[${f.name}]">[DIR]</span>
+                            <ul c:call="dir"></ul>
+                        </div>
+                        <div c:if="!f.isDirectory()">
+                            <span c:content="${f.name}">file</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li><h2>For Iteration & Content Attr</h2>
+            <ul>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li c:for.i="${[ 'A', 'B', 'C', 'D' ]}" c:for-status.i="istat" c:mock="neighbors">
+                    <h3>i = <span c:content="[${i}]">[I]</span></h3>
+                    <ul c:with="istat">
+                        <li>i_status.idx = <span c:content="${idx}">0</span></li>
+                        <li>i_status.odd = <span c:content="${odd}">false</span></li>
+                        <li>i_status.even = <span c:content="${even}">true</span></li>
+                    </ul>
+                </li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+                <li>LI</li>
+            </ul>
+        </li>
+        <li><h2>Content For Iteration</h2>
+            <ul c:for-content.i="${[ 'A', 'B', 'C', 'D' ]}" c:for-status.i="istat" c:with="istat">
+                <li c:mock="neighbors">
+                    <h3>i = <span c:content="[${i}]">[I]</span></h3>
+                    <ul>
+                        <li>i_status.idx = <span c:content="${idx}">0</span></li>
+                        <li>i_status.odd = <span c:content="${odd}">false</span></li>
+                        <li>i_status.even = <span c:content="${even}">true</span></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li><h2>If</h2>
+            no output: <span c:if="1>2">WRONG</span>
+        </li>
+        <li><h2>If Content</h2>
+            no output in content: <span c:if-content="1>2">WRONG</span>
+        </li>
+        <li><h2>Mock</h2>
+            no output: <span c:mock>NOTHING</span>
+        </li>
+        <li><h2>Attr</h2>
+            strong: <span c:attr.style="font-weight:bold">Text</span>
+        </li>
+    </ol>
+</body>
+</html>

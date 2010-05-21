@@ -81,7 +81,7 @@ public class Cloister implements Filter, Configurable {
                 return;
             }
 
-            if (codeManager.isFolder(templateRequestPath) && !templateRequestPath.endsWith("/")
+            if (codeManager.isFolder(templateRequestPath) && !requestPath.endsWith("/")
                     && !isMappedServlet(req.getSession().getServletContext(), templateRequestPath)) {
                 resp.sendRedirect(req.getSession().getServletContext().getContextPath() + requestPath + "/");
                 return;
@@ -121,13 +121,20 @@ public class Cloister implements Filter, Configurable {
                 return path;
             } else {
                 String match = matchPathTemplate(pathVariables, "/", path);
-                return (match == null) ? null : match.replaceAll("/+", "/");
+                if (match == null) {
+                    return null;
+                } else {
+                    if (path.endsWith("/") && !match.endsWith("/")) {
+                        match += "/";
+                    }
+                    return match.replaceAll("/+", "/");
+                }
             }
         }
 
         protected String matchPathTemplate(Map<String, String> pathVariables, String folder, String path) {
 
-            path = path.replaceAll("^/+", "");
+            path = path.replaceAll("^/+", "").replaceAll("/+", "/");
             if (path.equals("")) {
                 return folder;
             }
@@ -188,7 +195,7 @@ public class Cloister implements Filter, Configurable {
                     }
 
                     if (codeManager.isFolder(folder + "/" + codeName) || codeManager.isFolder(appendantFolder + folder + "/" + codeName)) {
-                        return matchPathTemplate(pathVariables, folder + "/" + codeName, path.substring(codeName.length()));
+                        return matchPathTemplate(pathVariables, folder + "/" + codeName, path.substring(pathName.length()));
                     } else {
                         return folder + "/" + codeName;
                     }
