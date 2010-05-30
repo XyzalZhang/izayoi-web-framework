@@ -49,8 +49,8 @@ public class IzayoiConfigurator implements Configurator {
         container.addComponent("mimeTypes", getPropertyMap(conf, "mimeType", true));
         container.addComponent("codeManager", getClass(conf, "codeManager"));
 
-        container.addComponent("globalContext", getClass(conf, "globalContext"));
-        container.addComponent("beanContextManager", getClass(conf, "beanContextManager"));
+        container.addComponent("globalScope", getClass(conf, "globalScope"));
+        container.addComponent("scopeManager", getClass(conf, "scopeManager"));
 
         container.addComponent("interpreters", getComponentMap(container, conf, "interpreter"));
         container.addComponent("defaultInterpreters", getComponentList(container, conf, "defaultInterpreters"));

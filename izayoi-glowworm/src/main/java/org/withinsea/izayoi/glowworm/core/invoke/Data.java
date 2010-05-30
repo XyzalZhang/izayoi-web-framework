@@ -24,7 +24,6 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.core.context.BeanContext;
 import org.withinsea.izayoi.core.context.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
@@ -46,10 +45,8 @@ public class Data<S extends Scope> extends ResultInvoker<S> {
     @SuppressWarnings("unchecked")
     protected boolean processResult(Object result, String codePath, S scope) throws GlowwormException {
 
-        BeanContext beanContext = beanContextManager.getContext(scope);
-
         for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
-            beanContext.setBean(e.getKey(), e.getValue());
+            scope.setBean(e.getKey(), e.getValue());
         }
 
         return true;

@@ -26,7 +26,8 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.context.*;
+import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.core.context.ScopeManager;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
@@ -39,15 +40,13 @@ import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 public class Servlet implements Invoker<Request> {
 
     protected CodeManager codeManager;
-    protected BeanContextManager beanContextManager;
+    protected ScopeManager scopeManager;
     protected InterpretManager interpretManager;
 
     @Override
     public boolean invoke(String codePath, Request scope) throws GlowwormException {
 
-        BeanContext beanContext = beanContextManager.getContext(scope);
-
-        Varstack bindings = new Varstack(BeanContextUtils.getBindings(beanContext));
+        Varstack bindings = scopeManager.createVarstack(scope);
 
         try {
             interpretManager.interpret(codeManager.get(codePath), bindings);
@@ -66,7 +65,7 @@ public class Servlet implements Invoker<Request> {
         this.interpretManager = interpretManager;
     }
 
-    public void setBeanContextManager(BeanContextManager beanContextManager) {
-        this.beanContextManager = beanContextManager;
+    public void setScopeManager(ScopeManager scopeManager) {
+        this.scopeManager = scopeManager;
     }
 }

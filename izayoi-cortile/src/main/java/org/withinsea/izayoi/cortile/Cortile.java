@@ -30,11 +30,9 @@ import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.conf.Configurable;
 import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.core.conf.IzayoiContainer;
-import org.withinsea.izayoi.core.context.BeanContextManager;
-import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.cortile.core.compile.CompileManager;
 import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.compile.CompileManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -54,7 +52,6 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
     public static class Dispatcher {
 
-        protected BeanContextManager beanContextManager;
         protected CompileManager compileManager;
         protected CodeManager codeManager;
         protected String encoding;
@@ -70,8 +67,6 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                 chain.doFilter(request, response);
                 return;
             }
-
-            beanContextManager.getContext(new Request(request, response, chain));
 
             String templatePath = compileManager.findTemplatePath(requestPath);
             if (templatePath == null) {
@@ -136,10 +131,6 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
         public void setEncoding(String encoding) {
             this.encoding = encoding;
-        }
-
-        public void setBeanContextManager(BeanContextManager beanContextManager) {
-            this.beanContextManager = beanContextManager;
         }
     }
 

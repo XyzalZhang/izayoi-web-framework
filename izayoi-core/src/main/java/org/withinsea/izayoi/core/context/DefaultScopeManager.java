@@ -1,62 +1,41 @@
-/*
- * The contents of this file are subject to the Mozilla Public License
- * Version 1.1 (the "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF
- *
- * ANY KIND, either express or implied. See the License for the specific language governing rights and
- *
- * limitations under the License.
- *
- * The Original Code is the IZAYOI web framework.
- *
- * The Initial Developer of the Original Code is
- *
- *   Mo Chen <withinsea@gmail.com>
- *
- * Portions created by the Initial Developer are Copyright (C) 2009-2010
- * the Initial Developer. All Rights Reserved.
- */
-
 package org.withinsea.izayoi.core.context;
 
+import org.withinsea.izayoi.commons.util.Varstack;
+
 import javax.script.Bindings;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-5-10
- * Time: 10:02:56
+ * Date: 2010-5-30
+ * Time: 23:46:57
  */
-public class BeanContextUtils {
+public class DefaultScopeManager implements ScopeManager {
 
-    public static final String REQUEST_CONTEXT_ATTR = BeanContextUtils.class.getCanonicalName() + ".REQUEST_CONTEXT";
+    protected Scope globalScope;
 
-    public static void setBeanContext(HttpServletRequest request, BeanContext context) {
-        request.setAttribute(REQUEST_CONTEXT_ATTR, context);
+    @Override
+    public Varstack createVarstack(Scope scope) {
+        Varstack varstack = new Varstack();
+        {
+            varstack.push(new NameBindings(globalScope));
+            varstack.push(new NameBindings(scope));
+        }
+        return varstack;
     }
 
-    public static BeanContext getBeanContext(HttpServletRequest request) {
-        return (BeanContext) request.getAttribute(REQUEST_CONTEXT_ATTR);
-    }
-
-    public static Bindings getBindings(BeanContext beanContext) {
-        return new NameBindings(beanContext);
+    public void setGlobalScope(Scope globalScope) {
+        this.globalScope = globalScope;
     }
 
     protected static class NameBindings implements Bindings {
 
-        protected final BeanContext beanContext;
+        protected final Scope scope;
 
-        public NameBindings(BeanContext beanContext) {
-            this.beanContext = beanContext;
+        public NameBindings(Scope scope) {
+            this.scope = scope;
         }
 
         @Override
@@ -66,7 +45,7 @@ public class BeanContextUtils {
 
         @Override
         public Object get(Object key) {
-            return beanContext.getBean(key.toString());
+            return scope.getBean(key.toString());
         }
 
         // unsupported
@@ -121,4 +100,5 @@ public class BeanContextUtils {
             throw new UnsupportedOperationException();
         }
     }
+
 }

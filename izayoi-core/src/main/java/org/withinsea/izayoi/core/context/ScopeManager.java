@@ -24,14 +24,14 @@
 
 package org.withinsea.izayoi.core.context;
 
+import org.withinsea.izayoi.commons.util.Varstack;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-5-10
- * Time: 9:59:26
+ * Date: 2010-5-15
+ * Time: 4:30:01
  */
-public interface BeanContext {
+public interface ScopeManager {
 
-    <T> T getBean(String name);
-
-    <T> void setBean(String name, T object);
+    Varstack createVarstack(Scope scope);
 }

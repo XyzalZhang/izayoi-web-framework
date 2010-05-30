@@ -47,7 +47,7 @@ public class SpringGlowwormConfigurator extends GlowwormConfigurator {
     @Override
     protected void loadDefaultConf(Properties conf, ServletContext servletContext) throws Exception {
         super.loadDefaultConf(conf, servletContext);
-        conf.setProperty("class.globalContext", "org.withinsea.izayoi.adapter.springmvc.SpringGlobalContext");
+        conf.setProperty("class.globalScope", "org.withinsea.izayoi.adapter.springmvc.SpringGlobalScope");
     }
 
     @Override

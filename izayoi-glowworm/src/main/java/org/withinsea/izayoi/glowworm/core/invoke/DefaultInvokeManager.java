@@ -28,8 +28,6 @@ import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.context.BeanContext;
-import org.withinsea.izayoi.core.context.BeanContextManager;
 import org.withinsea.izayoi.core.context.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
@@ -49,11 +47,11 @@ public class DefaultInvokeManager implements InvokeManager {
 
         protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
-        public static synchronized Cache get(BeanContext beanContext) throws GlowwormException {
-            Cache lastModifieds = beanContext.getBean(LAST_MODIFIED_ATTR);
+        public static synchronized Cache get(Scope scope) throws GlowwormException {
+            Cache lastModifieds = scope.getBean(LAST_MODIFIED_ATTR);
             if (lastModifieds == null) {
                 lastModifieds = new Cache();
-                beanContext.setBean(LAST_MODIFIED_ATTR, lastModifieds);
+                scope.setBean(LAST_MODIFIED_ATTR, lastModifieds);
             }
             return lastModifieds;
         }
@@ -69,7 +67,6 @@ public class DefaultInvokeManager implements InvokeManager {
         }
     }
 
-    protected BeanContextManager beanContextManager;
     protected CodeManager codeManager;
     protected String appendantFolder;
     protected String globalPrefix;
@@ -138,11 +135,10 @@ public class DefaultInvokeManager implements InvokeManager {
         }
 
         Code code = codeManager.get(codePath);
-        BeanContext beanContext = beanContextManager.getContext(scope);
-        if (Cache.get(beanContext).cached(code)) {
+        if (Cache.get(scope).cached(code)) {
             return true;
         } else {
-            Cache.get(beanContext).cache(code);
+            Cache.get(scope).cache(code);
         }
 
         Invoker invoker = getInvoker(codePath);
@@ -192,10 +188,6 @@ public class DefaultInvokeManager implements InvokeManager {
 
     public void setAppendantFolder(String appendantFolder) {
         this.appendantFolder = appendantFolder;
-    }
-
-    public void setBeanContextManager(BeanContextManager beanContextManager) {
-        this.beanContextManager = beanContextManager;
     }
 
     public void setInvokers(Map<String, Invoker> invokers) {

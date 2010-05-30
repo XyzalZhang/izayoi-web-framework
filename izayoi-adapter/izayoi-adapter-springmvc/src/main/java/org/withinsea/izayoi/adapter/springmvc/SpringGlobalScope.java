@@ -25,28 +25,33 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.core.context.DefaultGlobalContext;
+import org.withinsea.izayoi.core.context.DefaultGlobalScope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-4-23
  * Time: 16:26:37
  */
-public class SpringGlobalContext extends DefaultGlobalContext {
+public class SpringGlobalScope extends DefaultGlobalScope {
 
     protected ApplicationContext applicationContext;
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(String name) {
+    protected Object getConstant(String name) {
+        return name.equals("springApplicationContext") ? applicationContext
+                : super.getConstant(name);
+    }
+
+    @Override
+    protected Object getAttribute(String name) {
         Object obj = lookupSpring(name);
-        if (obj == null) obj = super.getBean(name);
-        return (T) obj;
+        if (obj == null) obj = super.getAttribute(name);
+        return obj;
     }
 
     protected Object lookupSpring(String name) {
         try {
-            return name.equals("applicationContext") ? applicationContext : applicationContext.getBean(name);
+            return applicationContext.getBean(name);
         } catch (Exception e) {
             return null;
         }
