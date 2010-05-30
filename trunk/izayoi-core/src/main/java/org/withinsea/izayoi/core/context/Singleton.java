@@ -32,7 +32,7 @@ import java.util.Map;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Singleton implements Scope {
+public class Singleton extends AbstractScope<Scope> {
 
     protected static Map<String, Object> SINGLETONS = new HashMap<String, Object>();
 

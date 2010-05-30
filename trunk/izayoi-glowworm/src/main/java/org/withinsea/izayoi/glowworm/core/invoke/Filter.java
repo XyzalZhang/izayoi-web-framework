@@ -27,10 +27,8 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.commons.servlet.ByteArrayBufferedHttpServletResponseWrapper;
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.context.BeanContext;
-import org.withinsea.izayoi.core.context.BeanContextManager;
-import org.withinsea.izayoi.core.context.BeanContextUtils;
 import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.core.context.ScopeManager;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
@@ -45,17 +43,15 @@ import javax.servlet.http.HttpServletResponse;
 public class Filter implements Invoker<Request> {
 
     protected CodeManager codeManager;
-    protected BeanContextManager beanContextManager;
+    protected ScopeManager scopeManager;
     protected InterpretManager interpretManager;
 
     @Override
     public boolean invoke(String codePath, Request scope) throws GlowwormException {
 
-        BeanContext beanContext = beanContextManager.getContext(scope);
-
-        Varstack bindings = new Varstack(BeanContextUtils.getBindings(beanContext));
+        Varstack bindings = scopeManager.createVarstack(scope);
         {
-            HttpServletResponse response = beanContext.getBean("response");
+            HttpServletResponse response = (HttpServletResponse) bindings.get("response");
             if (response != null) {
                 bindings.put("response", new ByteArrayBufferedHttpServletResponseWrapper(response));
                 bindings.push();
@@ -78,7 +74,7 @@ public class Filter implements Invoker<Request> {
         this.interpretManager = interpretManager;
     }
 
-    public void setBeanContextManager(BeanContextManager beanContextManager) {
-        this.beanContextManager = beanContextManager;
+    public void setScopeManager(ScopeManager scopeManager) {
+        this.scopeManager = scopeManager;
     }
 }

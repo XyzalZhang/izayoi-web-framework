@@ -31,25 +31,24 @@ import javax.servlet.http.HttpSession;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Session extends Application {
+public class Session extends AbstractScope<Application> {
 
     protected final HttpSession session;
 
     public Session(HttpSession session) {
-        super(session.getServletContext());
+        super(new Application(session.getServletContext()));
         this.session = session;
     }
 
     @Override
     public Object getConstant(String name) {
         return name.equals("session") ? session
-                : super.getConstant(name);
+                : null;
     }
 
     @Override
     public Object getAttribute(String name) {
         Object obj = session.getAttribute(name);
-        if (obj == null) obj = super.getAttribute(name);
         return obj;
     }
 

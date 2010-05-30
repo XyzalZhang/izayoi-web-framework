@@ -38,14 +38,20 @@ import java.util.*;
  * Date: 2010-5-15
  * Time: 4:41:01
  */
-public class DefaultGlobalContext implements BeanContext {
+public class DefaultGlobalScope extends AbstractScope<Scope> {
 
     protected IzayoiContainer izayoiContainer;
     protected ServletContext servletContext;
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getBean(String name) {
+    protected Object getConstant(String name) {
+        return name.equals("izayoiContainer") ? izayoiContainer
+                : name.equals("servletContext") ? servletContext
+                : null;
+    }
+
+    @Override
+    protected Object getAttribute(String name) {
         Object obj = lookupCDI(name);
         if (obj == null) obj = lookupJndi(name.replace("_", "/"));
         if (obj == null) try {
@@ -53,11 +59,11 @@ public class DefaultGlobalContext implements BeanContext {
         } catch (Exception e) {
             // do nothing
         }
-        return (T) obj;
+        return obj;
     }
 
     @Override
-    public <T> void setBean(String name, T object) {
+    protected void setAttribute(String name, Object obj) {
         throw new UnsupportedOperationException();
     }
 

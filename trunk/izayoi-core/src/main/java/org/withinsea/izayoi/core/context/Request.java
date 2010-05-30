@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Request extends Session {
+public class Request extends AbstractScope<Session> {
 
     protected static final String PARAMS_ATTR = Request.class.getCanonicalName() + ".PARAMS";
 
@@ -48,7 +48,7 @@ public class Request extends Session {
     }
 
     public Request(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-        super(request.getSession());
+        super(new Session(request.getSession()));
         this.request = request;
         this.response = response;
         this.chain = chain;
@@ -60,14 +60,13 @@ public class Request extends Session {
                 : name.equals("request") ? request
                 : name.equals("response") ? response
                 : name.equals("chain") ? chain
-                : super.getConstant(name);
+                : null;
     }
 
     @Override
     public Object getAttribute(String name) {
         Object obj = request.getAttribute(name);
         if (obj == null) obj = request.getParameter(name);
-        if (obj == null) obj = super.getAttribute(name);
         return obj;
     }
 

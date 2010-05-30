@@ -26,10 +26,8 @@ package org.withinsea.izayoi.cortile.core.compile.el;
 
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.MemoryCode;
-import org.withinsea.izayoi.core.context.BeanContext;
-import org.withinsea.izayoi.core.context.BeanContextManager;
-import org.withinsea.izayoi.core.context.BeanContextUtils;
 import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.core.context.ScopeManager;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +44,7 @@ public class ELHelper {
     protected static final String HELPER_ATTR = ELHelper.class.getCanonicalName() + ".HELPER";
 
     protected String elType;
-    protected BeanContextManager beanContextManager;
+    protected ScopeManager scopeManager;
     protected InterpretManager interpretManager;
 
     public synchronized Helper getHelper(HttpServletRequest request, HttpServletResponse response) {
@@ -67,8 +65,7 @@ public class ELHelper {
         protected Helper(HttpServletRequest request, HttpServletResponse response) {
             this.importedClasses = new LinkedHashSet<String>();
             elTypeStack.push(elType);
-            BeanContext context = beanContextManager.getContext(new Request(request, response));
-            varstack = new Varstack(BeanContextUtils.getBindings(context));
+            varstack = scopeManager.createVarstack(new Request(request, response));
         }
 
         public Object eval(String el, boolean forOutput) {
@@ -115,8 +112,8 @@ public class ELHelper {
         this.interpretManager = interpretManager;
     }
 
-    public void setBeanContextManager(BeanContextManager beanContextManager) {
-        this.beanContextManager = beanContextManager;
+    public void setScopeManager(ScopeManager scopeManager) {
+        this.scopeManager = scopeManager;
     }
 
     public void setElType(String elType) {

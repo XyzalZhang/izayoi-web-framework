@@ -31,11 +31,12 @@ import javax.servlet.ServletContext;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Application extends Singleton {
+public class Application extends AbstractScope<Singleton> {
 
     protected final javax.servlet.ServletContext servletContext;
 
     public Application(javax.servlet.ServletContext servletContext) {
+        super(new Singleton());
         this.servletContext = servletContext;
     }
 
@@ -43,13 +44,12 @@ public class Application extends Singleton {
     public Object getConstant(String name) {
         return name.equals("application") ? servletContext
                 : name.equals("servletContext") ? servletContext
-                : super.getConstant(name);
+                : null;
     }
 
     @Override
     public Object getAttribute(String name) {
         Object obj = servletContext.getAttribute(name);
-        if (obj == null) obj = super.getAttribute(name);
         return obj;
     }
 

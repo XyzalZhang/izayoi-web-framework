@@ -31,9 +31,13 @@ package org.withinsea.izayoi.core.context;
  */
 public interface Scope {
 
-    Object getConstant(String name);
+    <T> T getBean(String name);
 
-    Object getAttribute(String name);
+    <T> void setBean(String name, T object);
 
-    void setAttribute(String name, Object obj);
+//    Object getConstant(String name);
+//
+//    Object getAttribute(String name);
+//
+//    void setAttribute(String name, Object obj);
 }
