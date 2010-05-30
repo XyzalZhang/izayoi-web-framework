@@ -28,10 +28,10 @@ import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.commons.dom.DOMUtils;
 import org.withinsea.izayoi.commons.util.StringUtils;
-import org.withinsea.izayoi.cortile.core.compile.el.ELSupportedCompiler;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.core.compile.Compilr;
 import org.withinsea.izayoi.cortile.core.compile.dom.AttrGrammar;
+import org.withinsea.izayoi.cortile.core.compile.el.ELSupportedCompiler;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
@@ -39,19 +39,19 @@ import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
  * Date: 2009-12-28
  * Time: 23:09:11
  */
-public class Set implements AttrGrammar<HTMLCompiler> {
+public class Var implements AttrGrammar<HTMLCompiler> {
 
     @Override
     public boolean acceptAttr(Element elem, Attribute attr) {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
-        return attrname.startsWith("set.");
+        return attrname.startsWith("var.");
     }
 
     @Override
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
 
         String attrname = attr.getName().replaceAll("[:_-]", ".");
-        String var = attrname.substring("set.".length());
+        String var = attrname.substring("var.".length());
         String value = attr.getValue();
 
         String preScriptlet = compiler.elScope();
