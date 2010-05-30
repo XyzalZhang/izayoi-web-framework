@@ -1,4 +1,4 @@
-package org.withinsea.izayoi.core.context;
+package org.withinsea.izayoi.core.scope;
 
 import org.withinsea.izayoi.commons.util.Varstack;
 

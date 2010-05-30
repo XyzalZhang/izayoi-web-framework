@@ -1,4 +1,4 @@
-package org.withinsea.izayoi.core.context;
+package org.withinsea.izayoi.core.scope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

@@ -22,42 +22,36 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.context;
+package org.withinsea.izayoi.core.scope;
 
-import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Session extends AbstractScope<Application> {
+public class Singleton extends AbstractScope<Scope> {
 
-    protected final HttpSession session;
-
-    public Session(HttpSession session) {
-        super(new Application(session.getServletContext()));
-        this.session = session;
-    }
+    protected static Map<String, Object> SINGLETONS = new HashMap<String, Object>();
 
     @Override
     public Object getConstant(String name) {
-        return name.equals("session") ? session
-                : null;
+        return null;
     }
 
     @Override
     public Object getAttribute(String name) {
-        Object obj = session.getAttribute(name);
-        return obj;
+        return SINGLETONS.get(name);
     }
 
     @Override
     public void setAttribute(String name, Object obj) {
-        session.setAttribute(name, obj);
+        SINGLETONS.put(name, obj);
     }
 
-    public HttpSession getSession() {
-        return session;
+    public static Map<String, Object> getSingletons() {
+        return SINGLETONS;
     }
 }

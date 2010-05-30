@@ -27,10 +27,10 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.commons.servlet.ByteArrayBufferedHttpServletResponseWrapper;
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.context.Scope;
-import org.withinsea.izayoi.core.context.ScopeManager;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.scope.Scope;
+import org.withinsea.izayoi.core.scope.ScopeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.http.HttpServletResponse;
