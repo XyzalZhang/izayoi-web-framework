@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.springframework.context.ApplicationContext;
-import org.withinsea.izayoi.core.context.DefaultGlobalScope;
+import org.withinsea.izayoi.core.scope.DefaultGlobalScope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>

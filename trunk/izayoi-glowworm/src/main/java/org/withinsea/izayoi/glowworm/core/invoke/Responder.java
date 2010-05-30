@@ -26,7 +26,7 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 import org.withinsea.izayoi.glowworm.core.serialize.SerializeManager;
 

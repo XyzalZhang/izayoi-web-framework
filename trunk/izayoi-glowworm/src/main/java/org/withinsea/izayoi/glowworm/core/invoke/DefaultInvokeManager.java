@@ -28,7 +28,7 @@ import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.context.Scope;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import java.lang.reflect.Method;

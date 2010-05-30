@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.context;
+package org.withinsea.izayoi.core.scope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -34,10 +34,4 @@ public interface Scope {
     <T> T getBean(String name);
 
     <T> void setBean(String name, T object);
-
-//    Object getConstant(String name);
-//
-//    Object getAttribute(String name);
-//
-//    void setAttribute(String name, Object obj);
 }

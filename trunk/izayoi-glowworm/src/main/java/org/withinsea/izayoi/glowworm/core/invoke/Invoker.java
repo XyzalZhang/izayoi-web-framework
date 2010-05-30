@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.core.context.Scope;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 /**

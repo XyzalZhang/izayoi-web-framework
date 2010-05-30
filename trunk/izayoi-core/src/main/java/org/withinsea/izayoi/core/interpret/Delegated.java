@@ -26,13 +26,9 @@ package org.withinsea.izayoi.core.interpret;
 
 import org.withinsea.izayoi.commons.servlet.BufferedHttpServletResponse;
 import org.withinsea.izayoi.core.code.Code;
-import org.withinsea.izayoi.core.context.BeanContext;
-import org.withinsea.izayoi.core.context.BeanContextManager;
-import org.withinsea.izayoi.core.context.Request;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
 import javax.script.Bindings;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -60,7 +56,7 @@ public class Delegated implements Interpreter, MultiTypeInterpreter {
 
         HttpServletRequest request = (HttpServletRequest) bindings.get("request");
         HttpServletResponse response = (HttpServletResponse) bindings.get("response");
-        InterpretContext interpretContext = (InterpretContext) bindings.get("interpretContext"); 
+        InterpretContext interpretContext = (InterpretContext) bindings.get("interpretContext");
 
         Object originalInterpretContext = request.getAttribute("interpretContext");
         request.setAttribute("interpretContext", interpretContext);

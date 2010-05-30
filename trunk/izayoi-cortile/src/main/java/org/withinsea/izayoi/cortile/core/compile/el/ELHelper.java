@@ -26,9 +26,9 @@ package org.withinsea.izayoi.cortile.core.compile.el;
 
 import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.MemoryCode;
-import org.withinsea.izayoi.core.context.Request;
-import org.withinsea.izayoi.core.context.ScopeManager;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.scope.ScopeManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

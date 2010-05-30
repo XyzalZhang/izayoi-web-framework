@@ -28,10 +28,10 @@ import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.conf.Configurable;
 import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.core.conf.IzayoiContainer;
-import org.withinsea.izayoi.core.context.*;
 import org.withinsea.izayoi.core.exception.IzayoiException;
-import org.withinsea.izayoi.glowworm.core.invoke.InvokeManager;
+import org.withinsea.izayoi.core.scope.*;
 import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
+import org.withinsea.izayoi.glowworm.core.invoke.InvokeManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

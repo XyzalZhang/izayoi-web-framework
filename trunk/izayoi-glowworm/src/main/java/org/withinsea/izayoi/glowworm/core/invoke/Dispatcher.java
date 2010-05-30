@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.core.context.Request;
+import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.ServletException;
@@ -50,7 +50,7 @@ public class Dispatcher extends ResultInvoker<Request> {
 
         HttpServletRequest request = scope.getRequest();
         HttpServletResponse response = scope.getResponse();
-        
+
         String url = ((String) result).trim();
 
         try {
