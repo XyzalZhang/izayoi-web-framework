@@ -24,7 +24,6 @@
 
 package org.withinsea.izayoi.core.interpret;
 
-import org.withinsea.izayoi.commons.util.Varstack;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
@@ -72,19 +71,7 @@ public class DefaultInterpretManager implements InterpretManager {
             return null;
         }
 
-        InterpretContextImpl interpretContext = new InterpretContextImpl(bindings);
-        Object originalInterpretContext = bindings.get("interpretContext");
-        bindings.put("interpretContext", interpretContext);
-
-        Object result = interpret(interpreter, code, bindings, importedClasses);
-
-        bindings.put("interpretContext", originalInterpretContext);
-
-        if (interpretContext.getException() != null) {
-            throw new IzayoiException(interpretContext.getException());
-        } else {
-            return (T) (interpretContext.isReturned() ? interpretContext.getResult() : result);
-        }
+        return (T) interpret(interpreter, code, bindings, importedClasses);
     }
 
     protected Object interpret(Interpreter interpreter, Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
@@ -116,58 +103,5 @@ public class DefaultInterpretManager implements InterpretManager {
 
     public void setDefaultInterpreters(List<MultiTypeInterpreter> defaultInterpreters) {
         this.defaultInterpreters = defaultInterpreters;
-    }
-
-    /**
-     * Created by Mo Chen <withinsea@gmail.com>
-     * Date: 2010-5-16
-     * Time: 9:14:50
-     */
-    protected static class InterpretContextImpl implements InterpretContext {
-
-        protected final Bindings bindings;
-
-        protected boolean returned;
-
-        protected Object result = null;
-
-        protected Exception ex = null;
-
-        public InterpretContextImpl(Bindings bindings) {
-            this.bindings = bindings;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T getBean(String name) {
-            return (bindings == null) ? null : (T) bindings.get(name);
-        }
-
-        @Override
-        public void doReturn(Object result) {
-            this.returned = true;
-            this.result = result;
-        }
-
-        @Override
-        public void doThrow(Exception ex) throws Exception {
-            this.ex = ex;
-            throw ex;
-        }
-
-        @Override
-        public boolean isReturned() {
-            return returned;
-        }
-
-        @Override
-        public Object getResult() {
-            return result;
-        }
-
-        @Override
-        public Exception getException() {
-            return ex;
-        }
     }
 }

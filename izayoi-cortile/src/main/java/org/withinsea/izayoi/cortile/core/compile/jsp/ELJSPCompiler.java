@@ -34,7 +34,7 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  * Date: 2010-3-7
  * Time: 1:05:30
  */
-public abstract class JSPCompiler extends JavaELSupportedCompiler {
+public abstract class ELJSPCompiler extends JavaELSupportedCompiler {
 
     protected String encoding;
     protected String outputFolder;

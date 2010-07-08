@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-function js2java(obj) {
+function obj2java(obj) {
 
     if (obj === undefined || obj === null) {
         return null;
@@ -41,7 +41,7 @@ function js2java(obj) {
     } else if (obj instanceof RegExp) {
         return java.util.regex.Pattern.compile(obj.source,
                 (obj.ignoreCase ? Pattern.CASE_INSENSITIVE : 0) ||
-                (obj.multiline ? Pattern.MULTILINE : 0));
+                        (obj.multiline ? Pattern.MULTILINE : 0));
     } else if (typeof obj == 'function' || obj instanceof Function) {
         return null;
     } else if (obj instanceof Array) {
@@ -60,4 +60,8 @@ function js2java(obj) {
         return obj;
     }
 
+}
+
+function json2java(json) {
+    return obj2java(eval('(' + json + ')'));
 }

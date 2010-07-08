@@ -120,7 +120,7 @@ public class Cloister implements Filter, Configurable {
             if (codeManager.exist(path)) {
                 return path;
             } else {
-                String match = matchPathTemplate(pathVariables, "/", path);
+                String match = matchPathTemplate("/", pathVariables, "/", path);
                 if (match == null) {
                     return null;
                 } else {
@@ -132,7 +132,7 @@ public class Cloister implements Filter, Configurable {
             }
         }
 
-        protected String matchPathTemplate(Map<String, String> pathVariables, String folder, String path) {
+        protected String matchPathTemplate(String templatePath, Map<String, String> pathVariables, String folder, String path) {
 
             path = path.replaceAll("^/+", "").replaceAll("/+", "/");
             if (path.equals("")) {
@@ -141,7 +141,7 @@ public class Cloister implements Filter, Configurable {
 
             String pathName = path.replaceAll("/.*", "");
             if (codeManager.isFolder(folder + "/" + pathName) || codeManager.isFolder(appendantFolder + folder + "/" + pathName)) {
-                return matchPathTemplate(pathVariables, folder + "/" + pathName, path.substring(pathName.length()));
+                return matchPathTemplate(templatePath + "/" + pathName, pathVariables, folder + "/" + pathName, path.substring(pathName.length()));
             }
 
             Set<String> codeNameSet = new LinkedHashSet<String>();
@@ -151,7 +151,7 @@ public class Cloister implements Filter, Configurable {
             Collections.sort(codeNames, new Comparator<String>() {
                 @Override
                 public int compare(String n1, String n2) {
-                    return scorePathTemplate(n1) - scorePathTemplate(n2);
+                    return scorePathTemplate(n2) - scorePathTemplate(n1);
                 }
             });
 
@@ -194,10 +194,16 @@ public class Cloister implements Filter, Configurable {
                         pathVariables.put(codeMatcher.group(i), pathMatcher.group(i));
                     }
 
+                    StringBuffer templateNameBuffer = new StringBuffer(pathName);
+                    for (int i = codeMatcher.groupCount(); i >= 1; i--) {
+                        templateNameBuffer.replace(pathMatcher.start(i), pathMatcher.end(i), "{" + codeMatcher.group(i) + "}");
+                    }
+                    String templateName = templateNameBuffer.toString();
+
                     if (codeManager.isFolder(folder + "/" + codeName) || codeManager.isFolder(appendantFolder + folder + "/" + codeName)) {
-                        return matchPathTemplate(pathVariables, folder + "/" + codeName, path.substring(pathName.length()));
+                        return matchPathTemplate(templatePath + "/" + templateName, pathVariables, folder + "/" + codeName, path.substring(pathName.length()));
                     } else {
-                        return folder + "/" + codeName;
+                        return templatePath + "/" + templateName;
                     }
                 }
             }

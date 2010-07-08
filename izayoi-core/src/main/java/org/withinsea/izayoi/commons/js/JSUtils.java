@@ -39,26 +39,20 @@ import javax.script.ScriptException;
 public class JSUtils {
 
     @SuppressWarnings("unchecked")
-    public static <T> T js2java(Object jsObj) throws ScriptException, NoSuchMethodException {
-        return (T) ScriptHelper.JS2JAVA.invokeFunction("js2java", jsObj);
-    }
-
-    @SuppressWarnings("unchecked")
     public static <T> T json2java(String json) throws ScriptException, NoSuchMethodException {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
-        return (T) js2java(engine.eval("(" + json + ")"));
+        return (T) ScriptHelper.JSON2JAVA.invokeFunction("json2java", json);
     }
 
     // lazy load Script Engine
 
     protected static class ScriptHelper {
 
-        protected static final Invocable JS2JAVA; static {
+        protected static final Invocable JSON2JAVA; static {
             try {
                 ScriptEngine engine = new ScriptEngineManager().getEngineByName("javascript");
-                String script = IOUtils.toString(JSUtils.class.getResourceAsStream("js2java.js"), "UTF-8");
+                String script = IOUtils.toString(JSUtils.class.getResourceAsStream("json2java.js"), "UTF-8");
                 engine.eval(script);
-                JS2JAVA = (Invocable) engine;
+                JSON2JAVA = (Invocable) engine;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
