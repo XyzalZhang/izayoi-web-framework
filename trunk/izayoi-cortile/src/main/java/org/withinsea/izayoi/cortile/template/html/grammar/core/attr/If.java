@@ -27,9 +27,9 @@ package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.withinsea.izayoi.commons.dom.DOMUtils;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.core.compile.Compilr;
 import org.withinsea.izayoi.cortile.core.compile.dom.AttrGrammar;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 import org.withinsea.izayoi.cortile.template.html.parser.HTMLDocumentFactory;
 
@@ -69,8 +69,9 @@ public class If implements AttrGrammar<HTMLCompiler> {
                 throw new CortileException(e);
             }
         } else {
-            String ifname = attrname.substring("if.".length());
-            String ifAttrname = ifname.startsWith("attr.") ? ifname.substring("attr.".length()) : ifname;
+            String ifAttrname = attrname.startsWith("if.attr.") ?
+                    attr.getName().substring("if.attr.".length()) :
+                    attr.getName().substring("if.".length());
             for (HTMLDocumentFactory.SurroundableAttr ifAttr : (List<HTMLDocumentFactory.SurroundableAttr>) elem.attributes()) {
                 if (ifAttr.getName().equals(ifAttrname)) {
                     ifAttr.setPrefix("<%" + preScriptlet + "%>");

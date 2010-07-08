@@ -22,26 +22,28 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cortile.template.elt;
+package org.withinsea.izayoi.commons.util;
 
-import org.withinsea.izayoi.commons.util.StringUtils;
-import org.withinsea.izayoi.cortile.core.compile.jsp.ELJSPCompiler;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-4-9
- * Time: 1:46:46
+ * Date: 2010-7-6
+ * Time: 4:42:06
  */
-public class ELTCompiler extends ELJSPCompiler {
+public class Vars extends LinkedHashMap<String, Object> {
 
-    @Override
-    public String compileJSP(String jspContent) throws CortileException {
-        return super.compileJSP(StringUtils.replaceAll(jspContent, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
-            @Override
-            public String replace(String... groups) {
-                return "<%=" + el(groups[1].replace("\\}", "}"), true) + "%>";
-            }
-        }));
+    public Vars(Object... pairs) {
+        for (int i = 0; i < pairs.length - 1; i += 2) {
+            put((String) pairs[i], pairs[i + 1]);
+        }
+    }
+
+    public Vars(Map<? extends String, ? extends Object> m, Object... pairs) {
+        super(m);
+        for (int i = 0; i < pairs.length - 1; i += 2) {
+            put((String) pairs[i], pairs[i + 1]);
+        }
     }
 }

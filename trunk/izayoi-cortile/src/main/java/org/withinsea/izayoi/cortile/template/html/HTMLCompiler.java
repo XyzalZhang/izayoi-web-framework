@@ -26,10 +26,10 @@ package org.withinsea.izayoi.cortile.template.html;
 
 import org.dom4j.Branch;
 import org.dom4j.Document;
-import org.withinsea.izayoi.cortile.core.compile.jsp.JSPCompiler;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.core.compile.dom.DOMCompiler;
 import org.withinsea.izayoi.cortile.core.compile.el.ELSupportedCompiler;
+import org.withinsea.izayoi.cortile.core.compile.jsp.ELJSPCompiler;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.template.html.parser.HTMLReader;
 import org.withinsea.izayoi.cortile.template.html.parser.HTMLWriter;
 
@@ -49,7 +49,7 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
 
     @Override
     public String mapEntrancePath(String templatePath) {
-        return jspCompiler.mapEntrancePath(templatePath);
+        return elJspCompiler.mapEntrancePath(templatePath);
     }
 
     // implement dom compiler
@@ -74,7 +74,7 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
         Result result = super.compile(templatePath, templateCode);
         for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
             if (e.getKey().endsWith(".jsp")) {
-                result.getTargets().put(e.getKey(), jspCompiler.compileJSP(e.getValue()));
+                result.getTargets().put(e.getKey(), elJspCompiler.compileJSP(e.getValue()));
             }
         }
         return result;
@@ -94,50 +94,50 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
     // implement el supported compiler
 
     public String compileEL(String el) {
-        return jspCompiler.compileEL(el);
+        return elJspCompiler.compileEL(el);
     }
 
     @Override
     public String el(String el, boolean forOutput) {
-        return jspCompiler.el(el, forOutput);
+        return elJspCompiler.el(el, forOutput);
     }
 
     @Override
     public String elInit() {
-        return jspCompiler.elInit();
+        return elJspCompiler.elInit();
     }
 
     @Override
     public String elImports(String classes) {
-        return jspCompiler.elImports(classes);
+        return elJspCompiler.elImports(classes);
     }
 
     public String elScope() {
-        return jspCompiler.elScope();
+        return elJspCompiler.elScope();
     }
 
     public String elScope(String elType) {
-        return jspCompiler.elScope(elType);
+        return elJspCompiler.elScope(elType);
     }
 
     @Override
     public String elScope(String elType, String bindingsCode) {
-        return jspCompiler.elScope(elType, bindingsCode);
+        return elJspCompiler.elScope(elType, bindingsCode);
     }
 
     @Override
     public String elBind(String key, String valueCode) {
-        return jspCompiler.elBind(key, valueCode);
+        return elJspCompiler.elBind(key, valueCode);
     }
 
     @Override
     public String elScopeEnd() {
-        return jspCompiler.elScopeEnd();
+        return elJspCompiler.elScopeEnd();
     }
 
     // combine jsp compiler
 
-    protected JSPCompiler jspCompiler = new JSPCompiler() {
+    protected ELJSPCompiler elJspCompiler = new ELJSPCompiler() {
         @Override
         public Result compile(String templatePath, String templateCode) throws CortileException {
             throw new UnsupportedOperationException();
@@ -145,18 +145,18 @@ public class HTMLCompiler extends DOMCompiler implements ELSupportedCompiler {
     };
 
     public void setEncoding(String encoding) {
-        jspCompiler.setEncoding(encoding);
+        elJspCompiler.setEncoding(encoding);
     }
 
     public void setOutputFolder(String outputFolder) {
-        jspCompiler.setOutputFolder(outputFolder);
+        elJspCompiler.setOutputFolder(outputFolder);
     }
 
     public void setOutputSuffix(String outputSuffix) {
-        jspCompiler.setOutputSuffix(outputSuffix);
+        elJspCompiler.setOutputSuffix(outputSuffix);
     }
 
     public void setIzayoiContainerRetrievalKey(String izayoiContainerRetrievalKey) {
-        jspCompiler.setIzayoiContainerRetrievalKey(izayoiContainerRetrievalKey);
+        elJspCompiler.setIzayoiContainerRetrievalKey(izayoiContainerRetrievalKey);
     }
 }

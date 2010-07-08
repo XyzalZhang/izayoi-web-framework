@@ -66,7 +66,7 @@ public class Request extends AbstractScope<Session> {
     @Override
     public Object getAttribute(String name) {
         Object obj = request.getAttribute(name);
-        if (obj == null) obj = request.getParameter(name);
+        if (obj == null) obj = getParameterMap(request).get(name);
         return obj;
     }
 

@@ -53,6 +53,7 @@ public class Filter implements Invoker<Request> {
         {
             HttpServletResponse response = (HttpServletResponse) bindings.get("response");
             if (response != null) {
+                bindings.push();
                 bindings.put("response", new ByteArrayBufferedHttpServletResponseWrapper(response));
                 bindings.push();
             }

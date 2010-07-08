@@ -96,8 +96,7 @@ public class ServletFilterUtils {
     }
 
     public static boolean isForwarded(HttpServletRequest request) {
-        return request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH) != null &&
-                !request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH).equals(request.getServletPath());
+        return !isIncluded(request) && request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH) != null;
     }
 
     public static void chain(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -133,7 +132,7 @@ public class ServletFilterUtils {
     }
 
     public static Set<String> getServletMappingPatterns(ServletContext servletContext) {
-        return ServletRegistrations.getHelper(servletContext).getServletMappingPatterns(servletContext); 
+        return ServletRegistrations.getHelper(servletContext).getServletMappingPatterns(servletContext);
     }
 
     protected static class ServletRegistrations {

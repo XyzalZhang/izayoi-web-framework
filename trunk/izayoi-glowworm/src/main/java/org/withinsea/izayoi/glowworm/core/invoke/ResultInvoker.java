@@ -53,6 +53,7 @@ public abstract class ResultInvoker<S extends Scope> implements Invoker<S> {
         {
             HttpServletResponse response = (HttpServletResponse) bindings.get("response");
             if (response != null) {
+                bindings.push();
                 bindings.put("response", new ByteArrayBufferedHttpServletResponseWrapper(response));
                 bindings.push();
             }

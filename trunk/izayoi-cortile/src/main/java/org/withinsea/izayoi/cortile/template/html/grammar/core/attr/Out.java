@@ -26,9 +26,9 @@ package org.withinsea.izayoi.cortile.template.html.grammar.core.attr;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
-import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.core.compile.Compilr;
 import org.withinsea.izayoi.cortile.core.compile.dom.AttrGrammar;
+import org.withinsea.izayoi.cortile.core.exception.CortileException;
 import org.withinsea.izayoi.cortile.template.html.HTMLCompiler;
 
 /**
@@ -49,7 +49,7 @@ public class Out implements AttrGrammar<HTMLCompiler> {
     public void processAttr(HTMLCompiler compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException {
         String attrname = attr.getName().replaceAll("[:_-]", ".");
         if (attrname.startsWith("attr.")) {
-            elem.addAttribute(attrname.substring("attr.".length()), attr.getValue()
+            elem.addAttribute(attr.getName().substring("attr.".length()), attr.getValue()
                     .replace("<%=", "<%=" + Out.class.getCanonicalName() + ".escapeAttrValue(")
                     .replace("%>", ")%>")
             );
