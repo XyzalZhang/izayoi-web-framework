@@ -43,7 +43,7 @@ public interface CodeManager {
 
     Code get(String path);
 
-    void update(String path, String code);
+    void update(String path, String code, boolean protectLastModified);
 
     boolean delete(String path);
 

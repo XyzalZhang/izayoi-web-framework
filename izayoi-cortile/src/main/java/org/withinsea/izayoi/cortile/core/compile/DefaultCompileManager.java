@@ -29,7 +29,10 @@ import org.withinsea.izayoi.core.code.CodeManager;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -101,7 +104,7 @@ public class DefaultCompileManager implements CompileManager {
                     Compilr.Result result = compiler.compile(todoTemplatePath, codeManager.get(todoTemplatePath).getCode());
                     cache.cache(todoTemplatePath, result);
                     for (Map.Entry<String, String> target : result.getTargets().entrySet()) {
-                        codeManager.update(target.getKey(), target.getValue());
+                        codeManager.update(target.getKey(), target.getValue(), false);
                     }
                 }
                 done.add(todoTemplatePath);

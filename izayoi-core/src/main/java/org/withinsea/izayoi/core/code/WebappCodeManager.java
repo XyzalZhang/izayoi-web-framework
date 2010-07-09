@@ -79,8 +79,13 @@ public class WebappCodeManager implements CodeManager {
     }
 
     @Override
-    public void update(String path, String code) {
-        new FileCode(webroot, path, encoding).setCode(code);
+    public void update(String path, String code, boolean protectLastModified) {
+        FileCode fileCode = new FileCode(webroot, path, encoding);
+        long lastModified = fileCode.getLastModified();
+        fileCode.setCode(code);
+        if (protectLastModified) {
+            fileCode.setLastModified(lastModified);
+        }
     }
 
     @Override

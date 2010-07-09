@@ -96,4 +96,8 @@ public class FileCode implements Code {
             throw new IzayoiRuntimeException(e);
         }
     }
+
+    public void setLastModified(long lastModified) {
+        file.setLastModified(lastModified);
+    }
 }
