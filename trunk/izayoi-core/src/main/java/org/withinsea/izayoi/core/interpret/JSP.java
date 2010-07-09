@@ -87,9 +87,23 @@ public class JSP implements CompilableInterpreter {
         }
     }
 
+    public static boolean interpret(Object jspobj, HttpServletRequest request) {
+        InterpretHelper interpretHelper = (InterpretHelper) request.getAttribute(HELPER_ATTR);
+        try {
+            interpretHelper.interpret(jspobj);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    protected static final String INTERPRET_PREFIX =
+            "<% if (" + JSP.class.getCanonicalName() + ".interpret(this, request)) return; %>";
+
     protected class CompiledJSP implements CompiledInterpreter {
 
         protected String path;
+        protected boolean prefixed = false;
 
         public CompiledJSP(String path) {
             this.path = path;
@@ -112,7 +126,23 @@ public class JSP implements CompilableInterpreter {
             InterpretHelper interpretHelper = new InterpretHelper(bindings);
             request.setAttribute(HELPER_ATTR, interpretHelper);
             try {
-                request.getRequestDispatcher(path).forward(request, response);
+                boolean interpreted = false;
+                synchronized (this) {
+                    if (!this.prefixed) {
+                        this.prefixed = true;
+                        String code = codeManager.get(path).getCode();
+                        codeManager.update(path, INTERPRET_PREFIX + code, true);
+                        request.getRequestDispatcher(path).forward(request, response);
+                        codeManager.update(path, code, true);
+                        interpreted = true;
+                    }
+                }
+                synchronized (this) {
+
+                }
+                if (!interpreted) {
+                    request.getRequestDispatcher(path).forward(request, response);
+                }
             } catch (Exception e) {
                 throw new IzayoiException(e);
             } finally {
@@ -131,23 +161,7 @@ public class JSP implements CompilableInterpreter {
         }
     }
 
-    protected static final String INTERPRET_PREFIX =
-            "<% if (org.withinsea.izayoi.core.interpret.JSP.interpret(this, request)) return; %>";
-
-    protected String encoding;
-    protected String outputFolder;
-    protected String outputSuffix;
     protected CodeManager codeManager;
-
-    public static boolean interpret(Object jspobj, HttpServletRequest request) {
-        InterpretHelper interpretHelper = (InterpretHelper) request.getAttribute(HELPER_ATTR);
-        try {
-            interpretHelper.interpret(jspobj);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -157,25 +171,10 @@ public class JSP implements CompilableInterpreter {
 
     @Override
     public CompiledInterpreter compile(Code code, String... importedClasses) throws IzayoiException {
-        String folder = "/" + outputFolder.trim().replaceAll("^/|/$", "");
-        String compiledPath = folder + code.getPath().getPath() + "." + outputSuffix + ".jsp";
-        codeManager.update(compiledPath, INTERPRET_PREFIX + code.getCode());
-        return new CompiledJSP(compiledPath);
+        return new CompiledJSP(code.getPath().getPath());
     }
 
     public void setCodeManager(CodeManager codeManager) {
         this.codeManager = codeManager;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-
-    public void setOutputFolder(String outputFolder) {
-        this.outputFolder = outputFolder;
-    }
-
-    public void setOutputSuffix(String outputSuffix) {
-        this.outputSuffix = outputSuffix;
     }
 }
