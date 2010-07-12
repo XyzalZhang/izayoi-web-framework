@@ -55,8 +55,9 @@ public class JSP implements CompilableInterpreter {
             this.bindings = bindings;
         }
 
-        public void interpret(Object jspobj) throws NoSuchMethodException {
+        public void interpret(Object prototype) throws NoSuchMethodException {
             try {
+                Object jspobj = prototype.getClass().newInstance();
                 bind(jspobj);
                 Method m = jspobj.getClass().getDeclaredMethod("execute");
                 m.setAccessible(true);
