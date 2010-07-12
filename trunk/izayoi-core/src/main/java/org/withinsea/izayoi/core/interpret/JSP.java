@@ -99,8 +99,21 @@ public class JSP implements CompilableInterpreter {
     }
 
     protected static final String INTERPRET_PREFIX =
-            "<%@ page contentType=\"text/html; charset=UTF-8\" pageEncoding=\"UTF-8\" %>" +
-                    "<% if (" + JSP.class.getCanonicalName() + ".interpret(this, request)) return; %>";
+            "<% if (" + JSP.class.getCanonicalName() + ".interpret(this, request)) return; %>";
+
+    protected static boolean checkPageDirective(String code, String attrname) {
+        int i = -1;
+        while ((i = code.indexOf("<%@", i + 1)) >= 0) {
+            int end = code.indexOf("%>", i + 1);
+            int attr = code.indexOf(attrname, i + 1);
+            int afterStart = code.indexOf("<%", attr + attrname.length());
+            int afterEnd = code.indexOf("%>", attr + attrname.length());
+            if (afterEnd >= 0 && end == afterEnd && (afterStart < 0 || afterStart > afterEnd)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     protected class CompiledJSP implements CompiledInterpreter {
 
@@ -133,7 +146,10 @@ public class JSP implements CompilableInterpreter {
                     if (!this.prefixed) {
                         this.prefixed = true;
                         String code = codeManager.get(path).getCode();
-                        codeManager.update(path, INTERPRET_PREFIX + code, true);
+                        String prefix = INTERPRET_PREFIX;
+                        if (!checkPageDirective(code, "pageEncoding"))
+                            prefix = "<%@ page pageEncoding=\"UTF-8\" %>" + prefix;
+                        codeManager.update(path, prefix + code, true);
                         request.getRequestDispatcher(path).forward(request, response);
                         codeManager.update(path, code, true);
                         interpreted = true;
