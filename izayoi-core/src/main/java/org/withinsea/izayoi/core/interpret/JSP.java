@@ -108,7 +108,7 @@ public class JSP implements CompilableInterpreter {
             int attr = code.indexOf(attrname, i + 1);
             int afterStart = code.indexOf("<%", attr + attrname.length());
             int afterEnd = code.indexOf("%>", attr + attrname.length());
-            if (afterEnd >= 0 && end == afterEnd && (afterStart < 0 || afterStart > afterEnd)) {
+            if (attr >= 0 && afterEnd >= 0 && end == afterEnd && (afterStart < 0 || afterStart > afterEnd)) {
                 return true;
             }
         }
@@ -148,7 +148,7 @@ public class JSP implements CompilableInterpreter {
                         String code = codeManager.get(path).getCode();
                         String prefix = INTERPRET_PREFIX;
                         if (!checkPageDirective(code, "pageEncoding"))
-                            prefix = "<%@ page pageEncoding=\"UTF-8\" %>" + prefix;
+                            prefix += "<%@ page pageEncoding=\"UTF-8\" %>";
                         codeManager.update(path, prefix + code, true);
                         request.getRequestDispatcher(path).forward(request, response);
                         codeManager.update(path, code, true);
