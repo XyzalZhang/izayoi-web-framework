@@ -38,7 +38,7 @@ public class Data<S extends Scope> extends ResultInvoker<S> {
 
     @Override
     protected boolean acceptResult(Object result) {
-        return (result instanceof Map);
+        return (result != null) && (result instanceof Map);
     }
 
     @Override

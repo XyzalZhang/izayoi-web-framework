@@ -48,7 +48,8 @@ public class Action extends ResultInvoker<Request> {
     @SuppressWarnings("unchecked")
     protected boolean processResult(Object result, String codePath, Request scope) throws GlowwormException {
 
-        Collection<Object> results = (result instanceof Collection) ? (Collection<Object>) result
+        Collection<Object> results = (result == null) ? Arrays.asList((Object) null)
+                : (result instanceof Collection) ? (Collection<Object>) result
                 : (result.getClass().isArray() && result.getClass().getComponentType() != byte.class) ? Arrays.asList((Object[]) result)
                 : Arrays.asList(result);
 

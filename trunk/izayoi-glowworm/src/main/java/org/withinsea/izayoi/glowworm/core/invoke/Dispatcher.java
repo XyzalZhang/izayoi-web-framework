@@ -41,7 +41,7 @@ public class Dispatcher extends ResultInvoker<Request> {
 
     @Override
     protected boolean acceptResult(Object result) {
-        return (result instanceof String);
+        return (result != null) && (result instanceof String);
     }
 
     @Override
