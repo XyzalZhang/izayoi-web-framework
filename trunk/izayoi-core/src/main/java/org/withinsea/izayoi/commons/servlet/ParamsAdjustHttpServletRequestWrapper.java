@@ -123,6 +123,7 @@ public class ParamsAdjustHttpServletRequestWrapper extends HttpServletRequestWra
 
     @Override
     public Map<String, String[]> getParameterMap() {
+        @SuppressWarnings("unchecked")
         Map<String, String[]> map = new LinkedHashMap<String, String[]>(super.getParameterMap());
         for (String ignoreParam : ignoreParams) {
             map.remove(ignoreParam);

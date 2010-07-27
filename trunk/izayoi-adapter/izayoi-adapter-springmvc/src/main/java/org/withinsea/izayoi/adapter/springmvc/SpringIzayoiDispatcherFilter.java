@@ -50,6 +50,8 @@ import java.util.List;
  */
 public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements Filter {
 
+    private static final long serialVersionUID = -8904501296706031784L;
+
     protected static final String CARRIER_CHAIN_ATTR = SpringIzayoiDispatcherFilter.class.getCanonicalName() + ".CARRIER_CHAIN";
 
     protected boolean usingDefaultViewResolver = false;
@@ -90,6 +92,7 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public Enumeration<String> getInitParameterNames() {
                 return filterConfig.getInitParameterNames();
             }

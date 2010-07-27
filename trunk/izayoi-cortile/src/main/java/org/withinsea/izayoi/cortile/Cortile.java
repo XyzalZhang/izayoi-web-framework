@@ -48,6 +48,8 @@ import java.util.Map;
  */
 public class Cortile extends HttpServlet implements Filter, Configurable {
 
+    private static final long serialVersionUID = 5277775921503773954L;
+
     // dispatcher
 
     public static class Dispatcher {
@@ -60,7 +62,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
         public void doDispatch(HttpServletRequest request, HttpServletResponse response, String requestPath, FilterChain chain) throws ServletException, IOException {
 
             if (requestPath == null)
-                requestPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+                requestPath = (String) request.getAttribute(ServletFilterUtils.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = request.getServletPath();
 
             if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {

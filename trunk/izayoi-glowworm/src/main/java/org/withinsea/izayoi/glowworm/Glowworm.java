@@ -58,7 +58,7 @@ public class Glowworm implements Filter, Configurable {
 
         public void doDispatch(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-            String requestPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            String requestPath = (String) request.getAttribute(ServletFilterUtils.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = request.getServletPath();
 
             if (requestPath.startsWith(outputFolder)) {

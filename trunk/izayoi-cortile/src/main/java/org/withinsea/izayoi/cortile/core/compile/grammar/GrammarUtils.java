@@ -76,6 +76,9 @@ public class GrammarUtils {
     public static <T extends Grammar> Map<Integer, List<T>> sortAsGroups(
             Map<String, Set<Grammar>> grammars, Class<T> grammarClass, final String sortMethod) {
         Map<Integer, List<T>> groups = new LazyLinkedHashMap<Integer, List<T>>() {
+
+            private static final long serialVersionUID = 1321468422570128699L;
+
             @Override
             protected List<T> createValue(Integer priority) {
                 return new ArrayList<T>();
@@ -104,6 +107,9 @@ public class GrammarUtils {
             }
         });
         Map<Integer, List<NamespacedWrapper<T>>> groups = new LazyLinkedHashMap<Integer, List<NamespacedWrapper<T>>>() {
+
+            private static final long serialVersionUID = 7487773273694290974L;
+
             @Override
             protected List<NamespacedWrapper<T>> createValue(Integer priority) {
                 return new ArrayList<NamespacedWrapper<T>>();

@@ -33,6 +33,8 @@ import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
  */
 public class CloisterRuntimeException extends IzayoiRuntimeException {
 
+    private static final long serialVersionUID = 6676126670325804217L;
+
     public CloisterRuntimeException() {
     }
 

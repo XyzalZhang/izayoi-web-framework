@@ -33,6 +33,8 @@ import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
  */
 public class GlowwormRuntimeException extends IzayoiRuntimeException {
 
+    private static final long serialVersionUID = -7285603903920613833L;
+
     public GlowwormRuntimeException() {
     }
 

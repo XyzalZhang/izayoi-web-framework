@@ -42,8 +42,26 @@ import java.util.regex.Pattern;
  */
 public class ServletFilterUtils {
 
+    public static final String FORWARD_REQUEST_URI = "javax.servlet.forward.request_uri";
+    public static final String FORWARD_CONTEXT_PATH = "javax.servlet.forward.context_path";
+    public static final String FORWARD_PATH_INFO = "javax.servlet.forward.path_info";
+    public static final String FORWARD_SERVLET_PATH = "javax.servlet.forward.servlet_path";
+    public static final String FORWARD_QUERY_STRING = "javax.servlet.forward.query_string";
+    public static final String INCLUDE_REQUEST_URI = "javax.servlet.include.request_uri";
+    public static final String INCLUDE_CONTEXT_PATH = "javax.servlet.include.context_path";
+    public static final String INCLUDE_PATH_INFO = "javax.servlet.include.path_info";
+    public static final String INCLUDE_SERVLET_PATH = "javax.servlet.include.servlet_path";
+    public static final String INCLUDE_QUERY_STRING = "javax.servlet.include.query_string";
+    public static final String ERROR_EXCEPTION = "javax.servlet.error.exception";
+    public static final String ERROR_EXCEPTION_TYPE = "javax.servlet.error.exception_type";
+    public static final String ERROR_MESSAGE = "javax.servlet.error.message";
+    public static final String ERROR_REQUEST_URI = "javax.servlet.error.request_uri";
+    public static final String ERROR_SERVLET_NAME = "javax.servlet.error.servlet_name";
+    public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
+
     public static Map<String, String> getParamsMap(FilterConfig filterConfig) {
         Map<String, String> params = new LinkedHashMap<String, String>();
+        @SuppressWarnings("unchecked")
         Enumeration<String> enu = filterConfig.getInitParameterNames();
         while (enu.hasMoreElements()) {
             String pname = enu.nextElement();
@@ -54,6 +72,7 @@ public class ServletFilterUtils {
 
     public static Map<String, String> getParamsMap(ServletConfig servletConfig) {
         Map<String, String> params = new LinkedHashMap<String, String>();
+        @SuppressWarnings("unchecked")
         Enumeration<String> enu = servletConfig.getInitParameterNames();
         while (enu.hasMoreElements()) {
             String pname = enu.nextElement();
@@ -92,11 +111,11 @@ public class ServletFilterUtils {
     }
 
     public static boolean isIncluded(HttpServletRequest request) {
-        return request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH) != null;
+        return request.getAttribute(INCLUDE_SERVLET_PATH) != null;
     }
 
     public static boolean isForwarded(HttpServletRequest request) {
-        return !isIncluded(request) && request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH) != null;
+        return !isIncluded(request) && request.getAttribute(FORWARD_SERVLET_PATH) != null;
     }
 
     public static void chain(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -142,9 +161,18 @@ public class ServletFilterUtils {
         }
 
         protected static class Servlet3Helper implements Helper {
+            @SuppressWarnings("unchecked")
             public Set<String> getServletMappingPatterns(ServletContext servletContext) {
                 Set<String> set = new HashSet<String>();
-                for (ServletRegistration r : servletContext.getServletRegistrations().values()) {
+                Map<String, ? extends ServletRegistration> regis;
+                try {
+                    regis = (Map<String, ? extends ServletRegistration>)
+                            ServletContext.class.getMethod("getServletRegistrations").invoke(servletContext);
+                } catch (Exception e) {
+                    return Collections.emptySet();
+                }
+
+                for (ServletRegistration r : regis.values()) {
                     set.addAll(r.getMappings());
                 }
                 return set;
@@ -179,6 +207,9 @@ public class ServletFilterUtils {
         }
 
         protected static Map<ServletContext, Helper> HELPERS = new LazyLinkedHashMap<ServletContext, Helper>() {
+
+            private static final long serialVersionUID = -6346803590087488270L;
+
             @Override
             protected Helper createValue(ServletContext servletContext) {
                 return ServletRegistrations.createHelper(servletContext);
