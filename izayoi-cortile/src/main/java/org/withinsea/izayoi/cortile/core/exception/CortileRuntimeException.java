@@ -33,6 +33,8 @@ import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
  */
 public class CortileRuntimeException extends IzayoiRuntimeException {
 
+    private static final long serialVersionUID = 8660414800586513285L;
+
     public CortileRuntimeException() {
     }
 

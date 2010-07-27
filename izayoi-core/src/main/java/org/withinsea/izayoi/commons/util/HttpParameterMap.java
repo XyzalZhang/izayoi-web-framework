@@ -103,6 +103,7 @@ public class HttpParameterMap implements Map<String, Object> {
         return request;
     }
 
+    @SuppressWarnings("unchecked")
     protected Map<String, String[]> getParameterMap() {
         return getRequest().getParameterMap();
     }

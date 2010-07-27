@@ -60,7 +60,7 @@ public class Cloister implements Filter, Configurable {
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-            String requestPath = (String) req.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
+            String requestPath = (String) req.getAttribute(ServletFilterUtils.INCLUDE_SERVLET_PATH);
             if (requestPath == null) requestPath = req.getServletPath();
 
             if (ServletFilterUtils.matchUrlPattern(requestPath, bypass)) {

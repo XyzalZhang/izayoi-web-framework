@@ -35,6 +35,8 @@ import org.dom4j.tree.DefaultComment;
  */
 public class HTMLDocumentFactory extends DocumentFactory {
 
+    private static final long serialVersionUID = 4049687075570078147L;
+
     @Override
     public Comment createComment(String text) {
         return new DocumentHoldingComment(text);
@@ -46,6 +48,8 @@ public class HTMLDocumentFactory extends DocumentFactory {
     }
 
     public static class DocumentHoldingComment extends DefaultComment {
+
+        private static final long serialVersionUID = -3726388730591676351L;
 
         protected Document doc;
 
@@ -65,6 +69,8 @@ public class HTMLDocumentFactory extends DocumentFactory {
     }
 
     public static class SurroundableAttr extends DefaultAttribute {
+
+        private static final long serialVersionUID = -2186580031967041242L;
 
         protected String prefix = "";
         protected String suffix = "";

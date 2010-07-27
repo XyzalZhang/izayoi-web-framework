@@ -31,6 +31,8 @@ package org.withinsea.izayoi.core.exception;
  */
 public class IzayoiException extends Exception {
 
+    private static final long serialVersionUID = 808608579433042540L;
+
     public IzayoiException() {
     }
 

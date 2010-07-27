@@ -45,6 +45,8 @@ public class DefaultInvokeManager implements InvokeManager {
 
     protected static class Cache extends HashMap<String, Long> {
 
+        private static final long serialVersionUID = 3613991425340677036L;
+
         protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
         public static synchronized Cache get(Scope scope) throws GlowwormException {

@@ -34,6 +34,8 @@ import java.util.Map;
  */
 public class Vars extends LinkedHashMap<String, Object> {
 
+    private static final long serialVersionUID = 3958395296622881312L;
+
     public Vars(Object... pairs) {
         for (int i = 0; i < pairs.length - 1; i += 2) {
             put((String) pairs[i], pairs[i + 1]);

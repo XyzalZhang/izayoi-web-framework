@@ -97,5 +97,6 @@ public class HTMLDocumentScannerImpl extends XMLDocumentScannerImpl {
     }
 
     protected static class NoValueException extends RuntimeException {
+        private static final long serialVersionUID = -3383380031619366987L;
     }
 }
