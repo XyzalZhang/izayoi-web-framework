@@ -59,7 +59,7 @@ public class IzayoiContainerFactory {
     protected List<BeanSource> thirdPartyBeanSources = new ArrayList<BeanSource>();
 
     public IzayoiContainerFactory() {
-        this(new DefaultConfigurator(), PREFIX);
+        this(new DefaultConfigurator(PREFIX), PREFIX);
     }
 
     public IzayoiContainerFactory(Configurator configurator, String prefix) {

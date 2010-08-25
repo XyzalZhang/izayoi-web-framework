@@ -162,6 +162,8 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
             ts.removeAll(instantedClasses);
         }
 
+        clean();
+
         return beans;
     }
 
@@ -179,12 +181,15 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
             }
             nt.remove(name);
         }
-        return new ArrayList<T>((Set<T>) no.get(name));
+        return no.containsKey(name) ? new ArrayList<T>((Set<T>) no.get(name)) : new ArrayList<T>();
     }
 
     @Override
     public synchronized void add(Object bean) {
         if (!exist(bean)) {
+            if (!to.containsKey(bean.getClass())) {
+                to.put(bean.getClass(), new LinkedHashSet<Object>());
+            }
             to.get(bean.getClass()).add(bean);
         }
     }
@@ -199,11 +204,17 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
         for (Set<Object> beans : to.values()) {
             beans.remove(bean);
         }
+        if (!no.containsKey(name)) {
+            no.put(name, new LinkedHashSet<Object>());
+        }
         no.get(name).add(bean);
     }
 
     @Override
     public synchronized void add(String name, Class<?> claz) {
+        if (!nt.containsKey(name)) {
+            nt.put(name, new LinkedHashSet<Class<?>>());
+        }
         nt.get(name).add(claz);
     }
 
@@ -220,6 +231,7 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
         for (Set<Object> beans : to.values()) {
             beans.remove(bean);
         }
+        clean();
     }
 
     @Override
@@ -266,6 +278,8 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
             }
             ts.removeAll(removedClasses);
         }
+
+        clean();
     }
 
     @Override
@@ -296,5 +310,29 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
     public void set(String name, String value) {
         remove(name);
         add(name, value);
+    }
+
+    protected void clean() {
+
+        Set<String> nokeys = new HashSet<String>(no.keySet());
+        for (String k : nokeys) {
+            if (no.get(k).isEmpty()) {
+                no.remove(k);
+            }
+        }
+
+        Set<String> ntkeys = new HashSet<String>(nt.keySet());
+        for (String k : ntkeys) {
+            if (nt.get(k).isEmpty()) {
+                nt.remove(k);
+            }
+        }
+
+        Set<Class<?>> tokeys = new HashSet<Class<?>>(to.keySet());
+        for (Class<?> k : tokeys) {
+            if (to.get(k).isEmpty()) {
+                to.remove(k);
+            }
+        }
     }
 }
