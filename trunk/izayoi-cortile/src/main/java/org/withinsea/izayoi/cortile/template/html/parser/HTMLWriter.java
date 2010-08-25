@@ -76,8 +76,8 @@ public class HTMLWriter extends org.dom4j.io.HTMLWriter {
         for (Attribute attribute : (List<Attribute>) element.attributes()) {
             String name = attribute.getName();
             if (!name.equals("xmlns") && !name.startsWith("xmlns:")) {
-                if (attribute instanceof HTMLDocumentFactory.SurroundableAttr) {
-                    HTMLDocumentFactory.SurroundableAttr sattr = (HTMLDocumentFactory.SurroundableAttr) attribute;
+                if (attribute instanceof SurroundableAttr) {
+                    SurroundableAttr sattr = (SurroundableAttr) attribute;
                     writeString(" " + sattr.getPrefix() + attribute.getQualifiedName() + "=\"");
                     writeEscapeAttributeEntities(attribute.getValue());
                     writer.write("\"");
@@ -93,8 +93,8 @@ public class HTMLWriter extends org.dom4j.io.HTMLWriter {
 
     @Override
     protected void writeAttribute(Attribute attribute) throws IOException {
-        if (attribute instanceof HTMLDocumentFactory.SurroundableAttr) {
-            HTMLDocumentFactory.SurroundableAttr sattr = (HTMLDocumentFactory.SurroundableAttr) attribute;
+        if (attribute instanceof SurroundableAttr) {
+            SurroundableAttr sattr = (SurroundableAttr) attribute;
             writeString(sattr.getPrefix());
             super.writeAttribute(attribute);
             writeString(sattr.getSuffix());

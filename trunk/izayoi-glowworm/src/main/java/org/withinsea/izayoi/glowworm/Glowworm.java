@@ -25,19 +25,19 @@
 package org.withinsea.izayoi.glowworm;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.conf.Configurable;
-import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 import org.withinsea.izayoi.core.scope.*;
-import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 import org.withinsea.izayoi.glowworm.core.invoke.InvokeManager;
 
+import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,16 +45,23 @@ import java.util.Map;
  * Date: 2010-1-12
  * Time: 23:49:57
  */
-public class Glowworm implements Filter, Configurable {
+public class Glowworm implements Filter {
 
     // dispatcher
 
     public static class Dispatcher {
 
-        protected InvokeManager invokeManager;
-        protected String outputFolder;
-        protected String outputSuffix;
-        protected String bypass;
+        @Resource
+        InvokeManager invokeManager;
+
+        @Resource
+        String outputFolder;
+
+        @Resource
+        String outputSuffix;
+
+        @Resource
+        List<String> bypass;
 
         public void doDispatch(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
@@ -113,50 +120,32 @@ public class Glowworm implements Filter, Configurable {
                 throw new SecurityException(e);
             }
         }
-
-        public void setBypass(String bypass) {
-            this.bypass = bypass;
-        }
-
-        public void setInvokeManager(InvokeManager invokeManager) {
-            this.invokeManager = invokeManager;
-        }
-
-        public void setOutputFolder(String outputFolder) {
-            this.outputFolder = outputFolder;
-        }
-
-        public void setOutputSuffix(String outputSuffix) {
-            this.outputSuffix = outputSuffix;
-        }
     }
 
     // api
 
-    protected Configurator configurator = new GlowwormConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
-        IzayoiContainer container = IzayoiContainer.get(servletContext, configPath, configurator, confOverrides);
-        dispatcher = container.getComponent(Dispatcher.class);
+    public void init(ServletContext servletContext, Map<String, String> overriddenProperties) {
+        init(new IzayoiContainerFactory()
+                .addModule("org.withinsea.izayoi.core")
+                .addModule("org.withinsea.izayoi.glowworm")
+                .create(servletContext, overriddenProperties));
+    }
+
+    public void init(IzayoiContainer container) {
+        dispatcher = container.get(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws ServletException, IOException {
         dispatcher.doDispatch(req, resp, chain);
     }
 
-    @Override
-    public void setConfigurator(Configurator configurator) {
-        this.configurator = configurator;
-    }
-
     // as filter
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
-        confOverrides.remove("config-path");
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
+        init(filterConfig.getServletContext(), ServletFilterUtils.getParamsMap(filterConfig));
     }
 
     @SuppressWarnings("unchecked")

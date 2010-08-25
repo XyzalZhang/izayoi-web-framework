@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.withinsea.izayoi.commons.servlet.FlagChain;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.glowworm.Glowworm;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,8 +64,14 @@ public class SpringGlowwormInterceptor extends HandlerInterceptorAdapter impleme
 
         if (glowworm == null) {
             glowworm = new Glowworm();
-            glowworm.setConfigurator(new SpringGlowwormConfigurator(applicationContext));
-            glowworm.init(request.getSession().getServletContext(), configPath, Collections.<String, String>emptyMap());
+            glowworm.init(new IzayoiContainerFactory()
+                    .addBeanSource(new SpringBeanSource(applicationContext))
+                    .addModule("org.withinsea.izayoi.adapter.springmvc")
+                    .addModule("org.withinsea.izayoi.core")
+                    .addModule("org.withinsea.izayoi.cloister")
+                    .addModule("org.withinsea.izayoi.glowworm")
+                    .addModule("org.withinsea.izayoi.cortile")
+                    .create(request.getSession().getServletContext(), Collections.<String, String>emptyMap()));
         }
 
         FlagChain chain = new FlagChain();

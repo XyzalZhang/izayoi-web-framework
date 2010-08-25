@@ -25,20 +25,16 @@
 package org.withinsea.izayoi.cortile.core.compile.dom;
 
 import org.dom4j.Attribute;
-import org.dom4j.Element;
-import org.withinsea.izayoi.cortile.core.compile.grammar.Grammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.compile.Compilr;
-import org.withinsea.izayoi.cortile.core.compile.grammar.GrammarCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface AttrGrammar<C extends GrammarCompiler> extends Grammar<C> {
+public interface AttrGrammar extends Grammar {
 
-    public boolean acceptAttr(Element elem, Attribute attr);
+    public boolean acceptAttr(Attribute attr);
 
-    public abstract void processAttr(C compiler, Compilr.Result result, Element elem, Attribute attr) throws CortileException;
+    public abstract void processAttr(Attribute attr) throws CortileException;
 }

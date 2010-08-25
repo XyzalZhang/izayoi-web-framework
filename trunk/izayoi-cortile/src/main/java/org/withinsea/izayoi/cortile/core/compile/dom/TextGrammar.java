@@ -25,19 +25,16 @@
 package org.withinsea.izayoi.cortile.core.compile.dom;
 
 import org.dom4j.Text;
-import org.withinsea.izayoi.cortile.core.compile.grammar.Grammar;
-import org.withinsea.izayoi.cortile.core.compile.grammar.GrammarCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.compile.Compilr;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface TextGrammar<C extends GrammarCompiler> extends Grammar<C> {
+public interface TextGrammar extends Grammar {
 
     public boolean acceptText(Text text);
 
-    public abstract void processText(C compiler, Compilr.Result result, Text text) throws CortileException;
+    public abstract void processText(Text text) throws CortileException;
 }

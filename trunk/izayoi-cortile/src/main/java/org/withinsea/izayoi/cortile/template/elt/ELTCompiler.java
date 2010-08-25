@@ -28,6 +28,8 @@ import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.cortile.core.compile.jsp.ELJSPCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
+import javax.annotation.Resource;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-4-9
@@ -35,12 +37,27 @@ import org.withinsea.izayoi.cortile.core.exception.CortileException;
  */
 public class ELTCompiler extends ELJSPCompiler {
 
+    @Resource
+    String elType;
+
+    @Resource
+    String encoding;
+
+    @Resource
+    String outputFolder;
+
+    @Resource
+    String outputSuffix;
+
+    @Resource
+    String izayoiContainerRetrievalKey;
+
     @Override
     public String compileJSP(String jspContent) throws CortileException {
         return super.compileJSP(StringUtils.replaceAll(jspContent, "\\$\\{([\\s\\S]*?[^\\\\])\\}", new StringUtils.Replace() {
             @Override
             public String replace(String... groups) {
-                return "<%=" + el(groups[1].replace("\\}", "}"), true) + "%>";
+                return "<%=" + el(groups[1].replace("\\}", "}"), true, elType) + "%>";
             }
         }));
     }

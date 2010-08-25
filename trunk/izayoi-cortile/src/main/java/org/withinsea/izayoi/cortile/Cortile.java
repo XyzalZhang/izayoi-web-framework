@@ -25,20 +25,20 @@
 package org.withinsea.izayoi.cortile;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.conf.Configurable;
-import org.withinsea.izayoi.core.conf.Configurator;
 import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.cortile.core.compile.CompileManager;
-import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
+import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +46,7 @@ import java.util.Map;
  * Date: 2009-12-27
  * Time: 22:01:47
  */
-public class Cortile extends HttpServlet implements Filter, Configurable {
+public class Cortile extends HttpServlet implements Filter {
 
     private static final long serialVersionUID = 5277775921503773954L;
 
@@ -54,10 +54,17 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
     public static class Dispatcher {
 
-        protected CompileManager compileManager;
-        protected CodeManager codeManager;
-        protected String encoding;
-        protected String bypass;
+        @Resource
+        CompileManager compileManager;
+
+        @Resource
+        CodeContainer codeContainer;
+
+        @Resource
+        String encoding;
+
+        @Resource
+        List<String> bypass;
 
         public void doDispatch(HttpServletRequest request, HttpServletResponse response, String requestPath, FilterChain chain) throws ServletException, IOException {
 
@@ -81,7 +88,6 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
             }
 
             try {
-
                 String entrancePath = compileManager.update(templatePath, false);
 
                 if (!entrancePath.equals(requestPath)) {
@@ -89,14 +95,14 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                     response.setCharacterEncoding(encoding);
 
                     Path parsedPath = new Path(requestPath);
-                    String mimeType = codeManager.getMimeType(parsedPath.getMainType());
-                    if (mimeType == null) mimeType = codeManager.getMimeType(parsedPath.getType());
+                    String mimeType = codeContainer.getMimeType(parsedPath.getMainType());
+                    if (mimeType == null) mimeType = codeContainer.getMimeType(parsedPath.getType());
                     if (mimeType != null) {
                         response.setContentType(mimeType + "; charset=" + encoding);
                     }
 
                     try {
-                        request.getRequestDispatcher(entrancePath).forward(request, response);
+                        ServletFilterUtils.forwardOrInclude(request, response, entrancePath);
                     } catch (Exception e) {
                         throw new CortileException(e);
                     }
@@ -118,41 +124,25 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
                 throw new ServletException(e);
             }
         }
-
-        public void setBypass(String bypass) {
-            this.bypass = bypass;
-        }
-
-        public void setCodeManager(CodeManager codeManager) {
-            this.codeManager = codeManager;
-        }
-
-        public void setCompileManager(CompileManager compileManager) {
-            this.compileManager = compileManager;
-        }
-
-        public void setEncoding(String encoding) {
-            this.encoding = encoding;
-        }
     }
 
     // api
 
-    protected Configurator configurator = new CortileConfigurator();
     protected Dispatcher dispatcher;
 
-    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
-        IzayoiContainer container = IzayoiContainer.get(servletContext, configPath, configurator, confOverrides);
-        dispatcher = container.getComponent(Dispatcher.class);
+    public void init(ServletContext servletContext, Map<String, String> overriddenProperties) {
+        init(new IzayoiContainerFactory()
+                .addModule("org.withinsea.izayoi.core")
+                .addModule("org.withinsea.izayoi.cortile")
+                .create(servletContext, overriddenProperties));
+    }
+
+    public void init(IzayoiContainer container) {
+        dispatcher = container.get(Dispatcher.class);
     }
 
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, String requestPath, FilterChain chain) throws ServletException, IOException {
         dispatcher.doDispatch(req, resp, requestPath, chain);
-    }
-
-    @Override
-    public void setConfigurator(Configurator configurator) {
-        this.configurator = configurator;
     }
 
     // as servlet
@@ -160,9 +150,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(config);
-        confOverrides.remove("config-path");
-        init(config.getServletContext(), config.getInitParameter("config-path"), confOverrides);
+        init(config.getServletContext(), ServletFilterUtils.getParamsMap(config));
     }
 
     @Override
@@ -174,9 +162,7 @@ public class Cortile extends HttpServlet implements Filter, Configurable {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
-        confOverrides.remove("config-path");
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
+        init(filterConfig.getServletContext(), ServletFilterUtils.getParamsMap(filterConfig));
     }
 
     @Override

@@ -31,9 +31,9 @@ import javax.servlet.ServletContext;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Application extends AbstractScope<Singleton> {
+public class Application extends InheritedScope<Singleton> {
 
-    protected final javax.servlet.ServletContext servletContext;
+    protected final ServletContext servletContext;
 
     public Application(javax.servlet.ServletContext servletContext) {
         super(new Singleton());
@@ -41,21 +41,20 @@ public class Application extends AbstractScope<Singleton> {
     }
 
     @Override
-    public Object getConstant(String name) {
+    public void setAttribute(String name, Object obj) {
+        servletContext.setAttribute(name, obj);
+    }
+
+    @Override
+    protected Object getScopeConstant(String name) {
         return name.equals("application") ? servletContext
                 : name.equals("servletContext") ? servletContext
                 : null;
     }
 
     @Override
-    public Object getAttribute(String name) {
-        Object obj = servletContext.getAttribute(name);
-        return obj;
-    }
-
-    @Override
-    public void setAttribute(String name, Object obj) {
-        servletContext.setAttribute(name, obj);
+    protected Object getScopeAttribute(String name) {
+        return servletContext.getAttribute(name);
     }
 
     public ServletContext getServletContext() {

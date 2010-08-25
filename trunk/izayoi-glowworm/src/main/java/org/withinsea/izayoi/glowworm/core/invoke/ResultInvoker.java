@@ -25,14 +25,18 @@
 package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.servlet.ByteArrayBufferedHttpServletResponseWrapper;
-import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
 import org.withinsea.izayoi.core.exception.IzayoiException;
+import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.interpret.Vars;
+import org.withinsea.izayoi.core.interpret.Varstack;
+import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.core.scope.Scope;
-import org.withinsea.izayoi.core.scope.ScopeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -42,44 +46,36 @@ import javax.servlet.http.HttpServletResponse;
  */
 public abstract class ResultInvoker<S extends Scope> implements Invoker<S> {
 
-    protected CodeManager codeManager;
-    protected ScopeManager scopeManager;
-    protected InterpretManager interpretManager;
+    @Resource
+    IzayoiContainer izayoiContainer;
 
-    @Override
-    public boolean invoke(String codePath, S scope) throws GlowwormException {
+    @Resource
+    CodeContainer codeContainer;
 
-        Varstack bindings = scopeManager.createVarstack(scope);
-        {
-            HttpServletResponse response = (HttpServletResponse) bindings.get("response");
-            if (response != null) {
-                bindings.push();
-                bindings.put("response", new ByteArrayBufferedHttpServletResponseWrapper(response));
-                bindings.push();
-            }
-        }
-
-        try {
-            Object result = interpretManager.interpret(codeManager.get(codePath), bindings);
-            return !acceptResult(result) || processResult(result, codePath, scope);
-        } catch (IzayoiException e) {
-            throw new GlowwormException(e);
-        }
-    }
+    @Resource
+    InterpretManager interpretManager;
 
     protected abstract boolean acceptResult(Object result);
 
     protected abstract boolean processResult(Object result, String codePath, S scope) throws GlowwormException;
 
-    public void setScopeManager(ScopeManager scopeManager) {
-        this.scopeManager = scopeManager;
-    }
+    @Override
+    public boolean invoke(String codePath, S scope) throws GlowwormException {
 
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
-    }
+        HttpServletResponse response = (scope instanceof Request) ? ((Request) scope).getResponse() : null;
 
-    public void setInterpretManager(InterpretManager interpretManager) {
-        this.interpretManager = interpretManager;
+        Varstack bindings = new Varstack(
+                BindingsUtils.asBindings(izayoiContainer),
+                BindingsUtils.asBindings(scope),
+                new Vars("response", (response == null) ? null : new ByteArrayBufferedHttpServletResponseWrapper(response)),
+                new Vars()
+        );
+
+        try {
+            Object result = interpretManager.interpret(codeContainer.get(codePath), bindings);
+            return !acceptResult(result) || processResult(result, codePath, scope);
+        } catch (IzayoiException e) {
+            throw new GlowwormException(e);
+        }
     }
 }

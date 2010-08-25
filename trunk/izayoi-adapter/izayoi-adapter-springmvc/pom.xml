@@ -31,28 +31,28 @@
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>izayoi-base</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
+        <version>0.4.0-SNAPSHOT</version>
     </parent>
     <artifactId>izayoi-adapter-springmvc</artifactId>
     <packaging>jar</packaging>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-cloister</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.4.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-glowworm</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.4.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-cortile</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <version>0.4.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

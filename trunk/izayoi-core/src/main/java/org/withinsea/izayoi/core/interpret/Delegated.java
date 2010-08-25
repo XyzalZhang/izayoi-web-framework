@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.core.interpret;
 
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
@@ -51,7 +52,7 @@ public class Delegated implements Interpreter {
         HttpServletResponse response = (HttpServletResponse) bindings.get("response");
 
         try {
-            request.getRequestDispatcher(code.getPath().getPath()).forward(request, response);
+            ServletFilterUtils.forwardOrInclude(request, response, code.getPath().getPath());
         } catch (Exception e) {
             throw new IzayoiException(e);
         }

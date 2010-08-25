@@ -31,7 +31,7 @@ import javax.servlet.http.HttpSession;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Session extends AbstractScope<Application> {
+public class Session extends InheritedScope<Application> {
 
     protected final HttpSession session;
 
@@ -41,20 +41,19 @@ public class Session extends AbstractScope<Application> {
     }
 
     @Override
-    public Object getConstant(String name) {
+    public void setAttribute(String name, Object obj) {
+        session.setAttribute(name, obj);
+    }
+
+    @Override
+    protected Object getScopeConstant(String name) {
         return name.equals("session") ? session
                 : null;
     }
 
     @Override
-    public Object getAttribute(String name) {
-        Object obj = session.getAttribute(name);
-        return obj;
-    }
-
-    @Override
-    public void setAttribute(String name, Object obj) {
-        session.setAttribute(name, obj);
+    protected Object getScopeAttribute(String name) {
+        return session.getAttribute(name);
     }
 
     public HttpSession getSession() {

@@ -24,8 +24,7 @@
 
 package org.withinsea.izayoi.cortile.core.compile.el;
 
-import org.withinsea.izayoi.cortile.core.compile.el.ELHelper;
-import org.withinsea.izayoi.cortile.core.compile.el.ELSupportedCompiler;
+import org.withinsea.izayoi.commons.util.StringUtils;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -34,25 +33,20 @@ import org.withinsea.izayoi.cortile.core.compile.el.ELSupportedCompiler;
  */
 public abstract class JavaELSupportedCompiler implements ELSupportedCompiler {
 
-    protected abstract String compileELHelperBuilding();
+    protected abstract String elHelper();
 
     @Override
     public String elInit() {
-        return ELHelper.class.getCanonicalName() + ".Helper elHelper = " + compileELHelperBuilding() + ";";
+        return ELHelper.class.getCanonicalName() + " elHelper = " + elHelper() + ";";
     }
 
     @Override
-    public String elImports(String classes) {
-        return "elHelper.imports(\"" + classes + "\");";
-    }
-
-    public String compileEL(String el) {
-        return el(el, false);
-    }
-
-    @Override
-    public String el(String el, boolean forOutput) {
-        return "elHelper.eval(\"" + el.replace("\n", "").replace("\r", "") + "\", " + forOutput + ")";
+    public String el(String el, boolean forOutput, String elType, String... imports) {
+        String elCode = "\"" + el.replace("\n", "").replace("\r", "") + "\"";
+        String typeCode = (elType == null) ? "null" : "\"" + elType + "\"";
+        String importsCode = StringUtils.join(",", imports);
+        return "elHelper.eval(" + elCode + "," + forOutput + "," + typeCode +
+                (imports.length == 0 ? "" : "," + importsCode) + ")";
     }
 
     @Override
@@ -60,23 +54,19 @@ public abstract class JavaELSupportedCompiler implements ELSupportedCompiler {
         return "elHelper.bind(\"" + key + "\", " + valueCode + ");";
     }
 
-    public String elScope() {
-        return elScope(null, null);
-    }
-
-    public String elScope(String elType) {
-        return elScope(elType, null);
+    @Override
+    public String openScope() {
+        return openScope(null);
     }
 
     @Override
-    public String elScope(String elType, String bindingsCode) {
-        elType = (elType == null) ? "null" : "\"" + elType + "\"";
-        bindingsCode = (bindingsCode == null) ? "null" : bindingsCode;
-        return "elHelper.scope(" + elType + ", " + bindingsCode + ");";
+    public String openScope(String bindingsCode) {
+        bindingsCode = (bindingsCode == null) ? "" : bindingsCode;
+        return "elHelper.openScope(" + bindingsCode + ");";
     }
 
     @Override
-    public String elScopeEnd() {
-        return "elHelper.scopeEnd();";
+    public String closeScope() {
+        return "elHelper.closeScope();";
     }
 }

@@ -29,7 +29,8 @@ import org.springframework.web.servlet.*;
 import org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator;
 import org.withinsea.izayoi.cloister.Cloister;
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 import org.withinsea.izayoi.cortile.Cortile;
 import org.withinsea.izayoi.glowworm.Glowworm;
@@ -42,6 +43,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -56,9 +58,6 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
 
     protected boolean usingDefaultViewResolver = false;
 
-    protected Configurator cloisterConfigurator;
-    protected Configurator glowwormConfigurator;
-    protected Configurator cortileConfigurator;
     protected Cloister cloister;
     protected Glowworm glowworm;
     protected Cortile cortile;
@@ -98,16 +97,22 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
             }
         });
 
-        cloister.setConfigurator((this.cloisterConfigurator != null) ? this.cloisterConfigurator :
-                new SpringCloisterConfigurator(getWebApplicationContext()));
-        glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
-                new SpringGlowwormConfigurator(getWebApplicationContext()));
-        cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
-                new SpringCortileConfigurator(getWebApplicationContext()));
+        ApplicationContext appctx = getWebApplicationContext();
+        ServletContext servletContext = filterConfig.getServletContext();
+        Map<String, String> overriddenProperties = ServletFilterUtils.getParamsMap(filterConfig);
 
-        cloister.init(filterConfig);
-        glowworm.init(filterConfig);
-        cortile.init(filterConfig);
+        IzayoiContainer container = new IzayoiContainerFactory()
+                .addBeanSource(new SpringBeanSource(appctx))
+                .addModule("org.withinsea.izayoi.adapter.springmvc")
+                .addModule("org.withinsea.izayoi.core")
+                .addModule("org.withinsea.izayoi.cloister")
+                .addModule("org.withinsea.izayoi.glowworm")
+                .addModule("org.withinsea.izayoi.cortile")
+                .create(servletContext, overriddenProperties);
+
+        cloister.init(container);
+        glowworm.init(container);
+        cortile.init(container);
     }
 
     @Override
@@ -186,17 +191,5 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
     @Override
     public void destroy() {
         super.destroy();
-    }
-
-    public void setCloisterConfigurator(Configurator cloisterConfigurator) {
-        this.cloisterConfigurator = cloisterConfigurator;
-    }
-
-    public void setGlowwormConfigurator(Configurator glowwormConfigurator) {
-        this.glowwormConfigurator = glowwormConfigurator;
-    }
-
-    public void setCortileConfigurator(Configurator cortileConfigurator) {
-        this.cortileConfigurator = cortileConfigurator;
     }
 }

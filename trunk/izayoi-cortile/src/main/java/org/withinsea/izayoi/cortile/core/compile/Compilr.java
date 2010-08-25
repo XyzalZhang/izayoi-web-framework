@@ -40,35 +40,15 @@ public interface Compilr {
 
     public static class Result {
 
-        private final String templatePath;
-
-        private final Set<String> relativeTemplatePaths = new HashSet<String>();
         private final Map<String, String> targets = new HashMap<String, String>();
-        private final Map<String, Object> attrs = new HashMap<String, Object>();
-
-        public Result(String templatePath) {
-            this.templatePath = templatePath;
-        }
-
-        public String getTemplatePath() {
-            return templatePath;
-        }
-
-        public Set<String> getRelativeTemplatePaths() {
-            return relativeTemplatePaths;
-        }
+        private final Set<String> relativeTemplatePaths = new HashSet<String>();
 
         public Map<String, String> getTargets() {
             return targets;
         }
 
-        @SuppressWarnings("unchecked")
-        public <T> T getAttribute(String key) {
-            return (T) attrs.get(key);
-        }
-
-        public void setAttribute(String key, Object value) {
-            attrs.put(key, value);
+        public Set<String> getRelativeTemplatePaths() {
+            return relativeTemplatePaths;
         }
     }
 

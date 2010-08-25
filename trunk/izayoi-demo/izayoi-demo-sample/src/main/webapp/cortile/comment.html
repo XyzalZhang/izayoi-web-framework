@@ -21,7 +21,6 @@
   ~ Portions created by the Initial Developer are Copyright (C) 2009-2010
   ~ the Initial Developer. All Rights Reserved.
   -->
-<!--@imports java.util.* -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,28 +29,19 @@
 </head>
 <body>
     <ol>
-        <li><h2>JSP Fragment Comment</h2>
-            <!--= <p><%= "OK" %></p> -->
-        </li>
-        <li><h2>Scriptlet Comment</h2>
-            <!--%= "OK" %-->
-        </li>
         <li><h2>"JSP Comment" Comment</h2>
-            Nothing Here: <!--// This comment will not be output, too.  -->
+            Nothing Here: <!--// This comment won't appears in compiled code.  -->
         </li>
         <li><h2>ELScript Comment</h2>
             6*7 = <!--$= 6*7 -->
         </li>
-        <li><h2>Imports Comment</h2>
-            a map: <!--%= new HashMap() %-->
-        </li>
-        <li><h2>Range Comment</h2>
+        <li><h2>Anonymous Element Comment</h2>
             two elements will be all replaced:
-            <!--<c:content="REPLACED"-->
+            <!--<anonymous c:content="REPLACED">-->
             <p>P1</p>
 
             <p>P2</p>
-            <!--</-->
+            <!--</anonymous>-->
         </li>
     </ol>
 </body>

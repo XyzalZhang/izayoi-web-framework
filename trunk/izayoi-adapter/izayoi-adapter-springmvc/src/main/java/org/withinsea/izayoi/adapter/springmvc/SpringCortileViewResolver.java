@@ -27,13 +27,13 @@ package org.withinsea.izayoi.adapter.springmvc;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.cortile.Cortile;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -75,8 +75,14 @@ public class SpringCortileViewResolver extends UrlBasedViewResolver implements A
         super.initServletContext(servletContext);
         if (cortile == null) {
             cortile = new Cortile();
-            cortile.setConfigurator(new SpringCortileConfigurator(getApplicationContext()));
-            cortile.init(servletContext, configPath, Collections.<String, String>emptyMap());
+            cortile.init(new IzayoiContainerFactory()
+                    .addBeanSource(new SpringBeanSource(getApplicationContext()))
+                    .addModule("org.withinsea.izayoi.adapter.springmvc")
+                    .addModule("org.withinsea.izayoi.core")
+                    .addModule("org.withinsea.izayoi.cloister")
+                    .addModule("org.withinsea.izayoi.glowworm")
+                    .addModule("org.withinsea.izayoi.cortile")
+                    .create(servletContext, Collections.<String, String>emptyMap()));
         }
     }
 

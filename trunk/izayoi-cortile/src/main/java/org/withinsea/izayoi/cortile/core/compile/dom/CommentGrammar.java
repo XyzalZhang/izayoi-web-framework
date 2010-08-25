@@ -25,19 +25,16 @@
 package org.withinsea.izayoi.cortile.core.compile.dom;
 
 import org.dom4j.Comment;
-import org.withinsea.izayoi.cortile.core.compile.grammar.Grammar;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.compile.Compilr;
-import org.withinsea.izayoi.cortile.core.compile.grammar.GrammarCompiler;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 15:29:06
  */
-public interface CommentGrammar<C extends GrammarCompiler> extends Grammar<C> {
+public interface CommentGrammar extends Grammar {
 
     public boolean acceptComment(Comment comment);
 
-    public abstract void processComment(C compiler, Compilr.Result result, Comment comment) throws CortileException;
+    public abstract void processComment(Comment comment) throws CortileException;
 }

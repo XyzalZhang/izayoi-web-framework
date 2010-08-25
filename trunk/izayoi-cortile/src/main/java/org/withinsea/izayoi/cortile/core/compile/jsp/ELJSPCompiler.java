@@ -24,29 +24,34 @@
 
 package org.withinsea.izayoi.cortile.core.compile.jsp;
 
-import org.withinsea.izayoi.core.conf.IzayoiContainer;
 import org.withinsea.izayoi.cortile.core.compile.el.ELHelper;
 import org.withinsea.izayoi.cortile.core.compile.el.JavaELSupportedCompiler;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
+
+import javax.annotation.Resource;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-3-7
  * Time: 1:05:30
  */
-public abstract class ELJSPCompiler extends JavaELSupportedCompiler {
+public class ELJSPCompiler extends JavaELSupportedCompiler {
 
-    protected String encoding;
-    protected String outputFolder;
-    protected String outputSuffix;
-    protected String izayoiContainerRetrievalKey;
+    @Resource
+    String encoding;
+
+    @Resource
+    String outputFolder;
+
+    @Resource
+    String outputSuffix;
+
+    @Resource
+    String izayoiContainerRetrievalKey;
 
     @Override
-    protected String compileELHelperBuilding() {
-        return IzayoiContainer.class.getCanonicalName() +
-                ".retrieval(request.getSession().getServletContext(), \"" + izayoiContainerRetrievalKey + "\")" +
-                ".getComponent(" + ELHelper.class.getCanonicalName() + ".class)" +
-                ".getHelper(request, response)";
+    protected String elHelper() {
+        return ELHelper.class.getCanonicalName() + ".get(\"" + izayoiContainerRetrievalKey + "\", request, response)";
     }
 
     @Override
@@ -57,7 +62,7 @@ public abstract class ELJSPCompiler extends JavaELSupportedCompiler {
 
     @Override
     public Result compile(String templatePath, String templateCode) throws CortileException {
-        Result result = new Result(templatePath);
+        Result result = new Result();
         result.getTargets().put(mapEntrancePath(templatePath), compileJSP(templateCode));
         return result;
     }
@@ -66,23 +71,5 @@ public abstract class ELJSPCompiler extends JavaELSupportedCompiler {
         return "<%@ page contentType=\"text/html; charset=" + encoding + "\" pageEncoding=\"" + encoding + "\" %>" +
                 "<%" + elInit() + "%>" +
                 jspContent;
-    }
-
-    // dependency
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-
-    public void setOutputFolder(String outputFolder) {
-        this.outputFolder = outputFolder;
-    }
-
-    public void setOutputSuffix(String outputSuffix) {
-        this.outputSuffix = outputSuffix;
-    }
-
-    public void setIzayoiContainerRetrievalKey(String izayoiContainerRetrievalKey) {
-        this.izayoiContainerRetrievalKey = izayoiContainerRetrievalKey;
     }
 }

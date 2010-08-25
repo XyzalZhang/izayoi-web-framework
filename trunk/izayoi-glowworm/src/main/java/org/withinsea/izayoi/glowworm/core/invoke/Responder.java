@@ -27,11 +27,13 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.serialize.SerializeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
-import org.withinsea.izayoi.glowworm.core.serialize.SerializeManager;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -40,8 +42,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class Responder extends ResultInvoker<Request> {
 
-    protected SerializeManager serializeManager;
-    protected String encoding;
+    @Resource
+    SerializeManager serializeManager;
+
+    @Resource
+    String encoding;
 
     @Override
     protected boolean acceptResult(Object result) {
@@ -49,6 +54,7 @@ public class Responder extends ResultInvoker<Request> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected boolean processResult(Object result, String codePath, Request scope) throws GlowwormException {
 
         HttpServletRequest request = scope.getRequest();
@@ -63,7 +69,7 @@ public class Responder extends ResultInvoker<Request> {
             }
         }
 
-        String mimeType = codeManager.getMimeType(asType);
+        String mimeType = codeContainer.getMimeType(asType);
         if (!ServletFilterUtils.matchContentType(mimeType, accept)) {
             return false;
         } else if (mimeType != null) {
@@ -74,30 +80,36 @@ public class Responder extends ResultInvoker<Request> {
 
         try {
 
-            if (result == null) {
+            if (serializeManager.isSerializable(asType)) {
 
-            } else if (result.getClass().isArray() && result.getClass().getComponentType() == byte.class) {
-                response.getOutputStream().write((byte[]) result);
-            } else if (result instanceof String) {
-                response.getWriter().write((String) result);
-            } else {
-                serializeManager.serialize(result.getClass(), result, asType, response.getOutputStream(), encoding);
+                if (result == null) {
+
+                } else if (result.getClass().isArray() && result.getClass().getComponentType() == byte.class) {
+                    response.getOutputStream().write((byte[]) result);
+                } else if (result instanceof String) {
+                    response.getWriter().write((String) result);
+                } else {
+                    serializeManager.serialize(result.getClass(), result, asType, response.getOutputStream(), encoding);
+                }
+
+                response.flushBuffer();
+
+            } else if (result instanceof Map) {
+
+                for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
+                    scope.setAttribute(e.getKey(), e.getValue());
+                }
+
+                Path path = new Path(codePath);
+                String templatePath = path.getFolder() + "/" + path.getMainName() + "." + asType;
+                ServletFilterUtils.forwardOrInclude(request, response, templatePath);
+//                request.getRequestDispatcher(templatePath).forward(request, response);
             }
-
-            response.flushBuffer();
 
         } catch (Exception e) {
             throw new GlowwormException(e);
         }
 
         return false;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-
-    public void setSerializeManager(SerializeManager serializeManager) {
-        this.serializeManager = serializeManager;
     }
 }

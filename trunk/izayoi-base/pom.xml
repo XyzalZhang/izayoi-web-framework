@@ -31,7 +31,7 @@
     <groupId>org.withinsea.izayoi</groupId>
     <artifactId>izayoi-base</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>

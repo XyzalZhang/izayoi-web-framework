@@ -24,7 +24,6 @@
 
 package org.withinsea.izayoi.cortile.core.compile;
 
-import org.withinsea.izayoi.cortile.core.compile.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
 /**
@@ -41,6 +40,6 @@ public class NoopCompiler implements Compilr {
 
     @Override
     public Result compile(String templatePath, String templateCode) throws CortileException {
-        return new Result(templatePath);
+        return new Result();
     }
 }
