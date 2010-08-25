@@ -37,6 +37,16 @@ import java.util.*;
  */
 public class DefaultConfigurator implements Configurator {
 
+    protected String prefix;
+
+    public DefaultConfigurator() {
+        this("");
+    }
+
+    public DefaultConfigurator(String prefix) {
+        this.prefix = prefix;
+    }
+
     @Override
     public void configurate(IzayoiContainer container, Properties props) throws ClassNotFoundException, InstantiationException {
         for (String name : props.stringPropertyNames()) {
@@ -120,7 +130,11 @@ public class DefaultConfigurator implements Configurator {
         } else {
             String[] split = name.split("\\.", 2);
             Map<String, Object> map = (Map<String, Object>) getBean(container, split[0]);
-            if (map == null) {
+            if ((map == null || map.get(split[1]) == null) && container.exist(name)) {
+                Object value = container.get(name);
+                setBean(container, name, value);
+                return value;
+            } else if (map == null) {
                 return null;
             } else {
                 return map.get(split[1]);
@@ -131,19 +145,17 @@ public class DefaultConfigurator implements Configurator {
     @SuppressWarnings("unchecked")
     protected void setBean(BeanContainer container, String name, Object value) {
         if (name.indexOf(".") < 0) {
-            container.set(name, value);
+            container.set(prefix + name, value);
         } else {
             String[] split = name.split("\\.", 2);
             Map<String, Object> map = (Map<String, Object>) getBean(container, split[0]);
             if (map == null) {
                 map = new LinkedHashMap<String, Object>();
-                container.set(split[0], map);
+                container.set(prefix + split[0], map);
             }
             map.put(split[1], value);
-            if (value != null && !value.getClass().isPrimitive() && (value.getClass() != String.class)) {
-                if (!container.exist(value)) {
-                    container.add(value);
-                }
+            if (value != null && !container.exist(prefix + name)) {
+                container.set(prefix + name, value);
             }
         }
     }

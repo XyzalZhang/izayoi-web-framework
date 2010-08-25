@@ -59,11 +59,13 @@ public abstract class ComponentContainer implements BeanContainer {
             loopBeanSources.add(managedComponentContainer);
             loopBeanSources.addAll(beanSources);
         }
-        this.componentSource = new ChainBeanSource(loopBeanSources);
+        this.componentSource = new NameFixedBeanSource(new ChainBeanSource(loopBeanSources), prefix);
 
-        this.componentFactory = new AnnotationInjectBeanFactory(prefix == null || prefix.equals("")
-                ? this.componentSource
-                : new NameFixedBeanSource(this.componentSource, prefix));
+        this.componentFactory = new AnnotationInjectBeanFactory(this.componentSource);
+//                (prefix == null || prefix.equals(""))
+//                        ? this.componentSource
+//                        : new NameFixedBeanSource(this.componentSource, prefix)
+//        );
     }
 
     @Override
@@ -206,8 +208,8 @@ public abstract class ComponentContainer implements BeanContainer {
         @Override
         @SuppressWarnings("unchecked")
         public <T> T get(String name) {
-            Object bean = beanSource.get(name);
-            if (bean == null) bean = beanSource.get(prefix + name);
+            Object bean = beanSource.get(prefix + name);
+            if (bean == null) bean = beanSource.get(name);
             return (T) bean;
         }
 
