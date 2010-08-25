@@ -24,7 +24,6 @@
 
 package org.withinsea.izayoi.core.conf;
 
-import javax.servlet.ServletContext;
 import java.util.Properties;
 
 /**
@@ -34,7 +33,5 @@ import java.util.Properties;
  */
 public interface Configurator {
 
-    void loadConf(Properties conf, ServletContext servletContext, String configPath) throws Exception;
-
-    void initComponents(IzayoiContainer container, Properties conf) throws Exception;
+    void configurate(IzayoiContainer container, Properties props) throws Exception;
 }

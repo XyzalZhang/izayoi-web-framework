@@ -24,13 +24,17 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
 import org.withinsea.izayoi.core.exception.IzayoiException;
+import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.interpret.Vars;
+import org.withinsea.izayoi.core.interpret.Varstack;
 import org.withinsea.izayoi.core.scope.Request;
-import org.withinsea.izayoi.core.scope.ScopeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
+
+import javax.annotation.Resource;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -39,33 +43,30 @@ import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
  */
 public class Servlet implements Invoker<Request> {
 
-    protected CodeManager codeManager;
-    protected ScopeManager scopeManager;
-    protected InterpretManager interpretManager;
+    @Resource
+    IzayoiContainer izayoiContainer;
+
+    @Resource
+    CodeContainer codeContainer;
+
+    @Resource
+    InterpretManager interpretManager;
 
     @Override
     public boolean invoke(String codePath, Request scope) throws GlowwormException {
 
-        Varstack bindings = scopeManager.createVarstack(scope);
+        Varstack bindings = new Varstack(
+                BindingsUtils.asBindings(izayoiContainer),
+                BindingsUtils.asBindings(scope),
+                new Vars()
+        );
 
         try {
-            interpretManager.interpret(codeManager.get(codePath), bindings);
+            interpretManager.interpret(codeContainer.get(codePath), bindings);
         } catch (IzayoiException e) {
             throw new GlowwormException(e);
         }
 
         return false;
-    }
-
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
-    }
-
-    public void setInterpretManager(InterpretManager interpretManager) {
-        this.interpretManager = interpretManager;
-    }
-
-    public void setScopeManager(ScopeManager scopeManager) {
-        this.scopeManager = scopeManager;
     }
 }

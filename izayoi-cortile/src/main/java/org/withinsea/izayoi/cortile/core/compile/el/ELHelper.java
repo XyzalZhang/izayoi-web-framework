@@ -24,15 +24,18 @@
 
 package org.withinsea.izayoi.cortile.core.compile.el;
 
-import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.code.MemoryCode;
+import org.withinsea.izayoi.core.code.TempCode;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
+import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.interpret.Varstack;
 import org.withinsea.izayoi.core.scope.Request;
-import org.withinsea.izayoi.core.scope.ScopeManager;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -43,80 +46,68 @@ public class ELHelper {
 
     protected static final String HELPER_ATTR = ELHelper.class.getCanonicalName() + ".HELPER";
 
-    protected String elType;
-    protected ScopeManager scopeManager;
-    protected InterpretManager interpretManager;
-
-    public synchronized Helper getHelper(HttpServletRequest request, HttpServletResponse response) {
-        Helper helper = (Helper) request.getAttribute(HELPER_ATTR);
+    public synchronized static ELHelper get(String retrievalKey, HttpServletRequest request, HttpServletResponse response) {
+        ELHelper helper = (ELHelper) request.getAttribute(HELPER_ATTR);
         if (helper == null) {
-            helper = new Helper(request, response);
+            IzayoiContainer container = IzayoiContainer.retrieval(request.getSession().getServletContext(), retrievalKey);
+            try {
+                helper = container.create(ELHelper.class);
+                helper.init(request, response);
+            } catch (InstantiationException e) {
+                throw new IzayoiRuntimeException(e);
+            }
             request.setAttribute(HELPER_ATTR, helper);
         }
         return helper;
     }
 
-    public class Helper {
+    @Resource
+    IzayoiContainer izayoiContainer;
 
-        protected final Set<String> importedClasses;
-        protected final Deque<String> elTypeStack = new LinkedList<String>();
-        protected final Varstack varstack;
+    @Resource
+    InterpretManager interpretManager;
 
-        protected Helper(HttpServletRequest request, HttpServletResponse response) {
-            this.importedClasses = new LinkedHashSet<String>();
-            elTypeStack.push(elType);
-            varstack = scopeManager.createVarstack(new Request(request, response));
+    @Resource
+    String elType;
+
+    protected Varstack varstack;
+
+    @SuppressWarnings("unchecked")
+    protected void init(HttpServletRequest request, HttpServletResponse response) {
+        this.varstack = new Varstack(
+                BindingsUtils.asBindings(izayoiContainer),
+                BindingsUtils.asBindings(new Request(request, response))
+        );
+    }
+
+    public Object eval(String el, boolean forOutput, String elType, String... importedClasses) {
+        if (elType == null) elType = this.elType;
+        Object ret;
+        try {
+            ret = interpretManager.interpret(new TempCode(el, elType), varstack, importedClasses);
+        } catch (Exception e) {
+            ret = null; // silent exception stack trace
         }
+        return (!forOutput) ? ret : (ret == null) ? "" : ret;
+    }
 
-        public Object eval(String el, boolean forOutput) {
-            String elType = elTypeStack.peek();
-            Object ret;
-            try {
-                ret = interpretManager.interpret(new MemoryCode(el, elType), varstack, importedClasses.toArray(new String[importedClasses.size()]));
-            } catch (Exception e) {
-                ret = null; // silent exception stack trace
-            }
-            return (!forOutput) ? ret : (ret == null) ? "" : ret;
-        }
+    public void bind(String key, Object value) {
+        varstack.put(key, value);
+    }
 
-        public void imports(String classes) {
-            if (classes != null && !classes.trim().equals("")) {
-                importedClasses.addAll(Arrays.asList(classes.replaceAll("\\s+", "").split(",")));
-            }
-        }
+    public void openScope() {
+        openScope(null);
+    }
 
-        public void bind(String key, Object value) {
-            varstack.put(key, value);
-        }
-
-        public synchronized void scope(String elType, Map<String, Object> bindings) {
-            if (bindings == null) {
-                varstack.push();
-            } else {
-                varstack.push(bindings);
-            }
-            elTypeStack.push((elType != null) ? elType : elTypeStack.peek());
-        }
-
-        public synchronized void scopeEnd() {
-            elTypeStack.pop();
-            varstack.pop();
+    public void openScope(Map<String, Object> bindings) {
+        if (bindings == null) {
+            varstack.push();
+        } else {
+            varstack.push(bindings);
         }
     }
 
-    public InterpretManager getInterpretManager() {
-        return interpretManager;
-    }
-
-    public void setInterpretManager(InterpretManager interpretManager) {
-        this.interpretManager = interpretManager;
-    }
-
-    public void setScopeManager(ScopeManager scopeManager) {
-        this.scopeManager = scopeManager;
-    }
-
-    public void setElType(String elType) {
-        this.elType = elType;
+    public void closeScope() {
+        varstack.pop();
     }
 }

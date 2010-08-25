@@ -32,23 +32,24 @@ import java.util.Map;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Singleton extends AbstractScope<Scope> {
+public class Singleton implements Scope {
 
     protected static Map<String, Object> SINGLETONS = new HashMap<String, Object>();
 
     @Override
-    public Object getConstant(String name) {
+    public <T> T getConstant(String name) {
         return null;
     }
 
     @Override
-    public Object getAttribute(String name) {
-        return SINGLETONS.get(name);
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String name) {
+        return (T) SINGLETONS.get(name);
     }
 
     @Override
-    public void setAttribute(String name, Object obj) {
-        SINGLETONS.put(name, obj);
+    public void setAttribute(String name, Object value) {
+        SINGLETONS.put(name, value);
     }
 
     public static Map<String, Object> getSingletons() {

@@ -24,15 +24,14 @@
 
 package org.withinsea.izayoi.cloister;
 
-import org.withinsea.izayoi.cloister.core.CloisterConfigurator;
 import org.withinsea.izayoi.commons.servlet.ParamsAdjustHttpServletRequestWrapper;
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.commons.util.StringUtils;
-import org.withinsea.izayoi.core.code.CodeManager;
-import org.withinsea.izayoi.core.conf.Configurable;
-import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 
+import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +45,7 @@ import java.util.regex.Pattern;
  * Date: 2010-1-12
  * Time: 23:49:57
  */
-public class Cloister implements Filter, Configurable {
+public class Cloister implements Filter {
 
     // dispatcher
 
@@ -54,9 +53,14 @@ public class Cloister implements Filter, Configurable {
 
         protected final String MAPPED_ATTR = Dispatcher.class.getCanonicalName() + ".MAPPED_PATH";
 
-        protected CodeManager codeManager;
-        protected String appendantFolder;
-        protected String bypass;
+        @Resource
+        CodeContainer codeContainer;
+
+        @Resource
+        String appendantFolder;
+
+        @Resource
+        List<String> bypass;
 
         public void doDispatch(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
@@ -81,7 +85,7 @@ public class Cloister implements Filter, Configurable {
                 return;
             }
 
-            if (codeManager.isFolder(templateRequestPath) && !requestPath.endsWith("/")
+            if (codeContainer.isFolder(templateRequestPath) && !requestPath.endsWith("/")
                     && !isMappedServlet(req.getSession().getServletContext(), templateRequestPath)) {
                 resp.sendRedirect(req.getSession().getServletContext().getContextPath() + requestPath + "/");
                 return;
@@ -93,7 +97,7 @@ public class Cloister implements Filter, Configurable {
             }
 
             reqw.setAttribute(MAPPED_ATTR, true);
-            reqw.getRequestDispatcher(templateRequestPath).forward(reqw, resp);
+            ServletFilterUtils.forwardOrInclude(reqw, resp, templateRequestPath);
             reqw.removeAttribute(MAPPED_ATTR);
         }
 
@@ -117,7 +121,7 @@ public class Cloister implements Filter, Configurable {
 
         protected String matchPathTemplate(Map<String, String> pathVariables, String path) {
             path = path.trim();
-            if (codeManager.exist(path)) {
+            if (codeContainer.exist(path)) {
                 return path;
             } else {
                 String match = matchPathTemplate("/", pathVariables, "/", path);
@@ -140,13 +144,13 @@ public class Cloister implements Filter, Configurable {
             }
 
             String pathName = path.replaceAll("/.*", "");
-            if (codeManager.isFolder(folder + "/" + pathName) || codeManager.isFolder(appendantFolder + folder + "/" + pathName)) {
+            if (codeContainer.isFolder(folder + "/" + pathName) || codeContainer.isFolder(appendantFolder + folder + "/" + pathName)) {
                 return matchPathTemplate(templatePath + "/" + pathName, pathVariables, folder + "/" + pathName, path.substring(pathName.length()));
             }
 
             Set<String> codeNameSet = new LinkedHashSet<String>();
-            codeNameSet.addAll(codeManager.listNames(folder));
-            codeNameSet.addAll(codeManager.listNames(appendantFolder + "/" + folder));
+            codeNameSet.addAll(codeContainer.listNames(folder));
+            codeNameSet.addAll(codeContainer.listNames(appendantFolder + "/" + folder));
             List<String> codeNames = new ArrayList<String>(codeNameSet);
             Collections.sort(codeNames, new Comparator<String>() {
                 @Override
@@ -200,7 +204,7 @@ public class Cloister implements Filter, Configurable {
                     }
                     String templateName = templateNameBuffer.toString();
 
-                    if (codeManager.isFolder(folder + "/" + codeName) || codeManager.isFolder(appendantFolder + folder + "/" + codeName)) {
+                    if (codeContainer.isFolder(folder + "/" + codeName) || codeContainer.isFolder(appendantFolder + folder + "/" + codeName)) {
                         return matchPathTemplate(templatePath + "/" + templateName, pathVariables, folder + "/" + codeName, path.substring(pathName.length()));
                     } else {
                         return templatePath + "/" + templateName;
@@ -210,51 +214,38 @@ public class Cloister implements Filter, Configurable {
 
             return null;
         }
-
-        public void setCodeManager(CodeManager codeManager) {
-            this.codeManager = codeManager;
-        }
-
-        public void setAppendantFolder(String appendantFolder) {
-            this.appendantFolder = appendantFolder;
-        }
-
-        public void setBypass(String bypass) {
-            this.bypass = bypass;
-        }
     }
 
     // api
 
-    protected Configurator configurator = new CloisterConfigurator();
     protected Dispatcher dispatcher;
-
-    public void init(ServletContext servletContext, String configPath, Map<String, String> confOverrides) {
-        IzayoiContainer container = IzayoiContainer.get(servletContext, configPath, configurator, confOverrides);
-        dispatcher = container.getComponent(Dispatcher.class);
-    }
 
     public String findTemplatePath(String requestPath) {
         Map<String, String> pathVariables = new LinkedHashMap<String, String>();
         return dispatcher.matchPathTemplate(pathVariables, requestPath.replaceAll("^/+", ""));
     }
 
+    public void init(ServletContext servletContext, Map<String, String> overriddenProperties) {
+        init(new IzayoiContainerFactory()
+                .addModule("org.withinsea.izayoi.core")
+                .addModule("org.withinsea.izayoi.cloister")
+                .create(servletContext, overriddenProperties));
+    }
+
+    public void init(IzayoiContainer container) {
+        dispatcher = container.get(Dispatcher.class);
+    }
+
     public void doDispatch(HttpServletRequest req, HttpServletResponse resp, final FilterChain chain) throws ServletException, IOException {
         dispatcher.doDispatch(req, resp, chain);
     }
 
-    @Override
-    public void setConfigurator(Configurator configurator) {
-        this.configurator = configurator;
-    }
 
     // as filter
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        Map<String, String> confOverrides = ServletFilterUtils.getParamsMap(filterConfig);
-        confOverrides.remove("config-path");
-        init(filterConfig.getServletContext(), filterConfig.getInitParameter("config-path"), confOverrides);
+        init(filterConfig.getServletContext(), ServletFilterUtils.getParamsMap(filterConfig));
     }
 
     @SuppressWarnings("unchecked")

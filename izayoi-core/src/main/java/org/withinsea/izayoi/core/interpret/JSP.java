@@ -25,10 +25,13 @@
 package org.withinsea.izayoi.core.interpret;
 
 import org.withinsea.izayoi.commons.servlet.ParamUtils;
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
+import org.withinsea.izayoi.core.bean.BeanFactory;
 import org.withinsea.izayoi.core.code.Code;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
+import javax.annotation.Resource;
 import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,50 +46,13 @@ import java.lang.reflect.Modifier;
  */
 public class JSP implements CompilableInterpreter {
 
-    protected static final String HELPER_ATTR = JSP.class.getCanonicalName() + ".interpretHelper";
 
-    protected static class InterpretHelper {
+    @Resource
+    CodeContainer codeContainer;
 
-        protected final Bindings bindings;
-        protected Object result = null;
-        protected Exception ex = null;
+    @Resource
+    BeanFactory jspCloneFactory;
 
-        public InterpretHelper(Bindings bindings) {
-            this.bindings = bindings;
-        }
-
-        public void interpret(Object prototype) throws NoSuchMethodException {
-            try {
-                Object jspobj = prototype.getClass().newInstance();
-                bind(jspobj);
-                Method m = jspobj.getClass().getDeclaredMethod("execute");
-                m.setAccessible(true);
-                if (m.getReturnType().equals(Void.class)) {
-                    m.invoke(jspobj);
-                } else {
-                    result = m.invoke(jspobj);
-                }
-            } catch (NoSuchMethodException e) {
-                throw e;
-            } catch (Exception e) {
-                ex = e;
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        protected void bind(Object obj) throws Exception {
-            for (Field f : obj.getClass().getDeclaredFields()) {
-                int mod = f.getModifiers();
-                if (!Modifier.isPrivate(mod) && !Modifier.isStatic(mod)) {
-                    f.setAccessible(true);
-                    Object v = bindings.get(f.getName());
-                    if (v != null) {
-                        f.set(obj, ParamUtils.cast(v, f.getType()));
-                    }
-                }
-            }
-        }
-    }
 
     public static boolean interpret(Object jspobj, HttpServletRequest request) {
         InterpretHelper interpretHelper = (InterpretHelper) request.getAttribute(HELPER_ATTR);
@@ -98,22 +64,22 @@ public class JSP implements CompilableInterpreter {
         }
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
+        return (T) compile(code, importedClasses).interpret(bindings);
+    }
+
+    @Override
+    public CompiledInterpreter compile(Code code, String... importedClasses) throws IzayoiException {
+        return new CompiledJSP(code.getPath().getPath());
+    }
+
+
+    protected static final String HELPER_ATTR = JSP.class.getCanonicalName() + ".interpretHelper";
+
     protected static final String INTERPRET_PREFIX =
             "<% if (" + JSP.class.getCanonicalName() + ".interpret(this, request)) return; %>";
-
-    protected static boolean checkPageDirective(String code, String attrname) {
-        int i = -1;
-        while ((i = code.indexOf("<%@", i + 1)) >= 0) {
-            int end = code.indexOf("%>", i + 1);
-            int attr = code.indexOf(attrname, i + 1);
-            int afterStart = code.indexOf("<%", attr + attrname.length());
-            int afterEnd = code.indexOf("%>", attr + attrname.length());
-            if (attr >= 0 && afterEnd >= 0 && end == afterEnd && (afterStart < 0 || afterStart > afterEnd)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     protected class CompiledJSP implements CompiledInterpreter {
 
@@ -145,13 +111,14 @@ public class JSP implements CompilableInterpreter {
                 synchronized (this) {
                     if (!this.prefixed) {
                         this.prefixed = true;
-                        String code = codeManager.get(path).getCode();
+                        String code = codeContainer.get(path).getCode();
                         String prefix = INTERPRET_PREFIX;
                         if (!checkPageDirective(code, "pageEncoding"))
                             prefix += "<%@ page pageEncoding=\"UTF-8\" %>";
-                        codeManager.update(path, prefix + code, true);
-                        request.getRequestDispatcher(path).forward(request, response);
-                        codeManager.update(path, code, true);
+                        codeContainer.update(path, prefix + code, true);
+                        ServletFilterUtils.forwardOrInclude(request, response, path);
+//                        request.getRequestDispatcher(path).forward(request, response);
+                        codeContainer.update(path, code, true);
                         interpreted = true;
                     }
                 }
@@ -159,7 +126,8 @@ public class JSP implements CompilableInterpreter {
 
                 }
                 if (!interpreted) {
-                    request.getRequestDispatcher(path).forward(request, response);
+                    ServletFilterUtils.forwardOrInclude(request, response, path);
+//                    request.getRequestDispatcher(path).forward(request, response);
                 }
             } catch (Exception e) {
                 throw new IzayoiException(e);
@@ -177,22 +145,63 @@ public class JSP implements CompilableInterpreter {
                 return (T) interpretHelper.result;
             }
         }
+
+        protected boolean checkPageDirective(String code, String attrname) {
+            int i = -1;
+            while ((i = code.indexOf("<%@", i + 1)) >= 0) {
+                int end = code.indexOf("%>", i + 1);
+                int attr = code.indexOf(attrname, i + 1);
+                int afterStart = code.indexOf("<%", attr + attrname.length());
+                int afterEnd = code.indexOf("%>", attr + attrname.length());
+                if (attr >= 0 && afterEnd >= 0 && end == afterEnd && (afterStart < 0 || afterStart > afterEnd)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
-    protected CodeManager codeManager;
+    protected class InterpretHelper {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T interpret(Code code, Bindings bindings, String... importedClasses) throws IzayoiException {
-        return (T) compile(code, importedClasses).interpret(bindings);
-    }
+        protected Bindings bindings;
+        protected Object result = null;
+        protected Exception ex = null;
 
-    @Override
-    public CompiledInterpreter compile(Code code, String... importedClasses) throws IzayoiException {
-        return new CompiledJSP(code.getPath().getPath());
-    }
+        public InterpretHelper(Bindings bindings) {
+            this.bindings = bindings;
+        }
 
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
+        public void interpret(Object prototype) throws NoSuchMethodException {
+            try {
+                Object jspobj = jspCloneFactory.create(prototype.getClass());
+                bind(jspobj, prototype);
+                Method m = jspobj.getClass().getDeclaredMethod("execute");
+                m.setAccessible(true);
+                if (m.getReturnType().equals(Void.class)) {
+                    m.invoke(jspobj);
+                } else {
+                    result = m.invoke(jspobj);
+                }
+            } catch (NoSuchMethodException e) {
+                throw e;
+            } catch (Exception e) {
+                ex = e;
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        protected void bind(Object obj, Object prototype) throws Exception {
+            for (Field f : obj.getClass().getDeclaredFields()) {
+                int mod = f.getModifiers();
+                if (!Modifier.isPrivate(mod) && !Modifier.isStatic(mod) &&
+                        (f.get(obj) == null || f.get(obj).equals(f.get(prototype)))) {
+                    f.setAccessible(true);
+                    Object v = bindings.get(f.getName());
+                    if (v != null) {
+                        f.set(obj, ParamUtils.cast(v, f.getType()));
+                    }
+                }
+            }
+        }
     }
 }

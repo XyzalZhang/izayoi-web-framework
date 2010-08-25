@@ -25,14 +25,17 @@
 package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.servlet.ByteArrayBufferedHttpServletResponseWrapper;
-import org.withinsea.izayoi.commons.util.Varstack;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
 import org.withinsea.izayoi.core.exception.IzayoiException;
+import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
+import org.withinsea.izayoi.core.interpret.Vars;
+import org.withinsea.izayoi.core.interpret.Varstack;
 import org.withinsea.izayoi.core.scope.Request;
-import org.withinsea.izayoi.core.scope.ScopeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -42,40 +45,32 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class Filter implements Invoker<Request> {
 
-    protected CodeManager codeManager;
-    protected ScopeManager scopeManager;
-    protected InterpretManager interpretManager;
+    @Resource
+    IzayoiContainer izayoiContainer;
+
+    @Resource
+    CodeContainer codeContainer;
+
+    @Resource
+    InterpretManager interpretManager;
 
     @Override
     public boolean invoke(String codePath, Request scope) throws GlowwormException {
 
-        Varstack bindings = scopeManager.createVarstack(scope);
-        {
-            HttpServletResponse response = (HttpServletResponse) bindings.get("response");
-            if (response != null) {
-                bindings.push();
-                bindings.put("response", new ByteArrayBufferedHttpServletResponseWrapper(response));
-                bindings.push();
-            }
-        }
+        HttpServletResponse response = scope.getResponse();
+
+        Varstack bindings = new Varstack(
+                BindingsUtils.asBindings(izayoiContainer),
+                BindingsUtils.asBindings(scope),
+                new Vars("response", (response == null) ? null : new ByteArrayBufferedHttpServletResponseWrapper(response)),
+                new Vars()
+        );
 
         try {
-            Object result = interpretManager.interpret(codeManager.get(codePath), bindings);
+            Object result = interpretManager.interpret(codeContainer.get(codePath), bindings);
             return (!Boolean.valueOf(false).equals(result));
         } catch (IzayoiException e) {
             throw new GlowwormException(e);
         }
-    }
-
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
-    }
-
-    public void setInterpretManager(InterpretManager interpretManager) {
-        this.interpretManager = interpretManager;
-    }
-
-    public void setScopeManager(ScopeManager scopeManager) {
-        this.scopeManager = scopeManager;
     }
 }

@@ -26,11 +26,12 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.code.Code;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -43,38 +44,20 @@ import java.util.regex.Pattern;
  */
 public class DefaultInvokeManager implements InvokeManager {
 
-    protected static class Cache extends HashMap<String, Long> {
+    @Resource
+    CodeContainer codeContainer;
 
-        private static final long serialVersionUID = 3613991425340677036L;
+    @Resource
+    String appendantFolder;
 
-        protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
+    @Resource
+    String folderPrefix;
 
-        public static synchronized Cache get(Scope scope) throws GlowwormException {
-            Cache lastModifieds = scope.getBean(LAST_MODIFIED_ATTR);
-            if (lastModifieds == null) {
-                lastModifieds = new Cache();
-                scope.setBean(LAST_MODIFIED_ATTR, lastModifieds);
-            }
-            return lastModifieds;
-        }
+    @Resource
+    Map<String, Invoker> invokers;
 
-        public boolean cached(Code code) {
-            String path = code.getPath().getPath();
-            return containsKey(path) && (get(path) >= code.getLastModified());
-        }
-
-        public void cache(Code code) {
-            String path = code.getPath().getPath();
-            put(path, code.getLastModified());
-        }
-    }
-
-    protected CodeManager codeManager;
-    protected String appendantFolder;
-    protected String globalPrefix;
-
-    protected Map<String, Invoker> invokers;
-    protected List<String> invokersOrder;
+    @Resource
+    List<String> invokersOrder;
 
     @Override
     public boolean isAppendant(String path) {
@@ -85,21 +68,20 @@ public class DefaultInvokeManager implements InvokeManager {
     @Override
     public List<String> findScopedAppendantPaths(String scopeName, Scope scope) {
 
-        String globalNameRegex = Pattern.quote(globalPrefix) + "[^\\.]*";
-        String scopeRegex = Pattern.quote("@" + scopeName);
-        String suffixRegex = "\\.(" + StringUtils.join("|", invokers.keySet()) + ")" + "\\.[^\\.]+$";
+        String scopeRegex = Pattern.quote("@" + scopeName) + "(-[^\\.]+)?";
+        String suffixRegex = "\\.(" + StringUtils.join("|", invokers.keySet()) + ")(-mock)?" + "\\.[^\\.]+$";
 
         List<String> appendantPaths = new ArrayList<String>();
 
         String folder = appendantFolder;
-        for (String appendantName : sort(codeManager.listNames(folder, globalNameRegex + scopeRegex + suffixRegex))) {
+        for (String appendantName : sort(codeContainer.listNames(folder, scopeRegex + suffixRegex))) {
             String appendantPath = folder + "/" + appendantName;
             if (check(getInvoker(appendantPath), scope)) {
                 appendantPaths.add(appendantPath);
             }
         }
 
-        return appendantPaths;
+        return filteMockPaths(appendantPaths);
     }
 
     @Override
@@ -107,9 +89,9 @@ public class DefaultInvokeManager implements InvokeManager {
 
         Path parsedPath = new Path(requestPath);
 
-        String globalNameRegex = Pattern.quote(globalPrefix) + "[^\\.]*";
+        String globalNameRegex = Pattern.quote(folderPrefix) + "(-[^\\.]+)?";
         String requestNameRegex = Pattern.quote(parsedPath.getName());
-        String suffixRegex = "\\.(" + StringUtils.join("|", invokers.keySet()) + ")" + "\\.[^\\.]+$";
+        String suffixRegex = "\\.(" + StringUtils.join("|", invokers.keySet()) + ")(-mock)?" + "\\.[^\\.]+$";
 
         List<String> appendantPaths = new ArrayList<String>();
 
@@ -117,26 +99,38 @@ public class DefaultInvokeManager implements InvokeManager {
         String folder = appendantFolder;
         for (String folderItem : requestFolder.equals("/") ? new String[]{""} : requestFolder.split("/")) {
             folder = folder + "/" + folderItem;
-            for (String appendantName : sort(codeManager.listNames(folder, globalNameRegex + suffixRegex))) {
+            for (String appendantName : sort(codeContainer.listNames(folder, globalNameRegex + suffixRegex))) {
                 appendantPaths.add(folder + "/" + appendantName);
             }
         }
-        for (String appendantName : sort(codeManager.listNames(folder, requestNameRegex + suffixRegex))) {
+        for (String appendantName : sort(codeContainer.listNames(folder, requestNameRegex + suffixRegex))) {
             appendantPaths.add(folder + "/" + appendantName);
         }
 
-        return appendantPaths;
+        return filteMockPaths(appendantPaths);
+    }
+
+    protected List<String> filteMockPaths(List<String> paths) {
+        Set<String> filted = new LinkedHashSet<String>(paths);
+        for (String path : paths) {
+            if (new Path(path).isAppendant()) {
+                int dot = path.lastIndexOf(".");
+                String mockPath = path.substring(0, dot) + "-mock" + path.substring(dot);
+                filted.remove(mockPath);
+            }
+        }
+        return new ArrayList<String>(filted);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean invoke(String codePath, Scope scope) throws GlowwormException {
 
-        if (!codeManager.exist(codePath)) {
+        if (!codeContainer.exist(codePath)) {
             throw new GlowwormException("code " + codePath + " does not exist.");
         }
 
-        Code code = codeManager.get(codePath);
+        Code code = codeContainer.get(codePath);
         if (Cache.get(scope).cached(code)) {
             return true;
         } else {
@@ -157,8 +151,8 @@ public class DefaultInvokeManager implements InvokeManager {
     }
 
     protected boolean check(Invoker invoker, Scope scope) {
-        for (Method m : invoker.getClass().getDeclaredMethods()) {
-            if (m.getName().equals("invoker") && !Modifier.isVolatile(m.getModifiers())) {
+        for (Method m : invoker.getClass().getMethods()) {
+            if (m.getName().equals("invoke") && !Modifier.isVolatile(m.getModifiers())) {
                 Class<?>[] pts = m.getParameterTypes();
                 if (pts.length == 2 && pts[0] == String.class && pts[1].isAssignableFrom(scope.getClass())) {
                     return true;
@@ -184,23 +178,29 @@ public class DefaultInvokeManager implements InvokeManager {
         return invokersOrder.contains(type) ? invokersOrder.indexOf(type) : Integer.MIN_VALUE;
     }
 
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
-    }
+    protected static class Cache extends HashMap<String, Long> {
 
-    public void setAppendantFolder(String appendantFolder) {
-        this.appendantFolder = appendantFolder;
-    }
+        private static final long serialVersionUID = 3613991425340677036L;
 
-    public void setInvokers(Map<String, Invoker> invokers) {
-        this.invokers = invokers;
-    }
+        protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
-    public void setInvokersOrder(List<String> invokersOrder) {
-        this.invokersOrder = invokersOrder;
-    }
+        public static synchronized Cache get(Scope scope) throws GlowwormException {
+            Cache lastModifieds = scope.getAttribute(LAST_MODIFIED_ATTR);
+            if (lastModifieds == null) {
+                lastModifieds = new Cache();
+                scope.setAttribute(LAST_MODIFIED_ATTR, lastModifieds);
+            }
+            return lastModifieds;
+        }
 
-    public void setGlobalPrefix(String globalPrefix) {
-        this.globalPrefix = globalPrefix;
+        public boolean cached(Code code) {
+            String path = code.getPath().getPath();
+            return containsKey(path) && (get(path) >= code.getLastModified());
+        }
+
+        public void cache(Code code) {
+            String path = code.getPath().getPath();
+            put(path, code.getLastModified());
+        }
     }
 }

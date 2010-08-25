@@ -25,10 +25,11 @@
 package org.withinsea.izayoi.cortile.core.compile;
 
 import org.withinsea.izayoi.core.code.Code;
-import org.withinsea.izayoi.core.code.CodeManager;
+import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.code.Path;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,6 +42,89 @@ import java.util.Set;
  * Time: 2:21:15
  */
 public class DefaultCompileManager implements CompileManager {
+
+    @Resource
+    CodeContainer codeContainer;
+
+    @Resource
+    Map<String, Compilr> compilers;
+
+    protected final Cache cache = new Cache();
+
+    @Override
+    public String findTemplatePath(String path) {
+        Path parsedPath = new Path(path);
+        if (compilers.containsKey(parsedPath.getType()) && codeContainer.exist(path)) {
+            return path;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String update(String templatePath, boolean focus) throws CortileException {
+
+        Compilr compiler = getCompiler(templatePath);
+
+        if (focus || !isUpdated(templatePath)) {
+            Set<String> done = new HashSet<String>();
+            Set<String> todo = new HashSet<String>();
+            todo.add(templatePath);
+            while (!todo.isEmpty()) {
+                String todoTemplatePath = todo.iterator().next();
+                if (!codeContainer.exist(todoTemplatePath)) {
+                    codeContainer.delete(compiler.mapEntrancePath(templatePath));
+                    cache.remove(templatePath);
+                    throw new CortileException(todoTemplatePath + " not exist.");
+                } else if (focus || !checkUpdated(todoTemplatePath, false)) {
+                    Compilr.Result result = compiler.compile(todoTemplatePath, codeContainer.get(todoTemplatePath).getCode());
+                    cache.cache(todoTemplatePath, result);
+                    for (Map.Entry<String, String> target : result.getTargets().entrySet()) {
+                        codeContainer.update(target.getKey(), target.getValue(), false);
+                    }
+                }
+                done.add(todoTemplatePath);
+                todo.addAll(cache.relatives(todoTemplatePath));
+                todo.removeAll(done);
+            }
+        }
+
+        return compiler.mapEntrancePath(templatePath);
+    }
+
+    protected boolean isUpdated(String templatePath) throws CortileException {
+        return cache.cached(templatePath) && checkUpdated(templatePath, true);
+    }
+
+    protected boolean checkUpdated(String templatePath, boolean checkRelatives) {
+
+        Set<String> toChecks = new HashSet<String>();
+        toChecks.add(templatePath);
+        if (checkRelatives) {
+            toChecks.addAll(cache.relatives(templatePath));
+        }
+        for (String toCheck : toChecks) {
+            if (!cache.cached(toCheck)) {
+                return false;
+            }
+            Code toCheckCode = codeContainer.get(toCheck);
+            for (String targetPath : cache.targets(toCheck)) {
+                if (!codeContainer.exist(targetPath) || (codeContainer.get(targetPath).getLastModified() < toCheckCode.getLastModified())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    protected Compilr getCompiler(String templatePath) throws CortileException {
+        String type = new Path(templatePath).getType();
+        Compilr compiler = compilers.get(compilers.containsKey(type) ? type : "default");
+        if (compiler == null) {
+            throw new CortileException("compile type " + type + " does not exist.");
+        }
+        return compiler;
+    }
 
     protected class Cache {
 
@@ -68,93 +152,5 @@ public class DefaultCompileManager implements CompileManager {
         public Set<String> targets(String templatePath) {
             return targets.get(templatePath);
         }
-    }
-
-    protected final Cache cache = new Cache();
-
-    protected CodeManager codeManager;
-    protected Map<String, Compilr> compilers;
-
-    @Override
-    public String findTemplatePath(String path) {
-        Path parsedPath = new Path(path);
-        if (compilers.containsKey(parsedPath.getType()) && codeManager.exist(path)) {
-            return path;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String update(String templatePath, boolean focus) throws CortileException {
-
-        Compilr compiler = getCompiler(templatePath);
-
-        if (focus || !isUpdated(templatePath)) {
-            Set<String> done = new HashSet<String>();
-            Set<String> todo = new HashSet<String>();
-            todo.add(templatePath);
-            while (!todo.isEmpty()) {
-                String todoTemplatePath = todo.iterator().next();
-                if (!codeManager.exist(todoTemplatePath)) {
-                    codeManager.delete(compiler.mapEntrancePath(templatePath));
-                    cache.remove(templatePath);
-                    throw new CortileException(todoTemplatePath + " not exist.");
-                } else if (focus || !checkUpdated(todoTemplatePath, false)) {
-                    Compilr.Result result = compiler.compile(todoTemplatePath, codeManager.get(todoTemplatePath).getCode());
-                    cache.cache(todoTemplatePath, result);
-                    for (Map.Entry<String, String> target : result.getTargets().entrySet()) {
-                        codeManager.update(target.getKey(), target.getValue(), false);
-                    }
-                }
-                done.add(todoTemplatePath);
-                todo.addAll(cache.relatives(todoTemplatePath));
-                todo.removeAll(done);
-            }
-        }
-
-        return compiler.mapEntrancePath(templatePath);
-    }
-
-    protected boolean isUpdated(String templatePath) throws CortileException {
-        return cache.cached(templatePath) && checkUpdated(templatePath, true);
-    }
-
-    protected boolean checkUpdated(String templatePath, boolean checkRelatives) {
-
-        Set<String> toChecks = new HashSet<String>();
-        toChecks.add(templatePath);
-        if (checkRelatives) {
-            toChecks.addAll(cache.relatives(templatePath));
-        }
-        for (String toCheck : toChecks) {
-            if (!cache.cached(toCheck)) {
-                return false;
-            }
-            Code toCheckCode = codeManager.get(toCheck);
-            for (String targetPath : cache.targets(toCheck)) {
-                if (!codeManager.exist(targetPath) || (codeManager.get(targetPath).getLastModified() < toCheckCode.getLastModified())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    protected Compilr getCompiler(String templatePath) throws CortileException {
-        String type = new Path(templatePath).getType();
-        Compilr compiler = compilers.get(compilers.containsKey(type) ? type : "default");
-        if (compiler == null) {
-            throw new CortileException("compile type " + type + " does not exist.");
-        }
-        return compiler;
-    }
-
-    public void setCodeManager(CodeManager codeManager) {
-        this.codeManager = codeManager;
-    }
-
-    public void setCompilers(Map<String, Compilr> compilers) {
-        this.compilers = compilers;
     }
 }

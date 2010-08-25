@@ -25,18 +25,17 @@
 package org.withinsea.izayoi;
 
 import org.withinsea.izayoi.cloister.Cloister;
-import org.withinsea.izayoi.cloister.core.CloisterConfigurator;
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.conf.Configurator;
+import org.withinsea.izayoi.core.conf.IzayoiContainer;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.cortile.Cortile;
-import org.withinsea.izayoi.cortile.core.conf.CortileConfigurator;
 import org.withinsea.izayoi.glowworm.Glowworm;
-import org.withinsea.izayoi.glowworm.core.conf.GlowwormConfigurator;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -45,10 +44,6 @@ import java.io.IOException;
  */
 public class Izayoi implements Filter {
 
-    protected Configurator cloisterConfigurator;
-    protected Configurator cortileConfigurator;
-    protected Configurator glowwormConfigurator;
-
     protected Cloister cloister;
     protected Glowworm glowworm;
     protected Cortile cortile;
@@ -56,45 +51,33 @@ public class Izayoi implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
+        ServletContext servletContext = filterConfig.getServletContext();
+        Map<String, String> overriddenProperties = ServletFilterUtils.getParamsMap(filterConfig);
+
+        IzayoiContainer container = new IzayoiContainerFactory()
+                .addModule("org.withinsea.izayoi.core")
+                .addModule("org.withinsea.izayoi.cloister")
+                .addModule("org.withinsea.izayoi.glowworm")
+                .addModule("org.withinsea.izayoi.cortile")
+                .create(servletContext, overriddenProperties);
+
         cloister = new Cloister();
-        cloister.setConfigurator((this.cloisterConfigurator != null) ? this.cloisterConfigurator :
-                new CloisterConfigurator());
-
         glowworm = new Glowworm();
-        glowworm.setConfigurator((this.glowwormConfigurator != null) ? this.glowwormConfigurator :
-                new GlowwormConfigurator());
-
         cortile = new Cortile();
-        cortile.setConfigurator((this.cortileConfigurator != null) ? this.cortileConfigurator :
-                new CortileConfigurator());
 
-        try {
-            cloister.init(filterConfig);
-            glowworm.init(filterConfig);
-            cortile.init(filterConfig);
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+        cloister.init(container);
+        glowworm.init(container);
+        cortile.init(container);
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, final FilterChain chain) throws IOException, ServletException {
+//        System.out.println("IZAYOI-IN : " + ((HttpServletRequest) req).getServletPath());
         ServletFilterUtils.chain((HttpServletRequest) req, (HttpServletResponse) resp, chain, cloister, glowworm, cortile);
+//        System.out.println("IZAYOI-OUT : " + ((HttpServletRequest) req).getServletPath());
     }
 
     @Override
     public void destroy() {
-    }
-
-    public void setCloisterConfigurator(Configurator cloisterConfigurator) {
-        this.cloisterConfigurator = cloisterConfigurator;
-    }
-
-    public void setCortileConfigurator(Configurator cortileConfigurator) {
-        this.cortileConfigurator = cortileConfigurator;
-    }
-
-    public void setGlowwormConfigurator(Configurator glowwormConfigurator) {
-        this.glowwormConfigurator = glowwormConfigurator;
     }
 }

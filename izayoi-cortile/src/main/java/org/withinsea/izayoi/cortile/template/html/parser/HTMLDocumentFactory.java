@@ -25,7 +25,6 @@
 package org.withinsea.izayoi.cortile.template.html.parser;
 
 import org.dom4j.*;
-import org.dom4j.tree.DefaultAttribute;
 import org.dom4j.tree.DefaultComment;
 
 /**
@@ -47,7 +46,7 @@ public class HTMLDocumentFactory extends DocumentFactory {
         return new SurroundableAttr(qname, value);
     }
 
-    public static class DocumentHoldingComment extends DefaultComment {
+    protected static class DocumentHoldingComment extends DefaultComment {
 
         private static final long serialVersionUID = -3726388730591676351L;
 
@@ -68,31 +67,4 @@ public class HTMLDocumentFactory extends DocumentFactory {
         }
     }
 
-    public static class SurroundableAttr extends DefaultAttribute {
-
-        private static final long serialVersionUID = -2186580031967041242L;
-
-        protected String prefix = "";
-        protected String suffix = "";
-
-        public SurroundableAttr(QName qname, String value) {
-            super(qname, value);
-        }
-
-        public String getPrefix() {
-            return prefix;
-        }
-
-        public void setPrefix(String prefix) {
-            this.prefix = prefix;
-        }
-
-        public String getSuffix() {
-            return suffix;
-        }
-
-        public void setSuffix(String suffix) {
-            this.suffix = suffix;
-        }
-    }
 }

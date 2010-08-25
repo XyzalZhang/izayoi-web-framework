@@ -81,11 +81,8 @@ public class ServletFilterUtils {
         return params;
     }
 
-    public static boolean matchUrlPattern(String path, String urlPattern) {
-        if (urlPattern == null) return false;
-        urlPattern = urlPattern.trim();
-        if (urlPattern.equals("")) return false;
-        for (String pattern : urlPattern.split("[,;\\s]+")) {
+    public static boolean matchUrlPattern(String path, List<String> urlPatterns) {
+        for (String pattern : urlPatterns) {
             if (pattern.endsWith("/*")) {
                 if (path.startsWith(pattern.substring(0, pattern.length() - 1))) return true;
             } else if (pattern.startsWith("*.")) {
@@ -116,6 +113,29 @@ public class ServletFilterUtils {
 
     public static boolean isForwarded(HttpServletRequest request) {
         return !isIncluded(request) && request.getAttribute(FORWARD_SERVLET_PATH) != null;
+    }
+
+    public static void include(HttpServletRequest request, HttpServletResponse response, String path) throws IOException, ServletException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+        try {
+            response.getWriter().flush();
+        } catch (Exception ex) {
+            try {
+                response.getOutputStream().flush();
+            } catch (Exception ex2) {
+                dispatcher.forward(request, response);
+            }
+        }
+        dispatcher.include(request, response);
+    }
+
+    public static void forwardOrInclude(HttpServletRequest request, HttpServletResponse response, String path) throws IOException, ServletException {
+        if (isIncluded(request)) {
+            include(request, response, path);
+        } else {
+            RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+            dispatcher.forward(request, response);
+        }
     }
 
     public static void chain(HttpServletRequest request, HttpServletResponse response, FilterChain chain,

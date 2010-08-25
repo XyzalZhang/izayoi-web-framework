@@ -24,6 +24,7 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
+import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
@@ -61,7 +62,8 @@ public class Dispatcher extends ResultInvoker<Request> {
                 return false;
             } else if (url.startsWith("forward:")) {
                 url = url.substring("forward:".length()).trim();
-                request.getRequestDispatcher(url).forward(request, response);
+                ServletFilterUtils.forwardOrInclude(request, response, url);
+//                request.getRequestDispatcher(url).forward(request, response);
                 return false;
             } else if (url.startsWith("redirect:")) {
                 url = url.substring("redirect:".length()).trim();

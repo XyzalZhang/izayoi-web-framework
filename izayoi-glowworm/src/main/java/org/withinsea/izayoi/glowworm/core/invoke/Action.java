@@ -24,10 +24,10 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.core.conf.IzayoiContainer;
 import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -37,7 +37,11 @@ import java.util.*;
  */
 public class Action extends ResultInvoker<Request> {
 
-    protected IzayoiContainer izayoiContainer;
+    @Resource
+    Map<String, Invoker> invokers;
+
+    @Resource
+    List<String> invokersOrder;
 
     @Override
     protected boolean acceptResult(Object result) {
@@ -69,9 +73,6 @@ public class Action extends ResultInvoker<Request> {
 
     protected List<ResultInvoker> getResultInvokers() {
 
-        Map<String, Invoker> invokers = izayoiContainer.getComponent("invokers");
-        List<String> invokersOrder = izayoiContainer.getComponent("invokersOrder");
-
         List<ResultInvoker> resultInvokers = new ArrayList<ResultInvoker>();
         for (String invokerType : invokersOrder) {
             Invoker invoker = invokers.get(invokerType);
@@ -81,9 +82,5 @@ public class Action extends ResultInvoker<Request> {
         }
 
         return resultInvokers;
-    }
-
-    public void setIzayoiContainer(IzayoiContainer izayoiContainer) {
-        this.izayoiContainer = izayoiContainer;
     }
 }

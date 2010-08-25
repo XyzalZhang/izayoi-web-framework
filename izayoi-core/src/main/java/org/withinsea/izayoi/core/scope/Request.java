@@ -24,7 +24,7 @@
 
 package org.withinsea.izayoi.core.scope;
 
-import org.withinsea.izayoi.commons.util.HttpParameterMap;
+import org.withinsea.izayoi.commons.servlet.HttpParameterMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Request extends AbstractScope<Session> {
+public class Request extends InheritedScope<Session> {
 
     protected static final String PARAMS_ATTR = Request.class.getCanonicalName() + ".PARAMS";
 
@@ -55,7 +55,12 @@ public class Request extends AbstractScope<Session> {
     }
 
     @Override
-    public Object getConstant(String name) {
+    public void setAttribute(String name, Object obj) {
+        request.setAttribute(name, obj);
+    }
+
+    @Override
+    protected Object getScopeConstant(String name) {
         return name.equals("params") ? getParameterMap(request)
                 : name.equals("request") ? request
                 : name.equals("response") ? response
@@ -64,15 +69,10 @@ public class Request extends AbstractScope<Session> {
     }
 
     @Override
-    public Object getAttribute(String name) {
+    protected Object getScopeAttribute(String name) {
         Object obj = request.getAttribute(name);
         if (obj == null) obj = getParameterMap(request).get(name);
         return obj;
-    }
-
-    @Override
-    public void setAttribute(String name, Object obj) {
-        request.setAttribute(name, obj);
     }
 
     protected HttpParameterMap getParameterMap(HttpServletRequest request) {

@@ -31,28 +31,16 @@
     <parent>
         <groupId>org.withinsea.izayoi</groupId>
         <artifactId>izayoi-base</artifactId>
-        <version>0.3.0-SNAPSHOT</version>
+        <version>0.4.0-SNAPSHOT</version>
     </parent>
     <artifactId>izayoi-glowworm</artifactId>
     <packaging>jar</packaging>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.withinsea.izayoi</groupId>
             <artifactId>izayoi-core</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>1.4</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.3.1</version>
-            <optional>true</optional>
+            <version>0.4.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

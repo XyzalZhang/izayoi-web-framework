@@ -25,6 +25,7 @@
 package org.withinsea.izayoi.adapter.springmvc;
 
 import org.withinsea.izayoi.cloister.Cloister;
+import org.withinsea.izayoi.core.conf.IzayoiContainerFactory;
 import org.withinsea.izayoi.cortile.Cortile;
 
 import javax.servlet.ServletContext;
@@ -70,8 +71,14 @@ public class SpringCloisterCortileViewResolver extends SpringCortileViewResolver
         super.initServletContext(servletContext);
         if (cloister == null) {
             cloister = new Cloister();
-            cloister.setConfigurator(new SpringCloisterConfigurator(getApplicationContext()));
-            cloister.init(servletContext, configPath, Collections.<String, String>emptyMap());
+            cloister.init(new IzayoiContainerFactory()
+                    .addBeanSource(new SpringBeanSource(getApplicationContext()))
+                    .addModule("org.withinsea.izayoi.adapter.springmvc")
+                    .addModule("org.withinsea.izayoi.core")
+                    .addModule("org.withinsea.izayoi.cloister")
+                    .addModule("org.withinsea.izayoi.glowworm")
+                    .addModule("org.withinsea.izayoi.cortile")
+                    .create(servletContext, Collections.<String, String>emptyMap()));
         }
     }
 

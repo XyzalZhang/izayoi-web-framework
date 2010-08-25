@@ -26,168 +26,164 @@ package org.withinsea.izayoi.cortile.core.compile.dom;
 
 import org.dom4j.*;
 import org.withinsea.izayoi.commons.dom.DOMUtils;
-import org.withinsea.izayoi.cortile.core.compile.grammar.Grammar;
-import org.withinsea.izayoi.cortile.core.compile.grammar.GrammarUtils;
+import org.withinsea.izayoi.cortile.core.compile.CompileContext;
+import org.withinsea.izayoi.cortile.core.compile.Compilr;
 import org.withinsea.izayoi.cortile.core.exception.CortileException;
-import org.withinsea.izayoi.cortile.core.compile.grammar.GrammarCompiler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2009-12-21
  * Time: 4:06:20
  */
-public abstract class DOMCompiler implements GrammarCompiler {
-
-    // grammar
-
-    protected Map<String, Set<Grammar>> grammars;
-
-    @Override
-    public void setGrammars(Map<String, Set<Grammar>> grammars) {
-        this.grammars = grammars;
-    }
-
-    // dom
+public abstract class DOMCompiler implements Compilr {
 
     protected abstract Document parseTemplate(String templatePath, String templateCode) throws CortileException;
 
+    protected abstract String mapTargetPath(String path, String suffix);
+
     protected abstract String buildTarget(Branch root) throws CortileException;
 
-    public abstract String mapTargetPath(String path, String suffix);
+    protected abstract Map<String, List<Grammar>> getGrammars();
+
+    protected List<PretreatGrammar> pretreatGrammars;
+    protected List<RoundoffGrammar> roundoffGrammars;
+    protected List<TextGrammar> textGrammars;
+    protected List<CommentGrammar> commentGrammars;
+    protected List<ElementGrammar> elementGrammars;
+    protected Map<Integer, Map<String, List<AttrGrammar>>> attrGrammars;
+
+    protected boolean classified = false;
+
+    protected synchronized void classifyGrammars() {
+        if (!classified) {
+            Map<String, List<Grammar>> grammars = getGrammars();
+            List<Grammar> allGrammars = new ArrayList<Grammar>();
+            for (Map.Entry<String, List<Grammar>> entry : grammars.entrySet()) {
+                allGrammars.addAll(entry.getValue());
+            }
+            pretreatGrammars = GrammarUtils.sort(allGrammars, PretreatGrammar.class, "pretreatCode");
+            roundoffGrammars = GrammarUtils.sort(allGrammars, RoundoffGrammar.class, "roundoffCode");
+            textGrammars = GrammarUtils.sort(allGrammars, TextGrammar.class, "processText");
+            commentGrammars = GrammarUtils.sort(allGrammars, CommentGrammar.class, "processComment");
+            elementGrammars = GrammarUtils.sort(allGrammars, ElementGrammar.class, "processElement");
+            attrGrammars = GrammarUtils.group(grammars);
+            classified = false;
+        }
+    }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Result compile(String templatePath, String templateCode) throws CortileException {
 
-        Result result = new Result(templatePath);
+        Result result = new Result();
 
-        for (PretreatGrammar pg : GrammarUtils.sort(grammars, PretreatGrammar.class, "pretreatCode")) {
-            if (pg.acceptPretreat(templateCode)) {
-                try {
-                    templateCode = pg.pretreatCode(this, result, templateCode);
-                } catch (ClassCastException e) { /* ignore */ }
+        CompileContext ctx = CompileContext.open(this, templatePath, result);
+        {
+            classifyGrammars();
+
+            for (PretreatGrammar pg : pretreatGrammars) {
+                if (pg.acceptPretreat(templateCode)) {
+                    templateCode = pg.pretreatCode(templateCode);
+                }
             }
-        }
 
-        Document doc = parseTemplate(templatePath, templateCode);
+            Document doc = parseTemplate(templatePath, templateCode);
+            DOMUtils.mergeTexts(doc);
+            compile(doc);
 
-        DOMUtils.mergeTexts(doc);
+            ctx.getResult().getTargets().put(mapTargetPath(templatePath, null), buildTarget(doc));
 
-        for (Map.Entry<Integer, List<TextGrammar>> groups :
-                GrammarUtils.sortAsGroups(grammars, TextGrammar.class, "processText").entrySet()) {
-            for (Text text : DOMUtils.selectTypedNodes(Text.class, doc, false)) {
-                for (TextGrammar tg : groups.getValue()) {
-                    if (tg.acceptText(text)) {
-                        try {
-                            tg.processText(this, result, text);
-                        } catch (ClassCastException cce) { /* ignore */ }
-                    }
-                    if (text.getParent() == null && text.getDocument() == null) {
-                        break;
+            for (Map.Entry<String, String> e : ctx.getResult().getTargets().entrySet()) {
+                for (RoundoffGrammar rg : roundoffGrammars) {
+                    if (rg.acceptRoundoff(e.getValue())) {
+                        ctx.getResult().getTargets().put(e.getKey(), rg.roundoffCode(e.getValue()));
                     }
                 }
             }
         }
-
-        for (Map.Entry<Integer, List<CommentGrammar>> groups :
-                GrammarUtils.sortAsGroups(grammars, CommentGrammar.class, "processComment").entrySet()) {
-            for (Comment comment : DOMUtils.selectTypedNodes(Comment.class, doc, false)) {
-                if (comment.getParent() != null || comment.getDocument() != null) {
-                    for (CommentGrammar cg : groups.getValue()) {
-                        if (cg.acceptComment(comment)) {
-                            try {
-                                cg.processComment(this, result, comment);
-                            } catch (ClassCastException cce) { /* ignore */ }
-                        }
-                        if (comment.getParent() == null && comment.getDocument() == null) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        compileTo(result, mapTargetPath(result.getTemplatePath(), null), doc);
-
-        List<RoundoffGrammar> sortedRgs = GrammarUtils.sort(grammars, RoundoffGrammar.class, "roundoffCode");
-        for (Map.Entry<String, String> e : result.getTargets().entrySet()) {
-            for (RoundoffGrammar rg : sortedRgs) {
-                if (rg.acceptRoundoff(e.getValue())) {
-                    try {
-                        result.getTargets().put(e.getKey(), rg.roundoffCode(this, result, e.getValue()));
-                    } catch (ClassCastException cce) { /* ignore */ }
-                }
-            }
-        }
+        CompileContext.close();
 
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    public void compileTo(Result result, String targetPath, Branch root) throws CortileException {
+    protected void compile(Node node) throws CortileException {
 
-        for (Map.Entry<Integer, List<GrammarUtils.NamespacedWrapper<AttrGrammar>>> group :
-                GrammarUtils.sortAsNamespacedGroups(grammars, AttrGrammar.class, "processAttr").entrySet()) {
-            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
-                if (elem.getParent() != null || elem.getDocument() != null) {
-                    eachAttr:
-                    for (Attribute attr : new ArrayList<Attribute>((List<Attribute>) elem.attributes())) {
-                        if (attr.getParent() != null) {
-                            String attrNs = attr.getNamespacePrefix();
-                            for (GrammarUtils.NamespacedWrapper<AttrGrammar> w : group.getValue()) {
-                                String agNs = w.getNamespace();
-                                AttrGrammar ag = w.getGrammar();
-                                if (agNs.equals("") || agNs.equals(attrNs)) {
-                                    if (ag.acceptAttr(elem, attr)) {
-                                        try {
-                                            ag.processAttr(this, result, elem, attr);
-                                        } catch (ClassCastException cce) { /* ignore */ }
-                                    }
-                                    if (elem.getParent() == null && elem.getDocument() == null) {
-                                        break eachAttr;
-                                    }
-                                    if (attr.getParent() == null) {
-                                        break;
-                                    }
+        CompileContext ctx = CompileContext.get();
+
+        if (node instanceof Text) {
+
+            Text text = (Text) node;
+            for (TextGrammar tg : textGrammars) {
+                if (isDetached(text)) return;
+                if (tg.acceptText(text)) {
+                    tg.processText(text);
+                }
+            }
+
+        } else if (node instanceof Comment) {
+
+            Comment comment = (Comment) node;
+            for (CommentGrammar cg : commentGrammars) {
+                if (isDetached(comment)) return;
+                if (cg.acceptComment(comment)) {
+                    cg.processComment(comment);
+                }
+            }
+
+        } else if (node instanceof Branch) {
+
+            ctx.openScope();
+
+            inScope:
+            {
+                if (node instanceof Element) {
+
+                    Element element = (Element) node;
+                    for (ElementGrammar eg : elementGrammars) {
+                        if (isDetached(element)) break inScope;
+                        if (eg.acceptElement(element)) {
+                            eg.processElement(element);
+                        }
+                    }
+
+                    for (Map.Entry<Integer, Map<String, List<AttrGrammar>>> entry : attrGrammars.entrySet()) {
+                        Map<String, List<AttrGrammar>> ags = entry.getValue();
+                        List<Attribute> attrs = new ArrayList<Attribute>((List<Attribute>) element.attributes());
+                        for (Attribute attr : attrs) {
+                            if (isDetached(element)) break inScope;
+                            if (isDetached(attr)) continue;
+                            Set<AttrGrammar> nsAgs = new LinkedHashSet<AttrGrammar>();
+                            {
+                                nsAgs.addAll(ags.get("*"));
+                                nsAgs.addAll(ags.get(attr.getNamespacePrefix()));
+                            }
+                            for (AttrGrammar ag : nsAgs) {
+                                if (isDetached(element)) break inScope;
+                                if (isDetached(attr)) break;
+                                if (ag.acceptAttr(attr)) {
+                                    ag.processAttr(attr);
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
 
-        for (Map.Entry<Integer, List<ElementGrammar>> groups :
-                GrammarUtils.sortAsGroups(grammars, ElementGrammar.class, "processElement").entrySet()) {
-            for (Element elem : DOMUtils.selectTypedNodes(Element.class, root, false)) {
-                if (elem.getParent() != null || elem.getDocument() != null) {
-                    for (ElementGrammar eg : groups.getValue()) {
-                        if (eg.acceptElement(elem)) {
-                            try {
-                                eg.processElement(this, result, elem);
-                            } catch (ClassCastException cce) { /* ignore */ }
-                        }
-                        if (elem.getParent() == null && elem.getDocument() == null) {
-                            break;
-                        }
-                    }
+                Branch branch = (Branch) node;
+                List<Node> cnodes = new ArrayList<Node>((List<Node>) branch.content());
+                for (Node cnode : cnodes) {
+                    if (isDetached(branch)) break inScope;
+                    if (isDetached(cnode)) continue;
+                    compile(cnode);
                 }
             }
-        }
 
-        for (BranchGrammar bg : GrammarUtils.sort(grammars, BranchGrammar.class, "processBranch")) {
-            if (bg.acceptBranch(root)) {
-                try {
-                    bg.processBranch(this, result, root);
-                } catch (ClassCastException cce) { /* ignore */ }
-            }
+            ctx.closeScope();
         }
+    }
 
-        result.getTargets().put(targetPath, buildTarget(root));
+    protected boolean isDetached(Node node) {
+        return (node.getParent() == null && node.getDocument() == null);
     }
 }

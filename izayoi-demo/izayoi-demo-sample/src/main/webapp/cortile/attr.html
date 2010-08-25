@@ -34,12 +34,12 @@
             <div c:var.f="${new java.io.File(application.getRealPath('/'))}">
                 <h3 c:content="[${f.name}]">[BASE]</h3>
                 <ul c:def="dir">
-                    <li c:for.f="f.listFiles()">
-                        <div c:if="f.isDirectory()">
+                    <li c:for.f="${f.listFiles()}">
+                        <div c:if="${f.isDirectory()}">
                             <span c:content="[${f.name}]">[DIR]</span>
                             <ul c:call="dir"></ul>
                         </div>
-                        <div c:if="!f.isDirectory()">
+                        <div c:if="${!f.isDirectory()}">
                             <span c:content="${f.name}">file</span>
                         </div>
                     </li>
@@ -79,17 +79,17 @@
                 </li>
             </ul>
         </li>
-        <li><h2>If</h2>
-            no output: <span c:if="1>2">WRONG</span>
-        </li>
-        <li><h2>If Content</h2>
-            no output in content: <span c:if-content="1>2">WRONG</span>
-        </li>
         <li><h2>Mock</h2>
             no output: <span c:mock>NOTHING</span>
         </li>
         <li><h2>Attr</h2>
             strong: <span c:attr.style="font-weight:bold">Text</span>
+        </li>
+        <li><h2>If</h2>
+            no output: <span c:if="${1>2}">WRONG</span>
+        </li>
+        <li><h2>If Content</h2>
+            no output in content: <span c:if-content="${1>2}">WRONG</span>
         </li>
     </ol>
 </body>

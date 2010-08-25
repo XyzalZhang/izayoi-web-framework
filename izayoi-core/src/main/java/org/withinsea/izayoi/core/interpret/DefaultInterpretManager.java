@@ -27,6 +27,7 @@ package org.withinsea.izayoi.core.interpret;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
+import javax.annotation.Resource;
 import javax.script.Bindings;
 import java.util.HashMap;
 import java.util.List;
@@ -39,15 +40,18 @@ import java.util.Map;
  */
 public class DefaultInterpretManager implements InterpretManager {
 
+    @Resource
+    Map<String, Interpreter> interpreters;
+
+    @Resource
+    List<MultiTypeInterpreter> defaultInterpreters;
+
     protected static class Cache {
         public Map<String, Long> lastModified = new HashMap<String, Long>();
         public Map<String, CompilableInterpreter.CompiledInterpreter> interpreter = new HashMap<String, CompilableInterpreter.CompiledInterpreter>();
     }
 
     protected Cache cache = new Cache();
-
-    protected Map<String, Interpreter> interpreters;
-    protected List<MultiTypeInterpreter> defaultInterpreters;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -95,13 +99,5 @@ public class DefaultInterpretManager implements InterpretManager {
         }
 
         return interpreter.interpret(code, bindings, importedClasses);
-    }
-
-    public void setInterpreters(Map<String, Interpreter> interpreters) {
-        this.interpreters = interpreters;
-    }
-
-    public void setDefaultInterpreters(List<MultiTypeInterpreter> defaultInterpreters) {
-        this.defaultInterpreters = defaultInterpreters;
     }
 }

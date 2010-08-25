@@ -35,13 +35,13 @@ public interface ELSupportedCompiler extends Compilr {
 
     String elInit();
 
-    String elImports(String classes);
-
-    String el(String el, boolean forOutput);
+    String el(String el, boolean forOutput, String elType, String... imports);
 
     String elBind(String key, String valueCode);
 
-    String elScope(String elType, String bindingsCode);
+    String openScope();
 
-    String elScopeEnd();
+    String openScope(String bindingsCode);
+
+    String closeScope();
 }
