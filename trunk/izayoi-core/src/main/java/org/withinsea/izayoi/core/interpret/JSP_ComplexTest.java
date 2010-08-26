@@ -12,7 +12,7 @@
  *
  * limitations under the License.
  *
- * The Original Code is the IZAYOI web framework.
+ * The Original Code is the @PROJECT_NAME
  *
  * The Initial Developer of the Original Code is
  *
@@ -26,12 +26,14 @@ package org.withinsea.izayoi.core.interpret;
 
 import org.withinsea.izayoi.commons.servlet.ParamUtils;
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
+import org.withinsea.izayoi.commons.util.StringUtils;
 import org.withinsea.izayoi.core.bean.BeanFactory;
 import org.withinsea.izayoi.core.code.Code;
 import org.withinsea.izayoi.core.code.CodeContainer;
 import org.withinsea.izayoi.core.exception.IzayoiException;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.script.Bindings;
 import javax.servlet.http.HttpServletRequest;
@@ -39,13 +41,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-7-6
  * Time: 3:38:46
  */
-public class JSP implements CompilableInterpreter {
+public class JSP_ComplexTest implements CompilableInterpreter {
 
 
     @Resource
@@ -54,6 +59,22 @@ public class JSP implements CompilableInterpreter {
     @Resource
     BeanFactory jspCloneFactory;
 
+
+    protected static final String HELPER_ATTR = JSP_ComplexTest.class.getCanonicalName() + ".interpretHelper";
+
+    public static boolean interpret(HttpServletRequest request, Object protoObj) {
+        return interpret(request, protoObj, null);
+    }
+
+    public static boolean interpret(HttpServletRequest request, Object protoObj, Class<?> innerClaz) {
+        InterpretHelper interpretHelper = (InterpretHelper) request.getAttribute(HELPER_ATTR);
+        try {
+            interpretHelper.interpret(protoObj, innerClaz);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -66,18 +87,6 @@ public class JSP implements CompilableInterpreter {
         return new CompiledJSP(code.getPath().getPath());
     }
 
-
-    protected static final String HELPER_ATTR = JSP.class.getCanonicalName() + ".interpretHelper";
-
-    public static boolean interpret(HttpServletRequest request, Object protoObj) {
-        InterpretHelper interpretHelper = (InterpretHelper) request.getAttribute(HELPER_ATTR);
-        try {
-            interpretHelper.interpret(protoObj);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
 
     protected class CompiledJSP implements CompiledInterpreter {
 
@@ -144,6 +153,7 @@ public class JSP implements CompilableInterpreter {
         }
     }
 
+
     protected class InterpretHelper {
 
         protected Bindings bindings;
@@ -154,10 +164,15 @@ public class JSP implements CompilableInterpreter {
             this.bindings = bindings;
         }
 
-        public void interpret(Object protoObj) throws NoSuchMethodException {
+        public void interpret(Object prototype, Class<?> innerClaz) throws NoSuchMethodException {
             try {
-                Object jspobj = jspCloneFactory.create(protoObj.getClass());
-                bind(jspobj, protoObj);
+                Object jspobj = jspCloneFactory.create(prototype.getClass());
+                if (innerClaz == null) {
+                    bind(jspobj, prototype);
+                } else {
+                    Object inner = jspCloneFactory.create(innerClaz);
+                    bind(jspobj, prototype, inner);
+                }
                 Method m = jspobj.getClass().getDeclaredMethod("execute");
                 m.setAccessible(true);
                 if (m.getReturnType().equals(Void.class)) {
@@ -191,18 +206,74 @@ public class JSP implements CompilableInterpreter {
             }
         }
 
+        @SuppressWarnings("unchecked")
+        protected void bind(Object obj, Object protoObj, Object innerObj) throws Exception {
+            Class<?> protoClaz = protoObj.getClass();
+            Class<?> innerClaz = innerObj.getClass();
+            for (Field innerField : innerClaz.getDeclaredFields()) {
+                int mod = innerField.getModifiers();
+                if (!Modifier.isStatic(mod)) {
+                    Field protoField = protoClaz.getDeclaredField(innerField.getName());
+                    protoField.setAccessible(true);
+                    innerField.setAccessible(true);
+                    Object proto = protoField.get(protoObj);
+                    Object inner = innerField.get(innerObj);
+                    if (inner == null || inner == proto) {
+                        Object v = bindings.get(getName(innerField));
+                        if (v != null) {
+                            protoField.set(obj, ParamUtils.cast(v, protoField.getType()));
+                        }
+                    } else {
+                        protoField.set(obj, inner);
+                    }
+                }
+            }
+        }
+
         protected String getName(Field f) {
+            Resource r = f.getAnnotation(Resource.class);
+            Inject i = f.getAnnotation(Inject.class);
             Named n = f.getAnnotation(Named.class);
-            return (n != null) ? n.value() : f.getName();
+            if (r != null && !r.name().equals("")) {
+                return r.name();
+            } else if (i != null && n != null) {
+                return n.value();
+            } else {
+                return f.getName();
+            }
         }
     }
 
+
     protected static class Tricker {
 
+        protected static final String INNER_CLASS_NAME = "__JspScript";
+
+        protected static List<String> ANNOTATION_NAMES = Arrays.asList(
+                "Resource", "Resources", "EJB", "InjectionComplete", "WebServiceRef", "Inject", "Named");
+
         public static String trickJsp(String code) {
-            String prefix = (checkPageDirective(code, "pageEncoding") ? "" : "<%@ page pageEncoding=\"UTF-8\" %>") +
-                    "<% if (" + JSP.class.getCanonicalName() + ".interpret(request, this)) return; %>";
-            return prefix + code;
+
+            final StringBuffer declarations = new StringBuffer();
+            String clearCode = StringUtils.replaceAll(code, "<%!([\\s\\S]*?)%>", new StringUtils.Replace() {
+                @Override
+                public String replace(String... groups) {
+                    String declaration = groups[1];
+                    declarations.append(declaration);
+                    return Tricker.removeAnnotations(groups[0]);
+                }
+            });
+
+            if (clearCode.equals(code)) {
+                String prefix = (Tricker.checkPageDirective(code, "pageEncoding") ? "" : "<%@ page pageEncoding=\"UTF-8\" %>") +
+                        "<% if (" + JSP_ComplexTest.class.getCanonicalName() + ".interpret(request, this)) return; %>";
+                return prefix + code;
+            } else {
+                String prefix = (Tricker.checkPageDirective(code, "pageEncoding") ? "" : "<%@ page pageEncoding=\"UTF-8\" %>") +
+                        "<% if (" + JSP_ComplexTest.class.getCanonicalName() + ".interpret(request, this, " + INNER_CLASS_NAME + ".class)) return; %>";
+                String innerClass = "<%! public static class " + INNER_CLASS_NAME + " { " + declarations.toString() + " } %>";
+                return prefix + clearCode + innerClass;
+            }
         }
 
         protected static boolean checkPageDirective(String code, String attrname) {
@@ -217,6 +288,58 @@ public class JSP implements CompilableInterpreter {
                 }
             }
             return false;
+        }
+
+        public static String removeAnnotations(String code) {
+            StringBuffer ori = new StringBuffer(code);
+            StringBuffer covered = new StringBuffer(code);
+            coverString(covered);
+            int len = code.length();
+            LinkedList<Integer[]> stack = new LinkedList<Integer[]>();
+            for (String n : ANNOTATION_NAMES) {
+                int s, e = -1;
+                while (true) {
+                    s = covered.indexOf("@" + n, e + 1);
+                    if (s < 0) break;
+                    e = s + n.length() + 1;
+                    while (e < len && covered.charAt(e) == ' ' || covered.charAt(e) == '\t'
+                            || covered.charAt(e) == '\n' || covered.charAt(e) == '\r') {
+                        e++;
+                    }
+                    if (e >= len) break;
+                    if (covered.charAt(e) == '(') {
+                        e = covered.indexOf(")", e + 1);
+                    }
+                    if (e < 0) break;
+                    stack.push(new Integer[]{s, e + 1});
+                }
+            }
+            for (Integer[] range : stack) {
+                int s = range[0], e = range[1];
+                ori.replace(s, e, ori.substring(s, e).replaceAll(".", ""));
+            }
+            return ori.toString();
+        }
+
+        protected static void coverString(StringBuffer buf) {
+            int s, e = -1;
+            while (true) {
+                s = buf.indexOf("\"", e + 1);
+                if (s < 0) break;
+                e = s;
+                while (true) {
+                    e = buf.indexOf("\"", e + 1);
+                    if (e < 0) break;
+                    int iSlash;
+                    for (iSlash = e - 1; (iSlash > s) && (buf.charAt(iSlash) == '\\'); iSlash--) {
+                    }
+                    if ((e - iSlash + 1) % 2 == 0) break;
+                }
+                if (e < 0) break;
+                for (int i = s; i <= e; i++) {
+                    buf.setCharAt(i, '*');
+                }
+            }
         }
     }
 }

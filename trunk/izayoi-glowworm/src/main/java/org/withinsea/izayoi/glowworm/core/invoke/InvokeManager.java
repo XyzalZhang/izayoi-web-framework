@@ -27,6 +27,8 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -42,5 +44,5 @@ public interface InvokeManager {
 
     List<String> findRequestAppendantPaths(String requestPath);
 
-    boolean invoke(String codePath, Scope scope) throws GlowwormException;
+    boolean invoke(HttpServletRequest request, HttpServletResponse response, String codePath, Scope scope) throws GlowwormException;
 }

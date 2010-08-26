@@ -32,11 +32,11 @@ import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpret.Vars;
 import org.withinsea.izayoi.core.interpret.Varstack;
-import org.withinsea.izayoi.core.scope.Request;
 import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletResponse;
  * Date: 2010-5-9
  * Time: 5:36:26
  */
-public abstract class ResultInvoker<S extends Scope> implements Invoker<S> {
+public abstract class ResultInvoker implements Invoker {
 
     @Resource
     IzayoiContainer izayoiContainer;
@@ -57,23 +57,24 @@ public abstract class ResultInvoker<S extends Scope> implements Invoker<S> {
 
     protected abstract boolean acceptResult(Object result);
 
-    protected abstract boolean processResult(Object result, String codePath, S scope) throws GlowwormException;
+    protected abstract boolean processResult(HttpServletRequest request, HttpServletResponse response,
+                                             String codePath, Scope scope, Object result) throws GlowwormException;
 
     @Override
-    public boolean invoke(String codePath, S scope) throws GlowwormException {
+    public boolean invoke(HttpServletRequest request, HttpServletResponse response, String codePath, Scope scope) throws GlowwormException {
 
-        HttpServletResponse response = (scope instanceof Request) ? ((Request) scope).getResponse() : null;
+        HttpServletResponse wrappedResp = (response == null) ? null : new ByteArrayBufferedHttpServletResponseWrapper(response);
 
         Varstack bindings = new Varstack(
                 BindingsUtils.asBindings(izayoiContainer),
                 BindingsUtils.asBindings(scope),
-                new Vars("response", (response == null) ? null : new ByteArrayBufferedHttpServletResponseWrapper(response)),
+                new Vars("request", request, "response", wrappedResp),
                 new Vars()
         );
 
         try {
             Object result = interpretManager.interpret(codeContainer.get(codePath), bindings);
-            return !acceptResult(result) || processResult(result, codePath, scope);
+            return !acceptResult(result) || processResult(request, response, codePath, scope, result);
         } catch (IzayoiException e) {
             throw new GlowwormException(e);
         }

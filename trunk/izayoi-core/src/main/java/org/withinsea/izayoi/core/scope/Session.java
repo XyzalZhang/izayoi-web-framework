@@ -41,19 +41,22 @@ public class Session extends InheritedScope<Application> {
     }
 
     @Override
-    public void setAttribute(String name, Object obj) {
+    public void setScopeAttribute(String name, Object obj) {
         session.setAttribute(name, obj);
     }
 
     @Override
-    protected Object getScopeConstant(String name) {
-        return name.equals("session") ? session
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeConstant(String name) {
+        Object obj = name.equals("session") ? session
                 : null;
+        return (T) obj;
     }
 
     @Override
-    protected Object getScopeAttribute(String name) {
-        return session.getAttribute(name);
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeAttribute(String name) {
+        return (T) session.getAttribute(name);
     }
 
     public HttpSession getSession() {

@@ -74,7 +74,7 @@ public class AnnotationInjectBeanFactory extends BasicBeanFactory {
             Inject i = f.getAnnotation(Inject.class);
             Named n = f.getAnnotation(Named.class);
             if (r != null) {
-                ips.add(new InjectPoint(f, r.name()));
+                ips.add(new InjectPoint(f, r.name().equals("") ? null : r.name()));
             } else if (i != null) {
                 ips.add(new InjectPoint(f, (n == null) ? null : n.value()));
             }
@@ -90,7 +90,7 @@ public class AnnotationInjectBeanFactory extends BasicBeanFactory {
                 Inject i = m.getAnnotation(Inject.class);
                 Named n = m.getAnnotation(Named.class);
                 if (r != null) {
-                    ips.add(new InjectPoint(m, r.name()));
+                    ips.add(new InjectPoint(m, r.name().equals("") ? null : r.name()));
                 } else if (i != null) {
                     ips.add(new InjectPoint(m, (n == null) ? null : n.value()));
                 }

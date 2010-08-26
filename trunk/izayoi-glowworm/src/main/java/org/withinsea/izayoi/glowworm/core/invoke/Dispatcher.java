@@ -25,7 +25,7 @@
 package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
-import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.servlet.ServletException;
@@ -38,7 +38,7 @@ import java.io.IOException;
  * Date: 2010-5-15
  * Time: 6:49:57
  */
-public class Dispatcher extends ResultInvoker<Request> {
+public class Dispatcher extends ResultInvoker {
 
     @Override
     protected boolean acceptResult(Object result) {
@@ -47,10 +47,8 @@ public class Dispatcher extends ResultInvoker<Request> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected boolean processResult(Object result, String codePath, Request scope) throws GlowwormException {
-
-        HttpServletRequest request = scope.getRequest();
-        HttpServletResponse response = scope.getResponse();
+    protected boolean processResult(HttpServletRequest request, HttpServletResponse response,
+                                    String codePath, Scope scope, Object result) throws GlowwormException {
 
         String url = ((String) result).trim();
 
@@ -63,7 +61,6 @@ public class Dispatcher extends ResultInvoker<Request> {
             } else if (url.startsWith("forward:")) {
                 url = url.substring("forward:".length()).trim();
                 ServletFilterUtils.forwardOrInclude(request, response, url);
-//                request.getRequestDispatcher(url).forward(request, response);
                 return false;
             } else if (url.startsWith("redirect:")) {
                 url = url.substring("redirect:".length()).trim();

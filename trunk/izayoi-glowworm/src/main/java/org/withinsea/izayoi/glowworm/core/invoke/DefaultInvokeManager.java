@@ -32,8 +32,8 @@ import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
  * Time: 6:03:55
  */
 public class DefaultInvokeManager implements InvokeManager {
+
 
     @Resource
     CodeContainer codeContainer;
@@ -58,6 +59,7 @@ public class DefaultInvokeManager implements InvokeManager {
 
     @Resource
     List<String> invokersOrder;
+
 
     @Override
     public boolean isAppendant(String path) {
@@ -76,12 +78,10 @@ public class DefaultInvokeManager implements InvokeManager {
         String folder = appendantFolder;
         for (String appendantName : sort(codeContainer.listNames(folder, scopeRegex + suffixRegex))) {
             String appendantPath = folder + "/" + appendantName;
-            if (check(getInvoker(appendantPath), scope)) {
-                appendantPaths.add(appendantPath);
-            }
+            appendantPaths.add(appendantPath);
         }
 
-        return filteMockPaths(appendantPaths);
+        return cleanPaths(appendantPaths);
     }
 
     @Override
@@ -107,24 +107,49 @@ public class DefaultInvokeManager implements InvokeManager {
             appendantPaths.add(folder + "/" + appendantName);
         }
 
-        return filteMockPaths(appendantPaths);
+        return cleanPaths(appendantPaths);
     }
 
-    protected List<String> filteMockPaths(List<String> paths) {
-        Set<String> filted = new LinkedHashSet<String>(paths);
-        for (String path : paths) {
-            if (new Path(path).isAppendant()) {
-                int dot = path.lastIndexOf(".");
-                String mockPath = path.substring(0, dot) + "-mock" + path.substring(dot);
-                filted.remove(mockPath);
+    protected List<String> cleanPaths(List<String> appendantPaths) {
+
+        if (appendantPaths.isEmpty()) return appendantPaths;
+
+        List<Path> parsedPaths = new ArrayList<Path>(appendantPaths.size());
+        for (String appendantPath : appendantPaths) {
+            parsedPaths.add(new Path(appendantPath));
+        }
+
+        for (int i = 0; i < parsedPaths.size() - 1; i++) {
+            Path pathI = parsedPaths.get(i);
+            if (pathI != null) {
+                for (int j = i + 1; j < parsedPaths.size(); j++) {
+                    Path pathJ = parsedPaths.get(j);
+                    if (pathJ != null && pathI.getMainName().equals(pathJ.getMainName())) {
+                        if (pathJ.getAppendantRole().equals(pathI.getAppendantRole() + "-mock")) {
+                            parsedPaths.set(j, null);
+                        } else if (pathI.getAppendantRole().equals(pathJ.getAppendantRole() + "-mock")) {
+                            parsedPaths.set(i, null);
+                            break;
+                        }
+                    }
+                }
             }
         }
-        return new ArrayList<String>(filted);
+
+        List<String> cleanPaths = new ArrayList<String>();
+        for (Path parsedPath : parsedPaths) {
+            if (parsedPath != null) {
+                cleanPaths.add(parsedPath.getPath());
+            }
+        }
+
+        return cleanPaths;
     }
+
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean invoke(String codePath, Scope scope) throws GlowwormException {
+    public boolean invoke(HttpServletRequest request, HttpServletResponse response, String codePath, Scope scope) throws GlowwormException {
 
         if (!codeContainer.exist(codePath)) {
             throw new GlowwormException("code " + codePath + " does not exist.");
@@ -142,24 +167,12 @@ public class DefaultInvokeManager implements InvokeManager {
             throw new GlowwormException("invoker for " + codePath + " does not exist.");
         }
 
-        return invoker.invoke(codePath, scope);
+        return invoker.invoke(request, response, codePath, scope);
     }
 
     protected Invoker getInvoker(String path) {
-        String type = new Path(path).getAppendantRole();
+        String type = new Path(path).getAppendantRole().replaceAll("-mock$", "");
         return invokers.get(invokers.containsKey(type) ? type : "default");
-    }
-
-    protected boolean check(Invoker invoker, Scope scope) {
-        for (Method m : invoker.getClass().getMethods()) {
-            if (m.getName().equals("invoke") && !Modifier.isVolatile(m.getModifiers())) {
-                Class<?>[] pts = m.getParameterTypes();
-                if (pts.length == 2 && pts[0] == String.class && pts[1].isAssignableFrom(scope.getClass())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     protected List<String> sort(Collection<String> names) {
@@ -178,6 +191,7 @@ public class DefaultInvokeManager implements InvokeManager {
         return invokersOrder.contains(type) ? invokersOrder.indexOf(type) : Integer.MIN_VALUE;
     }
 
+
     protected static class Cache extends HashMap<String, Long> {
 
         private static final long serialVersionUID = 3613991425340677036L;
@@ -185,10 +199,10 @@ public class DefaultInvokeManager implements InvokeManager {
         protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
         public static synchronized Cache get(Scope scope) throws GlowwormException {
-            Cache lastModifieds = scope.getAttribute(LAST_MODIFIED_ATTR);
+            Cache lastModifieds = scope.getScopeAttribute(LAST_MODIFIED_ATTR);
             if (lastModifieds == null) {
                 lastModifieds = new Cache();
-                scope.setAttribute(LAST_MODIFIED_ATTR, lastModifieds);
+                scope.setScopeAttribute(LAST_MODIFIED_ATTR, lastModifieds);
             }
             return lastModifieds;
         }

@@ -31,17 +31,19 @@ import org.withinsea.izayoi.core.interpret.BindingsUtils;
 import org.withinsea.izayoi.core.interpret.InterpretManager;
 import org.withinsea.izayoi.core.interpret.Vars;
 import org.withinsea.izayoi.core.interpret.Varstack;
-import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-9
  * Time: 5:36:26
  */
-public class Servlet implements Invoker<Request> {
+public class Servlet implements Invoker {
 
     @Resource
     IzayoiContainer izayoiContainer;
@@ -53,11 +55,12 @@ public class Servlet implements Invoker<Request> {
     InterpretManager interpretManager;
 
     @Override
-    public boolean invoke(String codePath, Request scope) throws GlowwormException {
+    public boolean invoke(HttpServletRequest request, HttpServletResponse response, String codePath, Scope scope) throws GlowwormException {
 
         Varstack bindings = new Varstack(
                 BindingsUtils.asBindings(izayoiContainer),
                 BindingsUtils.asBindings(scope),
+                new Vars("request", request, "response", response),
                 new Vars()
         );
 

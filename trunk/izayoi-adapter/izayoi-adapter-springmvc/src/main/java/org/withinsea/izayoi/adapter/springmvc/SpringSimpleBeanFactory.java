@@ -37,17 +37,17 @@ import javax.annotation.Resource;
 public class SpringSimpleBeanFactory implements BeanFactory {
 
     @Resource
-    ApplicationContext appctx;
+    ApplicationContext applicationContext;
 
     public SpringSimpleBeanFactory() {
     }
 
-    public SpringSimpleBeanFactory(ApplicationContext appctx) {
-        this.appctx = appctx;
+    public SpringSimpleBeanFactory(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public <T> T create(Class<T> claz, Object... args) throws InstantiationException {
-        return appctx.getBean(claz);
+        return applicationContext.getAutowireCapableBeanFactory().createBean(claz);
     }
 }

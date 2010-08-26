@@ -24,10 +24,12 @@
 
 package org.withinsea.izayoi.glowworm.core.invoke;
 
-import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -35,7 +37,7 @@ import java.util.*;
  * Date: 2010-5-16
  * Time: 3:50:04
  */
-public class Action extends ResultInvoker<Request> {
+public class Action extends ResultInvoker {
 
     @Resource
     Map<String, Invoker> invokers;
@@ -50,7 +52,8 @@ public class Action extends ResultInvoker<Request> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected boolean processResult(Object result, String codePath, Request scope) throws GlowwormException {
+    protected boolean processResult(HttpServletRequest request, HttpServletResponse response,
+                                    String codePath, Scope scope, Object result) throws GlowwormException {
 
         Collection<Object> results = (result == null) ? Arrays.asList((Object) null)
                 : (result instanceof Collection) ? (Collection<Object>) result
@@ -60,7 +63,7 @@ public class Action extends ResultInvoker<Request> {
         for (Object resultItem : results) {
             for (ResultInvoker invoker : getResultInvokers()) {
                 if (invoker.acceptResult(resultItem)) {
-                    if (!invoker.processResult(resultItem, codePath, scope)) {
+                    if (!invoker.processResult(request, response, codePath, scope, resultItem)) {
                         return false;
                     }
                     break;

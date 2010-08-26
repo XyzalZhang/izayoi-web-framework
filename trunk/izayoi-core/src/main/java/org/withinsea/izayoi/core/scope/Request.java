@@ -55,24 +55,27 @@ public class Request extends InheritedScope<Session> {
     }
 
     @Override
-    public void setAttribute(String name, Object obj) {
+    public void setScopeAttribute(String name, Object obj) {
         request.setAttribute(name, obj);
     }
 
     @Override
-    protected Object getScopeConstant(String name) {
-        return name.equals("params") ? getParameterMap(request)
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeConstant(String name) {
+        Object obj = name.equals("params") ? getParameterMap(request)
                 : name.equals("request") ? request
                 : name.equals("response") ? response
                 : name.equals("chain") ? chain
                 : null;
+        return (T) obj;
     }
 
     @Override
-    protected Object getScopeAttribute(String name) {
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeAttribute(String name) {
         Object obj = request.getAttribute(name);
         if (obj == null) obj = getParameterMap(request).get(name);
-        return obj;
+        return (T) obj;
     }
 
     protected HttpParameterMap getParameterMap(HttpServletRequest request) {

@@ -48,7 +48,18 @@ public class Singleton implements Scope {
     }
 
     @Override
-    public void setAttribute(String name, Object value) {
+    public <T> T getScopeConstant(String name) {
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeAttribute(String name) {
+        return (T) SINGLETONS.get(name);
+    }
+
+    @Override
+    public void setScopeAttribute(String name, Object value) {
         SINGLETONS.put(name, value);
     }
 

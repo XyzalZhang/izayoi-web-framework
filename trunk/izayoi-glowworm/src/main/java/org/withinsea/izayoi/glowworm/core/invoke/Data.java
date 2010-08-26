@@ -26,7 +26,7 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 
 import org.withinsea.izayoi.commons.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.core.code.Path;
-import org.withinsea.izayoi.core.scope.Request;
+import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.core.serialize.SerializeManager;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
@@ -40,7 +40,7 @@ import java.util.Map;
  * Date: 2010-5-15
  * Time: 6:43:44
  */
-public class Responder extends ResultInvoker<Request> {
+public class Data extends ResultInvoker {
 
     @Resource
     SerializeManager serializeManager;
@@ -55,10 +55,8 @@ public class Responder extends ResultInvoker<Request> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected boolean processResult(Object result, String codePath, Request scope) throws GlowwormException {
-
-        HttpServletRequest request = scope.getRequest();
-        HttpServletResponse response = scope.getResponse();
+    protected boolean processResult(HttpServletRequest request, HttpServletResponse response,
+                                    String codePath, Scope scope, Object result) throws GlowwormException {
 
         String accept = request.getHeader("Accept");
         String asType = new Path(codePath).getMainType();
@@ -97,13 +95,12 @@ public class Responder extends ResultInvoker<Request> {
             } else if (result instanceof Map) {
 
                 for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
-                    scope.setAttribute(e.getKey(), e.getValue());
+                    scope.setScopeAttribute(e.getKey(), e.getValue());
                 }
 
                 Path path = new Path(codePath);
                 String templatePath = path.getFolder() + "/" + path.getMainName() + "." + asType;
                 ServletFilterUtils.forwardOrInclude(request, response, templatePath);
-//                request.getRequestDispatcher(templatePath).forward(request, response);
             }
 
         } catch (Exception e) {

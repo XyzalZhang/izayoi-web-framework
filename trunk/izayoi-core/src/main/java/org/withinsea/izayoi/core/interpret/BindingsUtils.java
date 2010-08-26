@@ -85,7 +85,7 @@ public class BindingsUtils {
 
             @Override
             protected void setBean(String name, Object value) {
-                scope.setAttribute(name, value);
+                scope.setScopeAttribute(name, value);
             }
         };
     }

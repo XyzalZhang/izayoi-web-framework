@@ -62,10 +62,6 @@ public abstract class ComponentContainer implements BeanContainer {
         this.componentSource = new NameFixedBeanSource(new ChainBeanSource(loopBeanSources), prefix);
 
         this.componentFactory = new AnnotationInjectBeanFactory(this.componentSource);
-//                (prefix == null || prefix.equals(""))
-//                        ? this.componentSource
-//                        : new NameFixedBeanSource(this.componentSource, prefix)
-//        );
     }
 
     @Override
