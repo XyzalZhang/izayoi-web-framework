@@ -27,6 +27,8 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
@@ -34,7 +36,7 @@ import java.util.Map;
  * Date: 2010-5-15
  * Time: 6:49:57
  */
-public class Context<S extends Scope> extends ResultInvoker<S> {
+public class Context extends ResultInvoker {
 
     @Override
     protected boolean acceptResult(Object result) {
@@ -43,10 +45,11 @@ public class Context<S extends Scope> extends ResultInvoker<S> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected boolean processResult(Object result, String codePath, S scope) throws GlowwormException {
+    protected boolean processResult(HttpServletRequest request, HttpServletResponse response,
+                                    String codePath, Scope scope, Object result) throws GlowwormException {
 
         for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
-            scope.setAttribute(e.getKey(), e.getValue());
+            scope.setScopeAttribute(e.getKey(), e.getValue());
         }
 
         return true;

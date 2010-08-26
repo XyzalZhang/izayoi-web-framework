@@ -41,20 +41,23 @@ public class Application extends InheritedScope<Singleton> {
     }
 
     @Override
-    public void setAttribute(String name, Object obj) {
+    public void setScopeAttribute(String name, Object obj) {
         servletContext.setAttribute(name, obj);
     }
 
     @Override
-    protected Object getScopeConstant(String name) {
-        return name.equals("application") ? servletContext
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeConstant(String name) {
+        Object obj = name.equals("application") ? servletContext
                 : name.equals("servletContext") ? servletContext
                 : null;
+        return (T) obj;
     }
 
     @Override
-    protected Object getScopeAttribute(String name) {
-        return servletContext.getAttribute(name);
+    @SuppressWarnings("unchecked")
+    public <T> T getScopeAttribute(String name) {
+        return (T) servletContext.getAttribute(name);
     }
 
     public ServletContext getServletContext() {

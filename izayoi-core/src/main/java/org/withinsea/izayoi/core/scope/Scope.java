@@ -35,5 +35,9 @@ public interface Scope {
 
     <T> T getAttribute(String name);
 
-    void setAttribute(String name, Object value);
+    <T> T getScopeConstant(String name);
+
+    <T> T getScopeAttribute(String name);
+
+    void setScopeAttribute(String name, Object value);
 }

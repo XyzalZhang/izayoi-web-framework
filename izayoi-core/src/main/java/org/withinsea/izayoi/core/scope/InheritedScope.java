@@ -9,10 +9,6 @@ abstract class InheritedScope<BASE extends Scope> implements Scope {
 
     protected final BASE baseScope;
 
-    protected abstract Object getScopeConstant(String name);
-
-    protected abstract Object getScopeAttribute(String name);
-
     public InheritedScope() {
         this(null);
     }

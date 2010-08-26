@@ -103,11 +103,11 @@ public class SpringIzayoiDispatcherFilter extends DispatcherServlet implements F
 
         IzayoiContainer container = new IzayoiContainerFactory()
                 .addBeanSource(new SpringBeanSource(appctx))
-                .addModule("org.withinsea.izayoi.adapter.springmvc")
                 .addModule("org.withinsea.izayoi.core")
                 .addModule("org.withinsea.izayoi.cloister")
                 .addModule("org.withinsea.izayoi.glowworm")
                 .addModule("org.withinsea.izayoi.cortile")
+                .addModule("org.withinsea.izayoi.adapter.springmvc")
                 .create(servletContext, overriddenProperties);
 
         cloister.init(container);

@@ -27,21 +27,20 @@ package org.withinsea.izayoi.glowworm.core.invoke;
 import org.withinsea.izayoi.core.scope.Scope;
 import org.withinsea.izayoi.glowworm.core.exception.GlowwormException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-9
  * Time: 5:34:56
  */
-public interface Invoker<S extends Scope> {
+public interface Invoker {
 
     /**
      * Invoke a invoke interpret file
      *
-     * @param codePath
-     * @param scope
      * @return Return false if invokation has failed or processing should be stoped
-     * @throws org.withinsea.izayoi.core.exception.IzayoiException
-     *
      */
-    boolean invoke(String codePath, S scope) throws GlowwormException;
+    boolean invoke(HttpServletRequest request, HttpServletResponse response, String codePath, Scope scope) throws GlowwormException;
 }

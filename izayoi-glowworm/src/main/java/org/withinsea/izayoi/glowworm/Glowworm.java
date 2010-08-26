@@ -101,7 +101,7 @@ public class Glowworm implements Filter {
                 }
                 for (Map.Entry<String, Scope> scopeE : scopes.entrySet()) {
                     for (String appendantPath : invokeManager.findScopedAppendantPaths(scopeE.getKey(), scopeE.getValue())) {
-                        if (!invokeManager.invoke(appendantPath, scopeE.getValue())) {
+                        if (!invokeManager.invoke(request, response, appendantPath, scopeE.getValue())) {
                             break;
                         }
                     }
@@ -109,7 +109,7 @@ public class Glowworm implements Filter {
 
                 Request scope = new Request(request, response, chain);
                 for (String appendantPath : invokeManager.findRequestAppendantPaths(requestPath)) {
-                    if (!invokeManager.invoke(appendantPath, scope)) {
+                    if (!invokeManager.invoke(request, response, appendantPath, scope)) {
                         return;
                     }
                 }
