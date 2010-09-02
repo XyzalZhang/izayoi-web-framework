@@ -82,6 +82,7 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
     @Priority(Grammar.Priority.HIGH)
     public String roundoffCode(String code) throws CortileException {
         int dt = code.indexOf("<!DOCTYPE");
+        if (dt < 0) dt = 0;
         int start = code.indexOf("<% /*FUNC*/");
         int end = code.lastIndexOf("/*FUNC*/ %>") + "/*FUNC*/ %>".length();
         if (start >= 0 && end >= 0 && start <= end) {

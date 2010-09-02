@@ -72,9 +72,7 @@ public class Izayoi implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, final FilterChain chain) throws IOException, ServletException {
-//        System.out.println("IZAYOI-IN : " + ((HttpServletRequest) req).getServletPath());
         ServletFilterUtils.chain((HttpServletRequest) req, (HttpServletResponse) resp, chain, cloister, glowworm, cortile);
-//        System.out.println("IZAYOI-OUT : " + ((HttpServletRequest) req).getServletPath());
     }
 
     @Override

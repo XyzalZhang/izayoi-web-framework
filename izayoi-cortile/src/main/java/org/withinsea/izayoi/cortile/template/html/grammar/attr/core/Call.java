@@ -61,9 +61,10 @@ public class Call implements AttrGrammar {
 
     @Override
     public void processAttr(Attribute attr) throws CortileException {
+        Element elem = attr.getParent();
         String attrvalue = attr.getValue();
-        processAttr(attr.getParent(), attrvalue);
-        attr.detach();
+        processAttr(elem, attrvalue);
+        elem.detach();
     }
 
     protected void processAttr(Element range, String includePath) throws CortileException {
