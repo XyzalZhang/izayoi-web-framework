@@ -176,6 +176,8 @@ public class HTMLReader extends SAXReader {
 
         public String trickBefore(String html) {
             html = hold(html, "&", "＆", "_");
+            html = hold(html, "< ", "《　", "_");
+            html = hold(html, "<=", "《＝", "_");
             html = html.replaceAll("(<script>|<script[^>]*?[^/]>)\\s*(//\\s*<!--)?\\s*", "$1//<!--\n");
             html = html.replaceAll("\\s*(//\\s*-->)?\\s*(</script\\s*>)", "\n//-->$2");
             int start = (html.indexOf("<!DOCTYPE ") < 0) ? 0 : html.indexOf(">", html.indexOf("<!DOCTYPE ")) + 1;

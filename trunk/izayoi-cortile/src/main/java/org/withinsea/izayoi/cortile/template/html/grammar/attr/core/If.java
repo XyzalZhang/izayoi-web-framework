@@ -70,8 +70,8 @@ public class If implements AttrGrammar {
             if (attrname.equals("if")) {
                 DOMUtils.surroundBy(elem, "<%" + preScriptlet + "%>", "<%" + sufScriptlet + "%>");
             } else {
-                String ifAttrname = attrname.startsWith("if.attr.") ?
-                        attr.getName().substring("if.attr.".length()) :
+                String ifAttrname = attrname.startsWith("if-attr.") ?
+                        attr.getName().substring("if-attr.".length()) :
                         attr.getName().substring("if.".length());
                 for (SurroundableAttr ifAttr : (List<SurroundableAttr>) elem.attributes()) {
                     if (ifAttr.getName().equals(ifAttrname)) {
