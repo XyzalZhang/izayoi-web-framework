@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -181,7 +183,7 @@ public class JSP implements CompilableInterpreter {
                     protoField.setAccessible(true);
                     Object proto = protoField.get(protoObj);
                     Object now = protoField.get(obj);
-                    if (now == null || now == proto) {
+                    if (!injected(proto, now)) {
                         Object v = bindings.get(getName(protoField));
                         if (v != null) {
                             protoField.set(obj, ParamUtils.cast(v, protoField.getType()));
@@ -189,6 +191,15 @@ public class JSP implements CompilableInterpreter {
                     }
                 }
             }
+        }
+
+        protected boolean injected(Object proto, Object now) {
+            if (now == null || now == proto || now.equals(proto)) return false;
+            if (proto == null || now.getClass() != proto.getClass()) return true;
+            Class<?> claz = now.getClass();
+            return !((claz.isArray() && ((Object[]) now).length == 0 && ((Object[]) proto).length == 0)
+                    || (now instanceof Collection && ((Collection) now).isEmpty() && ((Collection) proto).isEmpty())
+                    || (now instanceof Map && ((Map) now).isEmpty() && ((Map) proto).isEmpty()));
         }
 
         protected String getName(Field f) {
