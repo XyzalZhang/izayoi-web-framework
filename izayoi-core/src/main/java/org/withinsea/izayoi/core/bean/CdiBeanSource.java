@@ -67,36 +67,61 @@ public class CdiBeanSource implements BeanSource {
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> list(String name) {
-        BeanManager beanManager = lookupBeanManager();
-        if (beanManager == null) {
+        try {
+            Class.forName("javax.enterprise.inject.spi.BeanManager");
+            return CDIHelper.list(name);
+        } catch (ClassNotFoundException cnfe) {
             return Collections.emptyList();
         }
-        List<T> beans = new ArrayList<T>();
-        for (Bean<?> bean : beanManager.getBeans(name)) {
-            beans.add((T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
-        }
-        return beans;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> list(Class<T> claz) {
-        BeanManager beanManager = lookupBeanManager();
-        if (beanManager == null) {
+        try {
+            Class.forName("javax.enterprise.inject.spi.BeanManager");
+            return CDIHelper.list(claz);
+        } catch (ClassNotFoundException cnfe) {
             return Collections.emptyList();
         }
-        List<T> beans = new ArrayList<T>();
-        for (Bean<?> bean : beanManager.getBeans(claz, claz.getAnnotations())) {
-            beans.add((T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
-        }
-        return beans;
     }
 
-    protected BeanManager lookupBeanManager() {
-        try {
-            return (BeanManager) JndiBeanSource.lookupJndi("BeanManager");
-        } catch (Exception ex) {
-            return null;
+    // lazy load CDI jars
+
+    protected static class CDIHelper {
+
+        @SuppressWarnings("unchecked")
+        public static <T> List<T> list(String name) {
+            BeanManager beanManager = lookupBeanManager();
+            if (beanManager == null) {
+                return Collections.emptyList();
+            }
+            List<T> beans = new ArrayList<T>();
+            for (Bean<?> bean : beanManager.getBeans(name)) {
+                beans.add((T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
+            }
+            return beans;
+        }
+
+        @SuppressWarnings("unchecked")
+        public static <T> List<T> list(Class<T> claz) {
+            BeanManager beanManager = lookupBeanManager();
+            if (beanManager == null) {
+                return Collections.emptyList();
+            }
+            List<T> beans = new ArrayList<T>();
+            for (Bean<?> bean : beanManager.getBeans(claz, claz.getAnnotations())) {
+                beans.add((T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
+            }
+            return beans;
+        }
+
+        protected static BeanManager lookupBeanManager() {
+            try {
+                return (BeanManager) JndiBeanSource.lookupJndi("BeanManager");
+            } catch (Exception ex) {
+                return null;
+            }
         }
     }
 }
