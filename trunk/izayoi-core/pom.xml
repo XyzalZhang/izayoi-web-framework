@@ -51,6 +51,7 @@
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <version>1.0</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
