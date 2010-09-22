@@ -26,10 +26,7 @@ package org.withinsea.izayoi.core.bean;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -37,6 +34,11 @@ import java.util.List;
  * Time: 17:52:11
  */
 public class JndiBeanSource implements BeanSource {
+
+    @Override
+    public Set<String> names() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public boolean exist(Object bean) {

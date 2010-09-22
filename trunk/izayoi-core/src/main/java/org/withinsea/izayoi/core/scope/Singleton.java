@@ -24,17 +24,39 @@
 
 package org.withinsea.izayoi.core.scope;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Singleton implements Scope {
+public class Singleton extends SimpleScope {
 
     protected static Map<String, Object> SINGLETONS = new HashMap<String, Object>();
+
+    @Override
+    public Set<String> getContantNames() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getAttributeNames() {
+        return SINGLETONS.keySet();
+    }
+
+    @Override
+    public boolean containsConstant(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean containsAttribute(String name) {
+        return SINGLETONS.containsKey(name);
+    }
 
     @Override
     public <T> T getConstant(String name) {
@@ -48,18 +70,7 @@ public class Singleton implements Scope {
     }
 
     @Override
-    public <T> T getScopeConstant(String name) {
-        return null;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getScopeAttribute(String name) {
-        return (T) SINGLETONS.get(name);
-    }
-
-    @Override
-    public void setScopeAttribute(String name, Object value) {
+    public void setAttribute(String name, Object value) {
         SINGLETONS.put(name, value);
     }
 

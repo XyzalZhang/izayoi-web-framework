@@ -24,6 +24,8 @@
 
 package org.withinsea.izayoi.core.scope;
 
+import java.util.Set;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-15
@@ -31,13 +33,21 @@ package org.withinsea.izayoi.core.scope;
  */
 public interface Scope {
 
+    Set<String> getContantNames();
+
+    Set<String> getAttributeNames();
+
+    boolean containsConstant(String name);
+
+    boolean containsAttribute(String name);
+
     <T> T getConstant(String name);
 
     <T> T getAttribute(String name);
 
-    <T> T getScopeConstant(String name);
+    void setAttribute(String name, Object value);
 
-    <T> T getScopeAttribute(String name);
+    Scope getInheritedScope();
 
-    void setScopeAttribute(String name, Object value);
+    Scope getDeclaredScope();
 }

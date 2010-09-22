@@ -49,7 +49,7 @@ public class Context extends ResultInvoker {
                                     String codePath, Scope scope, Object result) throws GlowwormException {
 
         for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
-            scope.setScopeAttribute(e.getKey(), e.getValue());
+            scope.setAttribute(e.getKey(), e.getValue());
         }
 
         return true;

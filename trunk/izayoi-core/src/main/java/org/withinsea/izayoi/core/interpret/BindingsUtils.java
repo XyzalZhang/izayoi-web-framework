@@ -29,9 +29,7 @@ import org.withinsea.izayoi.core.bean.BeanSource;
 import org.withinsea.izayoi.core.scope.Scope;
 
 import javax.script.Bindings;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -43,6 +41,16 @@ public class BindingsUtils {
     public static Bindings asBindings(final BeanSource beanSource) {
 
         return new NameBindings() {
+
+            @Override
+            protected Set<String> getBeanNames() {
+                return beanSource.names();
+            }
+
+            @Override
+            public boolean containsBean(String name) {
+                return beanSource.exist(name);
+            }
 
             @Override
             protected Object getBean(String name) {
@@ -61,6 +69,16 @@ public class BindingsUtils {
         return new NameBindings() {
 
             @Override
+            protected Set<String> getBeanNames() {
+                return beanContainer.names();
+            }
+
+            @Override
+            public boolean containsBean(String name) {
+                return beanContainer.exist(name);
+            }
+
+            @Override
             protected Object getBean(String name) {
                 return beanContainer.get(name);
             }
@@ -77,20 +95,37 @@ public class BindingsUtils {
         return new NameBindings() {
 
             @Override
+            public Set<String> getBeanNames() {
+                Set<String> names = new LinkedHashSet<String>();
+                names.addAll(scope.getContantNames());
+                names.addAll(scope.getAttributeNames());
+                return names;
+            }
+
+            @Override
+            public boolean containsBean(String name) {
+                return scope.containsConstant(name) || scope.containsAttribute(name);
+            }
+
+            @Override
             protected Object getBean(String name) {
-                Object bean = scope.getConstant(name);
-                if (bean == null) bean = scope.getAttribute(name);
-                return bean;
+                return scope.containsConstant(name) ? scope.getConstant(name)
+                        : scope.containsAttribute(name) ? scope.getAttribute(name)
+                        : null;
             }
 
             @Override
             protected void setBean(String name, Object value) {
-                scope.setScopeAttribute(name, value);
+                scope.setAttribute(name, value);
             }
         };
     }
 
     protected static abstract class NameBindings implements Bindings {
+
+        protected abstract Set<String> getBeanNames();
+
+        protected abstract boolean containsBean(String name);
 
         protected abstract Object getBean(String name);
 
@@ -98,15 +133,13 @@ public class BindingsUtils {
 
         @Override
         public boolean containsKey(Object key) {
-            return get(key) != null;
+            return containsBean(key.toString());
         }
 
         @Override
         public Object get(Object key) {
             return getBean(key.toString());
         }
-
-        // unsupported
 
         @Override
         public Object put(String name, Object value) {
@@ -122,42 +155,52 @@ public class BindingsUtils {
         }
 
         @Override
+        public int size() {
+            return getBeanNames().size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return getBeanNames().isEmpty();
+        }
+
+        @Override
+        public Set<String> keySet() {
+            return getBeanNames();
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            return getBeanMap().containsValue(value);
+        }
+
+        @Override
+        public Collection<Object> values() {
+            return getBeanMap().values();
+        }
+
+        @Override
+        public Set<Map.Entry<String, Object>> entrySet() {
+            return getBeanMap().entrySet();
+        }
+
+        protected Map<String, Object> getBeanMap() {
+            Map<String, Object> map = new LinkedHashMap<String, Object>();
+            for (String name : getBeanNames()) {
+                map.put(name, getBean(name));
+            }
+            return map;
+        }
+
+        // unsupported
+
+        @Override
         public Object remove(Object key) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public int size() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean containsValue(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void clear() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Set<String> keySet() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Collection<Object> values() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Set<Map.Entry<String, Object>> entrySet() {
             throw new UnsupportedOperationException();
         }
     }

@@ -29,15 +29,17 @@ import org.withinsea.izayoi.commons.servlet.HttpParameterMap;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Request extends InheritedScope<Session> {
-
-    protected static final String PARAMS_ATTR = Request.class.getCanonicalName() + ".PARAMS";
+public class Request extends InheritedScope {
 
     protected final HttpServletRequest request;
     protected final HttpServletResponse response;
@@ -48,43 +50,11 @@ public class Request extends InheritedScope<Session> {
     }
 
     public Request(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-        super(new Session(request.getSession()));
+        super(new Session(request.getSession()), null);
         this.request = request;
         this.response = response;
         this.chain = chain;
-    }
-
-    @Override
-    public void setScopeAttribute(String name, Object obj) {
-        request.setAttribute(name, obj);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getScopeConstant(String name) {
-        Object obj = name.equals("params") ? getParameterMap(request)
-                : name.equals("request") ? request
-                : name.equals("response") ? response
-                : name.equals("chain") ? chain
-                : null;
-        return (T) obj;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getScopeAttribute(String name) {
-        Object obj = request.getAttribute(name);
-        if (obj == null) obj = getParameterMap(request).get(name);
-        return (T) obj;
-    }
-
-    protected HttpParameterMap getParameterMap(HttpServletRequest request) {
-        HttpParameterMap params = (HttpParameterMap) request.getAttribute(PARAMS_ATTR);
-        if (params == null) {
-            params = new HttpParameterMap(request);
-            request.setAttribute(PARAMS_ATTR, params);
-        }
-        return params;
+        this.declaredScope = new DeclaredScope();
     }
 
     public FilterChain getChain() {
@@ -97,5 +67,80 @@ public class Request extends InheritedScope<Session> {
 
     public HttpServletResponse getResponse() {
         return response;
+    }
+
+    protected static final String PARAMS_ATTR = Request.class.getCanonicalName() + ".PARAMS";
+
+    protected static final Set<String> CONSTANT_NAMES = new LinkedHashSet<String>(Arrays.asList(
+            "request", "response", "chain", "params"));
+
+    public class DeclaredScope extends SimpleScope {
+
+        @Override
+        public Set<String> getContantNames() {
+            return CONSTANT_NAMES;
+        }
+
+        @Override
+        public Set<String> getAttributeNames() {
+            Set<String> names = new LinkedHashSet<String>();
+            Enumeration<String> enu = request.getAttributeNames();
+            while (enu.hasMoreElements()) {
+                names.add(enu.nextElement());
+            }
+            names.addAll(getParameterMap(request).keySet());
+            return names;
+        }
+
+        @Override
+        public boolean containsConstant(String name) {
+            return CONSTANT_NAMES.contains(name);
+        }
+
+        @Override
+        public boolean containsAttribute(String name) {
+
+            Enumeration<String> enu = request.getAttributeNames();
+            while (enu.hasMoreElements()) {
+                String e = enu.nextElement();
+                if (name.equals(e)) {
+                    return true;
+                }
+            }
+            return getParameterMap(request).containsKey(name);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getConstant(String name) {
+            Object obj = name.equals("params") ? getParameterMap(request)
+                    : name.equals("request") ? request
+                    : name.equals("response") ? response
+                    : name.equals("chain") ? chain
+                    : null;
+            return (T) obj;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getAttribute(String name) {
+            Object obj = request.getAttribute(name);
+            if (obj == null) obj = getParameterMap(request).get(name);
+            return (T) obj;
+        }
+
+        @Override
+        public void setAttribute(String name, Object obj) {
+            request.setAttribute(name, obj);
+        }
+
+        protected HttpParameterMap getParameterMap(HttpServletRequest request) {
+            HttpParameterMap params = (HttpParameterMap) request.getAttribute(PARAMS_ATTR);
+            if (params == null) {
+                params = new HttpParameterMap(request);
+                request.setAttribute(PARAMS_ATTR, params);
+            }
+            return params;
+        }
     }
 }

@@ -25,41 +25,83 @@
 package org.withinsea.izayoi.core.scope;
 
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-10
  * Time: 10:16:18
  */
-public class Session extends InheritedScope<Application> {
+public class Session extends InheritedScope {
 
     protected final HttpSession session;
 
     public Session(HttpSession session) {
-        super(new Application(session.getServletContext()));
+        super(new Application(session.getServletContext()), null);
         this.session = session;
-    }
-
-    @Override
-    public void setScopeAttribute(String name, Object obj) {
-        session.setAttribute(name, obj);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getScopeConstant(String name) {
-        Object obj = name.equals("session") ? session
-                : null;
-        return (T) obj;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getScopeAttribute(String name) {
-        return (T) session.getAttribute(name);
+        this.declaredScope = new DeclaredScope();
     }
 
     public HttpSession getSession() {
         return session;
+    }
+
+    protected static final Set<String> CONSTANT_NAMES = new LinkedHashSet<String>(Arrays.asList(
+            "session"));
+
+    public class DeclaredScope extends SimpleScope {
+
+        @Override
+        public Set<String> getContantNames() {
+            return CONSTANT_NAMES;
+        }
+
+        @Override
+        public Set<String> getAttributeNames() {
+            Set<String> names = new LinkedHashSet<String>();
+            Enumeration<String> enu = session.getAttributeNames();
+            while (enu.hasMoreElements()) {
+                names.add(enu.nextElement());
+            }
+            return names;
+        }
+
+        @Override
+        public boolean containsConstant(String name) {
+            return CONSTANT_NAMES.contains(name);
+        }
+
+        @Override
+        public boolean containsAttribute(String name) {
+            Enumeration<String> enu = session.getAttributeNames();
+            while (enu.hasMoreElements()) {
+                if (name.equals(enu.nextElement())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getConstant(String name) {
+            Object obj = name.equals("session") ? session
+                    : null;
+            return (T) obj;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getAttribute(String name) {
+            return (T) session.getAttribute(name);
+        }
+
+        @Override
+        public void setAttribute(String name, Object obj) {
+            session.setAttribute(name, obj);
+        }
     }
 }

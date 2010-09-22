@@ -44,6 +44,19 @@ public class ChainBeanSource implements BeanSource {
     }
 
     @Override
+    public Set<String> names() {
+        Set<String> names = new LinkedHashSet<String>();
+        for (BeanSource bs : getBeanSources()) {
+            try {
+                names.addAll(bs.names());
+            } catch (UnsupportedOperationException uoe) {
+                // do nothing
+            }
+        }
+        return names;
+    }
+
+    @Override
     public boolean exist(Object bean) {
         for (BeanSource bs : getBeanSources()) {
             try {

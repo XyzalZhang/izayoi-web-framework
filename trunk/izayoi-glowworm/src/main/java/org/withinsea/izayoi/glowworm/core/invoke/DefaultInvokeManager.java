@@ -199,10 +199,10 @@ public class DefaultInvokeManager implements InvokeManager {
         protected static final String LAST_MODIFIED_ATTR = Cache.class.getCanonicalName() + ".LAST_MODIFIED";
 
         public static synchronized Cache get(Scope scope) throws GlowwormException {
-            Cache lastModifieds = scope.getScopeAttribute(LAST_MODIFIED_ATTR);
+            Cache lastModifieds = scope.getDeclaredScope().getAttribute(LAST_MODIFIED_ATTR);
             if (lastModifieds == null) {
                 lastModifieds = new Cache();
-                scope.setScopeAttribute(LAST_MODIFIED_ATTR, lastModifieds);
+                scope.setAttribute(LAST_MODIFIED_ATTR, lastModifieds);
             }
             return lastModifieds;
         }

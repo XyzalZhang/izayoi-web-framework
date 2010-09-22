@@ -95,7 +95,7 @@ public class Data extends ResultInvoker {
             } else if (result instanceof Map) {
 
                 for (Map.Entry<String, ?> e : ((Map<String, Object>) result).entrySet()) {
-                    scope.setScopeAttribute(e.getKey(), e.getValue());
+                    scope.setAttribute(e.getKey(), e.getValue());
                 }
 
                 Path path = new Path(codePath);
