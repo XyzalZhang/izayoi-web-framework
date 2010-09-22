@@ -24,40 +24,80 @@
 
 package org.withinsea.izayoi.core.scope;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Created by Mo Chen <withinsea@gmail.com>
  * Date: 2010-5-28
  * Time: 15:58:46
  */
-abstract class InheritedScope<BASE extends Scope> implements Scope {
+public abstract class InheritedScope implements Scope {
 
-    protected final BASE baseScope;
+    protected Scope inheritedScope;
+    protected Scope declaredScope;
 
-    public InheritedScope() {
-        this(null);
+    protected InheritedScope(Scope inheritedScope, Scope declaredScope) {
+        this.inheritedScope = inheritedScope;
+        this.declaredScope = declaredScope;
     }
 
-    public InheritedScope(BASE baseScope) {
-        this.baseScope = baseScope;
+    @Override
+    public Set<String> getContantNames() {
+        Set<String> names = new LinkedHashSet<String>();
+        names.addAll(declaredScope.getContantNames());
+        names.addAll(inheritedScope.getContantNames());
+        return names;
+    }
+
+    @Override
+    public Set<String> getAttributeNames() {
+        Set<String> names = new LinkedHashSet<String>();
+        names.addAll(declaredScope.getAttributeNames());
+        names.addAll(inheritedScope.getAttributeNames());
+        return names;
+    }
+
+    @Override
+    public boolean containsConstant(String name) {
+        return declaredScope.containsConstant(name)
+                || (inheritedScope != null && inheritedScope.containsConstant(name));
+    }
+
+    @Override
+    public boolean containsAttribute(String name) {
+        return declaredScope.containsAttribute(name)
+                || (inheritedScope != null && inheritedScope.containsAttribute(name));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConstant(String name) {
-        Object obj = getScopeConstant(name);
-        if (obj == null && baseScope != null) obj = baseScope.getConstant(name);
-        return (T) obj;
+        return declaredScope.containsConstant(name) ? (T) declaredScope.getConstant(name)
+                : (inheritedScope != null) ? (T) inheritedScope.getConstant(name)
+                : null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getAttribute(String name) {
-        Object obj = getScopeAttribute(name);
-        if (obj == null && baseScope != null) obj = baseScope.getAttribute(name);
-        return (T) obj;
+        return declaredScope.containsAttribute(name) ? (T) declaredScope.getAttribute(name)
+                : (inheritedScope != null) ? (T) inheritedScope.getAttribute(name)
+                : null;
     }
 
-    public BASE getBaseScope() {
-        return baseScope;
+    @Override
+    public void setAttribute(String name, Object value) {
+        declaredScope.setAttribute(name, value);
+    }
+
+    @Override
+    public Scope getInheritedScope() {
+        return inheritedScope;
+    }
+
+    @Override
+    public Scope getDeclaredScope() {
+        return declaredScope;
     }
 }

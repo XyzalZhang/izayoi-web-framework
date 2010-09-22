@@ -26,9 +26,7 @@ package org.withinsea.izayoi.core.bean;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -36,6 +34,16 @@ import java.util.List;
  * Time: 17:52:11
  */
 public class CdiBeanSource implements BeanSource {
+
+    @Override
+    public Set<String> names() {
+        try {
+            Class.forName("javax.enterprise.inject.spi.BeanManager");
+            return CDIHelper.listNames();
+        } catch (ClassNotFoundException cnfe) {
+            return Collections.emptySet();
+        }
+    }
 
     @Override
     public boolean exist(Object bean) {
@@ -89,6 +97,18 @@ public class CdiBeanSource implements BeanSource {
     // lazy load CDI jars
 
     protected static class CDIHelper {
+
+        public static Set<String> listNames() {
+            BeanManager beanManager = lookupBeanManager();
+            if (beanManager == null) {
+                return Collections.emptySet();
+            }
+            Set<String> names = new LinkedHashSet<String>();
+            for (Bean<?> bean : beanManager.getBeans(Object.class)) {
+                names.add(bean.getName());
+            }
+            return names;
+        }
 
         @SuppressWarnings("unchecked")
         public static <T> List<T> list(String name) {

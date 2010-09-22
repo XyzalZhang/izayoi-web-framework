@@ -28,7 +28,9 @@ import org.withinsea.izayoi.core.bean.*;
 import org.withinsea.izayoi.core.exception.IzayoiRuntimeException;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -67,6 +69,11 @@ public abstract class ComponentContainer implements BeanContainer {
     @Override
     public <T> T create(Class<T> claz, Object... args) throws InstantiationException {
         return componentFactory.create(claz, args);
+    }
+
+    @Override
+    public Set<String> names() {
+        return componentSource.names();
     }
 
     @Override
@@ -184,6 +191,16 @@ public abstract class ComponentContainer implements BeanContainer {
         public NameFixedBeanSource(BeanSource beanSource, String prefix) {
             this.beanSource = beanSource;
             this.prefix = prefix;
+        }
+
+        @Override
+        public Set<String> names() {
+            Set<String> original = beanSource.names();
+            Set<String> names = new LinkedHashSet<String>(original);
+            for (String name : original) {
+                names.add(prefix + name);
+            }
+            return names;
         }
 
         @Override

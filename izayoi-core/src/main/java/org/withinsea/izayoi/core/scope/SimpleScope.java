@@ -22,31 +22,22 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.core.bean;
-
-import java.util.List;
-import java.util.Set;
+package org.withinsea.izayoi.core.scope;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
- * Date: 2010-8-16
- * Time: 0:08:53
+ * Date: 2010-9-22
+ * Time: 16:43:11
  */
-public interface BeanSource {
+public abstract class SimpleScope implements Scope {
 
-    public Set<String> names();
+    @Override
+    public Scope getInheritedScope() {
+        return null;
+    }
 
-    public boolean exist(String name);
-
-    public boolean exist(Class<?> claz);
-
-    public boolean exist(Object bean);
-
-    public <T> T get(String name);
-
-    public <T> T get(Class<T> claz);
-
-    public <T> List<T> list(String name);
-
-    public <T> List<T> list(Class<T> claz);
+    @Override
+    public Scope getDeclaredScope() {
+        return this;
+    }
 }

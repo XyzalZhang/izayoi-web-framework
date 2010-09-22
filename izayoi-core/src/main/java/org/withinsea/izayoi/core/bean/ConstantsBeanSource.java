@@ -47,6 +47,11 @@ public class ConstantsBeanSource implements BeanSource {
     }
 
     @Override
+    public Set<String> names() {
+        return map.keySet();
+    }
+
+    @Override
     public boolean exist(Object bean) {
         return map.containsValue(bean);
     }

@@ -60,6 +60,14 @@ public abstract class LazyCreateBeanContainer implements BeanContainer {
     protected Set<Class<?>> ts = new LinkedHashSet<Class<?>>();
 
     @Override
+    public Set<String> names() {
+        Set<String> names = new LinkedHashSet<String>();
+        names.addAll(no.keySet());
+        names.addAll(nt.keySet());
+        return names;
+    }
+
+    @Override
     public boolean exist(Object bean) {
         for (Set<Object> beans : no.values())
             if (beans.contains(bean))

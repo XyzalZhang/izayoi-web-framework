@@ -28,9 +28,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.withinsea.izayoi.core.bean.BeanSource;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -43,6 +41,14 @@ public class SpringBeanSource implements BeanSource {
 
     public SpringBeanSource(ApplicationContext appctx) {
         this.appctx = appctx;
+    }
+
+    @Override
+    public Set<String> names() {
+        Set<String> names = new LinkedHashSet<String>();
+        names.add("applicationContext");
+        names.addAll(Arrays.asList(appctx.getBeanDefinitionNames()));
+        return names;
     }
 
     @Override
