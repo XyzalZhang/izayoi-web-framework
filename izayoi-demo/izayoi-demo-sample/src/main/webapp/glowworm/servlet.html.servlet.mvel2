@@ -1,1 +1,0 @@
-response.getWriter().write(new java.util.Date());

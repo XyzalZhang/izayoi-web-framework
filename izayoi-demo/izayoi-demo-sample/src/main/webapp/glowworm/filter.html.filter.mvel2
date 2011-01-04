@@ -1,1 +1,0 @@
-request.setAttribute("injectedObject", new java.util.Date());
