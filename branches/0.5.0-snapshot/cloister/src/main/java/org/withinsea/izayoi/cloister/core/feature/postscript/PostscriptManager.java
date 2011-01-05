@@ -2,7 +2,6 @@ package org.withinsea.izayoi.cloister.core.feature.postscript;
 
 import org.withinsea.izayoi.cloister.core.kernal.Environment;
 import org.withinsea.izayoi.cloister.core.kernal.Scope;
-import org.withinsea.izayoi.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,28 +29,39 @@ public class PostscriptManager {
             return Collections.emptyList();
         }
 
-        String pathSuffixRegex = "" +
-                "\\.(\\Q" + StringUtils.join("\\E|\\Q", roleEngineManager.getRoleEngineNames()) + "\\E)" +
-                "\\.(\\Q" + StringUtils.join("\\E|\\Q", scriptEngineManager.getScriptEngineNames()) + "\\E)";
-
-        PostscriptPath basePostscriptPath = new PostscriptPath(basePath);
-        if (basePostscriptPath.isFolder()) {
-            return environment.listCodefiles(basePostscriptPath.getFolder(),
-                    Pattern.quote("@" + scope.getName().toLowerCase() + "(|-.*)") + pathSuffixRegex);
+        List<String> pathSuffixRegexes = new ArrayList<String>();
+        for (String roleName : roleEngineManager.getRoleEngineNames()) {
+            for (String scriptName : scriptEngineManager.getScriptEngineNames()) {
+                pathSuffixRegexes.add("\\.(\\Q" + roleName + "\\E)\\.(\\Q" + scriptName + "\\E)$");
+            }
         }
 
+        PostscriptPath basePostscriptPath = new PostscriptPath(basePath);
         List<Environment.Codefile> postscripts = new ArrayList<Environment.Codefile>();
-        {
+
+        if (basePostscriptPath.isFolder()) {
+
+            for (String pathSuffixRegex : pathSuffixRegexes) {
+                postscripts.addAll(environment.listCodefiles(basePostscriptPath.getFolder(),
+                        Pattern.quote("@" + scope.getName().toLowerCase()) + "(|-[^\\.]+)" + pathSuffixRegex));
+            }
+
+        } else {
+
             String[] split = basePostscriptPath.getFolder().split("/");
             String currentFolder = "";
             for (int i = 0; i < split.length - 1; i++) {
                 currentFolder += split[i] + "/";
-                postscripts.addAll(environment.listCodefiles(currentFolder,
-                        Pattern.quote("@folder(|-[^\\.]*)") + pathSuffixRegex));
+                for (String pathSuffixRegex : pathSuffixRegexes) {
+                    postscripts.addAll(environment.listCodefiles(currentFolder,
+                            Pattern.quote("@folder(|-[^\\.]*)") + pathSuffixRegex));
+                }
             }
 
-            postscripts.addAll(environment.listCodefiles(basePostscriptPath.getFolder(),
-                    Pattern.quote(basePostscriptPath.getBaseFullname()) + pathSuffixRegex));
+            for (String pathSuffixRegex : pathSuffixRegexes) {
+                postscripts.addAll(environment.listCodefiles(basePostscriptPath.getFolder(),
+                        Pattern.quote(basePostscriptPath.getBaseFullname()) + pathSuffixRegex));
+            }
         }
 
         return postscripts;

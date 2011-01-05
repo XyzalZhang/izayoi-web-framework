@@ -155,7 +155,7 @@ public class CloisterWebFacade implements Filter {
 
         Set<String> bypassPaths = new LinkedHashSet<String>();
         {
-            String bypassConf = globalConfig.getProperty("bypass").trim();
+            String bypassConf = globalConfig.getProperty("cloister.bypass").trim();
             if (bypassConf.equals("")) {
                 bypassPaths.addAll(Arrays.asList(bypassConf.split("[\\s;, ]+")));
             }

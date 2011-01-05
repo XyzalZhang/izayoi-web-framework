@@ -18,7 +18,7 @@ import java.util.Enumeration;
  */
 public class SpringIzayoiFilter extends DispatcherServlet implements Filter {
 
-    protected static ThreadLocal<FilterChain> CHAIN_CARRIER;
+    protected static ThreadLocal<FilterChain> CHAIN_CARRIER = new ThreadLocal<FilterChain>();
 
     protected IzayoiWebFacade izayoiWebFacade = new IzayoiWebFacade() {
         @Override
