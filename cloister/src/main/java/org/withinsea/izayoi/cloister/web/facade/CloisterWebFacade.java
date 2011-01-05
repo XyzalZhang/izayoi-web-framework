@@ -29,9 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -155,6 +153,14 @@ public class CloisterWebFacade implements Filter {
         String encoding = globalConfig.getProperty("cloister.encoding");
         boolean ignoreUnsupported = Boolean.parseBoolean(globalConfig.getProperty("cloister.ignoreUnsupported"));
 
+        Set<String> bypassPaths = new LinkedHashSet<String>();
+        {
+            String bypassConf = globalConfig.getProperty("bypass").trim();
+            if (bypassConf.equals("")) {
+                bypassPaths.addAll(Arrays.asList(bypassConf.split("[\\s;, ]+")));
+            }
+        }
+
         PathvarMatcher pathvarMatcher = new PathvarMatcher();
 
         DynapageEngineManager dynapageEngineManager = new DynapageEngineManager();
@@ -183,6 +189,7 @@ public class CloisterWebFacade implements Filter {
         dispatcher.setPostscriptManager(postscriptManager);
         dispatcher.setPostscriptEncloser(postscriptEncloser);
         dispatcher.setEncoding(encoding);
+        dispatcher.setBypassPaths(bypassPaths);
 
         return dispatcher;
     }

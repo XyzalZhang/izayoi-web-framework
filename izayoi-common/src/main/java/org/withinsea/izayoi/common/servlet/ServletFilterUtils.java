@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,7 +56,7 @@ public class ServletFilterUtils {
     public static final String ERROR_SERVLET_NAME = "javax.servlet.error.servlet_name";
     public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
 
-    public static boolean matchUrlPattern(String path, List<String> urlPatterns) {
+    public static boolean matchUrlPattern(String path, Collection<String> urlPatterns) {
         for (String pattern : urlPatterns) {
             if (pattern.endsWith("/*")) {
                 if (path.startsWith(pattern.substring(0, pattern.length() - 1))) return true;
