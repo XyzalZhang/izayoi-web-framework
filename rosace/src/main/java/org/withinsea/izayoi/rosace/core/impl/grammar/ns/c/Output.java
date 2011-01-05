@@ -39,7 +39,7 @@ public class Output implements AttrGrammar {
     @Override
     public boolean acceptAttr(Attribute attr) {
         String attrname = attr.getName();
-        return attrname.startsWith("attr.") || attrname.equals("out") || attrname.equals("content");
+        return attrname.startsWith("attr.") || attrname.equals("c") || attrname.equals("content");
     }
 
     @Override
