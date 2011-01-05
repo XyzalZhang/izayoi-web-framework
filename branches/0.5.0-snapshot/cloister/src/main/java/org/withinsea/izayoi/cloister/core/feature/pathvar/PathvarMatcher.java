@@ -63,6 +63,7 @@ public class PathvarMatcher {
             }
         }
 
+        // item13.html
         List<Environment.Codefile> codefiles = environment.listCodefiles(folder.getPath(), ".+");
         Collections.sort(codefiles, new Comparator<Environment.Codefile>() {
             @Override
@@ -71,12 +72,15 @@ public class PathvarMatcher {
             }
         });
 
+        // item{id}.html.template.vm
         for (Environment.Codefile codefile : codefiles) {
 
+            // item{id}
             MatchPath matchPath = new MatchPath(codefile.getPath());
             String codeName = matchPath.getFullname();
             String codeMainName = matchPath.getBasicname();
 
+            // \Qitem\E(.+).*? on item13.html
             Matcher pathMatcher = Pattern.compile(StringUtils.replaceAll(
                     codeMainName, "\\{\\w+\\}", new StringUtils.Replace() {
                         @Override
@@ -93,6 +97,7 @@ public class PathvarMatcher {
 
             if (pathMatcher.matches()) {
 
+                // \Qitem\E\{(id)\}.*? on item{id}.html.template.vm
                 Matcher codeMatcher = Pattern.compile(StringUtils.replaceAll(
                         codeMainName, "\\{(\\w+)\\}", new StringUtils.Replace() {
                             @Override
@@ -116,6 +121,7 @@ public class PathvarMatcher {
                 for (int i = codeMatcher.groupCount(); i >= 1; i--) {
                     templateNameBuffer.replace(pathMatcher.start(i), pathMatcher.end(i), "{" + codeMatcher.group(i) + "}");
                 }
+                // item{id}.html
                 String templateName = templateNameBuffer.toString();
 
                 String nextFolderPath = folder.getPath() + codeName + "/";
