@@ -1,4 +1,4 @@
-package org.withinsea.izayoi.cloister.adapter.rosace;
+package org.withinsea.izayoi.rosace.web.impl;
 
 import org.withinsea.izayoi.common.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.rosace.core.exception.RosaceException;

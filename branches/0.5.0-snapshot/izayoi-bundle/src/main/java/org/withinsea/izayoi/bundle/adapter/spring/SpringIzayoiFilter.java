@@ -3,6 +3,8 @@ package org.withinsea.izayoi.bundle.adapter.spring;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.withinsea.izayoi.bundle.facade.IzayoiWebFacade;
 import org.withinsea.izayoi.cloister.adapter.spring.SpringScope;
+import org.withinsea.izayoi.cloister.beta.Jsp_beta;
+import org.withinsea.izayoi.cloister.core.feature.postscript.ScriptEngine;
 import org.withinsea.izayoi.cloister.core.kernal.Scope;
 
 import javax.servlet.*;
@@ -21,9 +23,21 @@ public class SpringIzayoiFilter extends DispatcherServlet implements Filter {
     protected static ThreadLocal<FilterChain> CHAIN_CARRIER = new ThreadLocal<FilterChain>();
 
     protected IzayoiWebFacade izayoiWebFacade = new IzayoiWebFacade() {
+
         @Override
         protected Scope createGlobalScope() {
             return new SpringScope(getWebApplicationContext());
+        }
+
+        @Override
+        protected ScriptEngine createJspScriptEngine() {
+            String encoding = globalConfig.getProperty("cloister.encoding");
+            return new Jsp_beta(servletContext, encoding) {
+                @Override
+                protected Object createJspBean(Class<?> jspclass) throws Exception {
+                    return getWebApplicationContext().getBean(jspclass);
+                }
+            };
         }
     };
 

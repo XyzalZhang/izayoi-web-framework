@@ -1,13 +1,13 @@
 package org.withinsea.izayoi.bundle.facade;
 
 import org.withinsea.izayoi.bundle.kernal.IzayoiWebConfig;
-import org.withinsea.izayoi.cloister.adapter.rosace.HttpIncludeSupport;
 import org.withinsea.izayoi.cloister.adapter.rosace.RosaceDynapageEngine;
 import org.withinsea.izayoi.cloister.core.feature.dynapage.DynapageEngineManager;
 import org.withinsea.izayoi.cloister.web.facade.CloisterWebFacade;
 import org.withinsea.izayoi.rosace.core.kernel.IncludeSupport;
 import org.withinsea.izayoi.rosace.core.kernel.TemplateCompiler;
 import org.withinsea.izayoi.rosace.util.Rosaces;
+import org.withinsea.izayoi.rosace.web.impl.HttpIncludeSupport;
 
 import java.util.Properties;
 
