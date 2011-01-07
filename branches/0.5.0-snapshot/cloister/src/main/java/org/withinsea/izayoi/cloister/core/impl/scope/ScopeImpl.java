@@ -15,6 +15,7 @@ public class ScopeImpl implements Scope {
 
     protected Scope parentScope;
     protected Varstack attributes;
+    protected Map<String, Object> scopeAttributes;
 
     public ScopeImpl() {
         this(null);
@@ -31,11 +32,17 @@ public class ScopeImpl implements Scope {
             if (parentScope != null) attributes.push(parentScope.getAttributes());
             attributes.push(scopeAttributes);
         }
+        this.scopeAttributes = scopeAttributes;
     }
 
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;
+    }
+
+    @Override
+    public Map<String, Object> getScopeAttributes() {
+        return scopeAttributes;
     }
 
     @Override

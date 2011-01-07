@@ -117,7 +117,7 @@ public abstract class DefaultDispatcher extends Dispatcher {
         public void respond(Request request) throws CloisterException {
 
             TimestampCache<Void> enclosedCache = TimestampCache.getCache(
-                    request.getScope().getAttributes(), CloisterConstants.ATTR_PROCESSED_RESPONDER_CACHE);
+                    request.getScope().getScopeAttributes(), CloisterConstants.ATTR_PROCESSED_RESPONDER_CACHE);
             String cacheKey = new PostscriptPath(postscript.getPath()).getPath();
 
             if (enclosedCache.isModified(cacheKey, postscript.getLastModified())) {

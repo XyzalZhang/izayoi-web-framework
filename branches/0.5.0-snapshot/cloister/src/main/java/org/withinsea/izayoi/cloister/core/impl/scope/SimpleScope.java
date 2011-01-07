@@ -20,6 +20,11 @@ public class SimpleScope implements Scope {
     }
 
     @Override
+    public Map<String, Object> getScopeAttributes() {
+        return attributes;
+    }
+
+    @Override
     public Scope getParentScope() {
         return null;
     }
