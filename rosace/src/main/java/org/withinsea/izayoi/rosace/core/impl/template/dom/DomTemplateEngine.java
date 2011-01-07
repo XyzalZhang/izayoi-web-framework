@@ -41,16 +41,23 @@ public class DomTemplateEngine extends HostlangIntermediatelyEngine {
     protected void classify() {
         if (!classified) {
             List<Grammar> allGrammars = new ArrayList<Grammar>();
-            allGrammars.addAll(globalGrammars);
-            for (Map.Entry<String, ? extends Collection<Grammar>> entry : namespacedGrammars.entrySet()) {
-                allGrammars.addAll(entry.getValue());
+            {
+                allGrammars.addAll(globalGrammars);
+                for (Map.Entry<String, ? extends Collection<Grammar>> entry : namespacedGrammars.entrySet()) {
+                    allGrammars.addAll(entry.getValue());
+                }
+            }
+            Map<String, Collection<Grammar>> allNamespacedGrammars = new LinkedHashMap<String, Collection<Grammar>>();
+            {
+                allNamespacedGrammars.put("*", globalGrammars);
+                allNamespacedGrammars.putAll(namespacedGrammars);
             }
             pretreatGrammars = GrammarUtils.sort(allGrammars, PretreatGrammar.class, "pretreatCode");
             roundoffGrammars = GrammarUtils.sort(allGrammars, RoundoffGrammar.class, "roundoffCode");
             textGrammars = GrammarUtils.sort(allGrammars, TextGrammar.class, "processText");
             commentGrammars = GrammarUtils.sort(allGrammars, CommentGrammar.class, "processComment");
             elementGrammars = GrammarUtils.sort(allGrammars, ElementGrammar.class, "processElement");
-            attrGrammars = GrammarUtils.group(namespacedGrammars);
+            attrGrammars = GrammarUtils.group(allNamespacedGrammars);
             classified = true;
         }
     }

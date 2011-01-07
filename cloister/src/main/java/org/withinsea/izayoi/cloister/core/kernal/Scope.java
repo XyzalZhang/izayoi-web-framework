@@ -14,4 +14,6 @@ public interface Scope {
     String getName();
 
     Map<String, Object> getAttributes();
+
+    Map<String, Object> getScopeAttributes();
 }

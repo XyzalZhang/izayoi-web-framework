@@ -1,5 +1,6 @@
 package org.withinsea.izayoi.bundle.adapter.spring;
 
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.withinsea.izayoi.bundle.facade.IzayoiWebFacade;
 import org.withinsea.izayoi.cloister.adapter.spring.SpringScope;
@@ -35,7 +36,10 @@ public class SpringIzayoiFilter extends DispatcherServlet implements Filter {
             return new Jsp_beta(servletContext, encoding) {
                 @Override
                 protected Object createJspBean(Class<?> jspclass) throws Exception {
-                    return getWebApplicationContext().getBean(jspclass);
+                    Object jspbean = jspclass.newInstance();
+                    AutowireCapableBeanFactory factory = getWebApplicationContext().getAutowireCapableBeanFactory();
+                    factory.autowireBeanProperties(jspclass, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
+                    return jspbean;
                 }
             };
         }

@@ -26,6 +26,11 @@ public class SpringScope implements Scope {
     }
 
     @Override
+    public Map<String, Object> getScopeAttributes() {
+        return attributes;
+    }
+
+    @Override
     public Scope getParentScope() {
         return null;
     }
@@ -60,7 +65,8 @@ public class SpringScope implements Scope {
 
         @Override
         public boolean containsKey(Object key) {
-            return keySet().contains(key.toString());
+            return Arrays.asList(applicationContext.getBeanDefinitionNames()).contains(key.toString())
+                    || applicationContext.getAutowireCapableBeanFactory().containsBean(key.toString());
         }
 
         @Override
