@@ -4,9 +4,9 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.withinsea.izayoi.bundle.facade.IzayoiWebFacade;
 import org.withinsea.izayoi.cloister.adapter.spring.SpringScope;
-import org.withinsea.izayoi.cloister.beta.Jsp_beta;
 import org.withinsea.izayoi.cloister.core.feature.postscript.ScriptEngine;
 import org.withinsea.izayoi.cloister.core.kernal.Scope;
+import org.withinsea.izayoi.cloister.web.feature.jspscript.JspScriptEngine;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class SpringIzayoiFilter extends DispatcherServlet implements Filter {
         @Override
         protected ScriptEngine createJspScriptEngine() {
             String encoding = globalConfig.getProperty("cloister.encoding");
-            return new Jsp_beta(servletContext, encoding) {
+            return new JspScriptEngine(servletContext, encoding) {
                 @Override
                 protected Object createJspBean(Class<?> jspclass) throws Exception {
                     Object jspbean = jspclass.newInstance();

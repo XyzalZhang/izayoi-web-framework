@@ -39,14 +39,12 @@ public class PostscriptManager {
         PostscriptPath basePostscriptPath = new PostscriptPath(basePath);
         List<Environment.Codefile> postscripts = new ArrayList<Environment.Codefile>();
 
-        if (basePostscriptPath.isFolder()) {
+        for (String pathSuffixRegex : pathSuffixRegexes) {
+            postscripts.addAll(environment.listCodefiles("/",
+                    Pattern.quote("@" + scope.getName().toLowerCase()) + "(|-[^\\.]+)" + pathSuffixRegex));
+        }
 
-            for (String pathSuffixRegex : pathSuffixRegexes) {
-                postscripts.addAll(environment.listCodefiles(basePostscriptPath.getFolder(),
-                        Pattern.quote("@" + scope.getName().toLowerCase()) + "(|-[^\\.]+)" + pathSuffixRegex));
-            }
-
-        } else {
+        if (!basePostscriptPath.isFolder()) {
 
             String[] split = basePostscriptPath.getFolder().split("/");
             String currentFolder = "";
