@@ -103,6 +103,11 @@ public class JspScriptEngine implements ScriptEngine {
             HTTP_REQ.set(httpReq);
             HTTP_RESP.set(httpResp);
         }
+
+        public static void clear() {
+            HTTP_REQ.remove();
+            HTTP_RESP.remove();
+        }
     }
 
     protected class CompiledJsp implements CompiledScript {
@@ -125,10 +130,15 @@ public class JspScriptEngine implements ScriptEngine {
         @SuppressWarnings("unchecked")
         public <T> T run(Map<String, Object> context) throws CloisterException {
 
-            HttpServletRequest httpReq = RuntimeContext.HTTP_REQ.get();
-            HttpServletResponse httpResp = RuntimeContext.HTTP_RESP.get();
+            HttpServletRequest httpReq = (HttpServletRequest) context.get("request");
+            HttpServletResponse httpResp = (HttpServletResponse) context.get("response");
+
             if (httpReq == null || httpResp == null) {
-                throw new CloisterException("JspScriptEngine require HttpServletRequest for runtime context");
+                httpReq = RuntimeContext.HTTP_REQ.get();
+                httpResp = RuntimeContext.HTTP_RESP.get();
+                if (httpReq == null || httpResp == null) {
+                    throw new CloisterException("JspScriptEngine require HttpServletRequest for runtime context");
+                }
             }
 
             String path = getServletPath(jspfile);

@@ -70,21 +70,27 @@ public class CloisterWebFacade implements Filter {
     protected void doFilter(HttpServletRequest httpReq, HttpServletResponse httpResp, FilterChain chain)
             throws IOException, ServletException, CloisterException {
 
-        if (JspScriptEngine.RUNTIME_CONTEXT.isEmpty()) {
-            JspScriptEngine.RUNTIME_CONTEXT.set(httpReq, httpResp);
-        }
-
         try {
 
             if (!Boolean.TRUE.equals(httpReq.getAttribute(CloisterConstants.ATTR_DISPATCHED_GLOBALSCOPES))) {
 
                 httpReq.setAttribute(CloisterConstants.ATTR_DISPATCHED_GLOBALSCOPES, true);
 
+                boolean contextFlag = false;
+                if (JspScriptEngine.RuntimeContext.isEmpty()) {
+                    JspScriptEngine.RuntimeContext.set(httpReq, httpResp);
+                    contextFlag = true;
+                }
+
                 AppRequest appRequest = new AppRequest(globalEnvironment, globalScope, servletContext);
                 dispatcher.respond(appRequest);
 
                 SessionRequest sessionRequest = new SessionRequest(globalEnvironment, globalScope, httpReq.getSession());
                 dispatcher.respond(sessionRequest);
+
+                if (contextFlag) {
+                    JspScriptEngine.RuntimeContext.clear();
+                }
             }
 
             RequestRequest requestRequest = new RequestRequest(globalEnvironment, globalScope, httpReq, httpResp, chain);
