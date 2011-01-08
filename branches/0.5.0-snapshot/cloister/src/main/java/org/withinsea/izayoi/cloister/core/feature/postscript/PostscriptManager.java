@@ -48,11 +48,11 @@ public class PostscriptManager {
 
             String[] split = basePostscriptPath.getFolder().split("/");
             String currentFolder = "";
-            for (int i = 0; i < split.length - 1; i++) {
+            for (int i = 0; i < split.length; i++) {
                 currentFolder += split[i] + "/";
                 for (String pathSuffixRegex : pathSuffixRegexes) {
                     postscripts.addAll(environment.listCodefiles(currentFolder,
-                            Pattern.quote("@folder(|-[^\\.]*)") + pathSuffixRegex));
+                            Pattern.quote("@folder") + "(|-[^\\.]+)" + pathSuffixRegex));
                 }
             }
 
