@@ -1,4 +1,4 @@
-package org.withinsea.izayoi.cloister.beta;
+package org.withinsea.izayoi.cloister.web.feature.jspscript;
 
 import org.withinsea.izayoi.cloister.core.exception.CloisterException;
 import org.withinsea.izayoi.cloister.core.feature.postscript.ScriptEngine;
@@ -22,12 +22,14 @@ import java.util.Map;
  * Date: 11-1-4
  * Time: 上午8:36
  */
-public class Jsp_beta implements ScriptEngine {
+public class JspScriptEngine implements ScriptEngine {
+
+    public static final RuntimeContext RUNTIME_CONTEXT = new RuntimeContext();
 
     protected ServletContext servletContext;
     protected String encoding;
 
-    public Jsp_beta(ServletContext servletContext, String encoding) {
+    public JspScriptEngine(ServletContext servletContext, String encoding) {
         this.servletContext = servletContext;
         this.encoding = encoding;
     }
@@ -55,7 +57,7 @@ public class Jsp_beta implements ScriptEngine {
         }
 
         String prefix = (hasEncoding ? "" : "<%@ page pageEncoding=\"" + encoding + "\" %>") +
-                "<% if (" + Jsp_beta.class.getCanonicalName() + ".execute(request, this)) return; %>";
+                "<% if (" + JspScriptEngine.class.getCanonicalName() + ".execute(request, this)) return; %>";
         return prefix + code;
     }
 
@@ -88,6 +90,21 @@ public class Jsp_beta implements ScriptEngine {
         this.servletContext = servletContext;
     }
 
+    public static class RuntimeContext {
+
+        protected static ThreadLocal<HttpServletRequest> HTTP_REQ = new ThreadLocal<HttpServletRequest>();
+        protected static ThreadLocal<HttpServletResponse> HTTP_RESP = new ThreadLocal<HttpServletResponse>();
+
+        public static boolean isEmpty() {
+            return (HTTP_REQ.get() == null || HTTP_RESP.get() == null);
+        }
+
+        public static void set(HttpServletRequest httpReq, HttpServletResponse httpResp) {
+            HTTP_REQ.set(httpReq);
+            HTTP_RESP.set(httpResp);
+        }
+    }
+
     protected class CompiledJsp implements CompiledScript {
 
         protected Environment.Codefile jspfile;
@@ -108,18 +125,17 @@ public class Jsp_beta implements ScriptEngine {
         @SuppressWarnings("unchecked")
         public <T> T run(Map<String, Object> context) throws CloisterException {
 
-            if (!(context.get("request") instanceof HttpServletRequest)
-                    && context.get("response") instanceof HttpServletResponse) {
-                return null;
+            HttpServletRequest httpReq = RuntimeContext.HTTP_REQ.get();
+            HttpServletResponse httpResp = RuntimeContext.HTTP_RESP.get();
+            if (httpReq == null || httpResp == null) {
+                throw new CloisterException("JspScriptEngine require HttpServletRequest for runtime context");
             }
 
-            HttpServletRequest request = (HttpServletRequest) context.get("request");
-            HttpServletResponse response = (HttpServletResponse) context.get("response");
             String path = getServletPath(jspfile);
 
-            Object originalInterpretHelper = request.getAttribute(ATTR_HELPER);
+            Object originalInterpretHelper = httpReq.getAttribute(ATTR_HELPER);
             ExecuteHelper executeHelper = new ExecuteHelper(context);
-            request.setAttribute(ATTR_HELPER, executeHelper);
+            httpReq.setAttribute(ATTR_HELPER, executeHelper);
             try {
                 boolean interpreted = false;
                 synchronized (this) {
@@ -129,7 +145,7 @@ public class Jsp_beta implements ScriptEngine {
                         String trickedCode = trickJsp(code);
                         updateJsp(jspfile, trickedCode);
                         try {
-                            request.getRequestDispatcher(path).include(request, response);
+                            httpReq.getRequestDispatcher(path).include(httpReq, httpResp);
                         } finally {
                             updateJsp(jspfile, code);
                         }
@@ -140,15 +156,15 @@ public class Jsp_beta implements ScriptEngine {
 
                 }
                 if (!interpreted) {
-                    request.getRequestDispatcher(path).include(request, response);
+                    httpReq.getRequestDispatcher(path).include(httpReq, httpResp);
                 }
             } catch (Exception e) {
                 throw new CloisterException(e);
             } finally {
                 if (originalInterpretHelper == null) {
-                    request.removeAttribute(ATTR_HELPER);
+                    httpReq.removeAttribute(ATTR_HELPER);
                 } else {
-                    request.setAttribute(ATTR_HELPER, originalInterpretHelper);
+                    httpReq.setAttribute(ATTR_HELPER, originalInterpretHelper);
                 }
             }
 
@@ -161,7 +177,7 @@ public class Jsp_beta implements ScriptEngine {
     }
 
 
-    public static final String ATTR_HELPER = Jsp_beta.class.getCanonicalName() + ".ATTR_HELPER";
+    public static final String ATTR_HELPER = JspScriptEngine.class.getCanonicalName() + ".ATTR_HELPER";
 
     public static boolean execute(HttpServletRequest request, Object protoObj) {
         ExecuteHelper executeHelper = (ExecuteHelper) request.getAttribute(ATTR_HELPER);

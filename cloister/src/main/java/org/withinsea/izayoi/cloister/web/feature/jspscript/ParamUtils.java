@@ -22,7 +22,7 @@
  * the Initial Developer. All Rights Reserved.
  */
 
-package org.withinsea.izayoi.cloister.beta;
+package org.withinsea.izayoi.cloister.web.feature.jspscript;
 
 import java.lang.reflect.Array;
 import java.text.ParseException;
@@ -34,7 +34,7 @@ import java.util.Date;
  * Date: 2010-7-6
  * Time: 5:32:54
  */
-public class ParamUtils {
+class ParamUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T cast(T value, Class<?> type) throws ParseException {

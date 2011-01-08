@@ -1,6 +1,5 @@
 package org.withinsea.izayoi.cloister.web.facade;
 
-import org.withinsea.izayoi.cloister.beta.Jsp_beta;
 import org.withinsea.izayoi.cloister.core.exception.CloisterException;
 import org.withinsea.izayoi.cloister.core.feature.dispatcher.Dispatcher;
 import org.withinsea.izayoi.cloister.core.feature.dispatcher.Dispatching;
@@ -20,6 +19,7 @@ import org.withinsea.izayoi.cloister.core.impl.script.Txt;
 import org.withinsea.izayoi.cloister.core.kernal.CloisterConstants;
 import org.withinsea.izayoi.cloister.core.kernal.Environment;
 import org.withinsea.izayoi.cloister.core.kernal.Scope;
+import org.withinsea.izayoi.cloister.web.feature.jspscript.JspScriptEngine;
 import org.withinsea.izayoi.cloister.web.impl.*;
 import org.withinsea.izayoi.cloister.web.kernal.CloisterWebConfig;
 
@@ -70,17 +70,21 @@ public class CloisterWebFacade implements Filter {
     protected void doFilter(HttpServletRequest httpReq, HttpServletResponse httpResp, FilterChain chain)
             throws IOException, ServletException, CloisterException {
 
+        if (JspScriptEngine.RUNTIME_CONTEXT.isEmpty()) {
+            JspScriptEngine.RUNTIME_CONTEXT.set(httpReq, httpResp);
+        }
+
         try {
 
             if (!Boolean.TRUE.equals(httpReq.getAttribute(CloisterConstants.ATTR_DISPATCHED_GLOBALSCOPES))) {
+
+                httpReq.setAttribute(CloisterConstants.ATTR_DISPATCHED_GLOBALSCOPES, true);
 
                 AppRequest appRequest = new AppRequest(globalEnvironment, globalScope, servletContext);
                 dispatcher.respond(appRequest);
 
                 SessionRequest sessionRequest = new SessionRequest(globalEnvironment, globalScope, httpReq.getSession());
                 dispatcher.respond(sessionRequest);
-
-                httpReq.setAttribute(CloisterConstants.ATTR_DISPATCHED_GLOBALSCOPES, true);
             }
 
             RequestRequest requestRequest = new RequestRequest(globalEnvironment, globalScope, httpReq, httpResp, chain);
@@ -156,7 +160,7 @@ public class CloisterWebFacade implements Filter {
         Set<String> bypassPaths = new LinkedHashSet<String>();
         {
             String bypassConf = globalConfig.getProperty("cloister.bypass").trim();
-            if (bypassConf.equals("")) {
+            if (!bypassConf.equals("")) {
                 bypassPaths.addAll(Arrays.asList(bypassConf.split("[\\s;, ]+")));
             }
         }
@@ -211,6 +215,6 @@ public class CloisterWebFacade implements Filter {
 
     protected ScriptEngine createJspScriptEngine() {
         String encoding = globalConfig.getProperty("cloister.encoding");
-        return new Jsp_beta(servletContext, encoding);
+        return new JspScriptEngine(servletContext, encoding);
     }
 }
