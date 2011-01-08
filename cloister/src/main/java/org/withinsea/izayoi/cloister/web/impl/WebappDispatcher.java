@@ -101,8 +101,14 @@ public class WebappDispatcher extends DefaultDispatcher {
             throw new UnsupportedOperationException("forwarding in WebappDispatcher needs a RequestAware request.");
         } else {
             RequestAware reqa = (RequestAware) request;
-            String requestFolder = ServletFilterUtils.getRequestPath(reqa.getHttpServletRequest()).replaceAll("/[^/]+$", "/");
+            String requestFolder = ("/"
+                    + reqa.getHttpServletRequest().getSession().getServletContext().getContextPath()
+                    + ServletFilterUtils.getRequestPath(reqa.getHttpServletRequest())
+            ).replaceAll("/[^/]+$", "/").replaceAll("/+", "/");
             targetPath = targetPath.startsWith("/") ? targetPath : requestFolder + targetPath;
+            while (!targetPath.startsWith("/..") && targetPath.indexOf("/..") > 0) {
+                targetPath = targetPath.replaceFirst("/[^/]+/\\.\\.", "");
+            }
             try {
                 reqa.getHttpServletResponse().sendRedirect(targetPath);
             } catch (IOException e) {

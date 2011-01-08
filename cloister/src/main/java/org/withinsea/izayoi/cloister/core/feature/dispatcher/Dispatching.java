@@ -21,7 +21,7 @@ public class Dispatching extends CloisterException {
     }
 
     public static Dispatching redirect(String path) {
-        return new Dispatching(path, false, true, false);
+        return new Dispatching(path, true, true, false);
     }
 
     public static Dispatching forward(String path) {

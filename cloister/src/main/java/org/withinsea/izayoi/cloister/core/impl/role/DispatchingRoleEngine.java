@@ -16,11 +16,11 @@ public class DispatchingRoleEngine implements RoleEngine<String> {
     @Override
     public void process(String data, Map<String, Object> context) throws CloisterException {
 
-        String url = ((String) data).trim();
+        String url = data.trim();
 
-        if (url.startsWith("continue:")) {
+        if (url.equals("continue")) {
 
-        } else if (url.startsWith("stop:")) {
+        } else if (url.equals("stop")) {
             throw Dispatching.finish();
         } else if (url.startsWith("forward:")) {
             url = url.substring("forward:".length()).trim();
