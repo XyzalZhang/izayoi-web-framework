@@ -128,9 +128,9 @@ public class PathvarMatcher {
                 if (environment.isFolder(nextFolderPath)) {
                     Environment.Codefile nextFolder = environment.getCodefile(nextFolderPath);
                     String nextVirtualPath = virtualPath.substring(pathName.length() + 1);
-                    return match(environment, matchedPath + "/" + templateName, pathVariables, nextFolder, nextVirtualPath);
+                    return match(environment, matchedPath + templateName + "/", pathVariables, nextFolder, nextVirtualPath);
                 } else {
-                    return matchedPath + "/" + templateName;
+                    return matchedPath + templateName + "/";
                 }
             }
         }

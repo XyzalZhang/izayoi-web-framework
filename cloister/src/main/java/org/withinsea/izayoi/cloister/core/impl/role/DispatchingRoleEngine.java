@@ -22,6 +22,8 @@ public class DispatchingRoleEngine implements RoleEngine<String> {
 
         } else if (url.equals("stop")) {
             throw Dispatching.finish();
+        } else if (url.equals("cancel")) {
+            throw Dispatching.cancel();
         } else if (url.startsWith("forward:")) {
             url = url.substring("forward:".length()).trim();
             throw Dispatching.forward(url);

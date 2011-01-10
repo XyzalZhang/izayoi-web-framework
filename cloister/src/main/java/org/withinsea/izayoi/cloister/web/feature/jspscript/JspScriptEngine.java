@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -179,7 +180,8 @@ public class JspScriptEngine implements ScriptEngine {
             }
 
             if (executeHelper.ex != null) {
-                throw new CloisterException(executeHelper.ex);
+                Exception e = executeHelper.ex;
+                throw (e instanceof CloisterException) ? (CloisterException) e : new CloisterException(e);
             } else {
                 return (T) executeHelper.result;
             }
@@ -222,6 +224,9 @@ public class JspScriptEngine implements ScriptEngine {
                 }
             } catch (NoSuchMethodException e) {
                 throw e;
+            } catch (InvocationTargetException e) {
+                Throwable target = e.getTargetException();
+                ex = (target instanceof Exception) ? (Exception) target : e;
             } catch (Exception e) {
                 ex = e;
             }

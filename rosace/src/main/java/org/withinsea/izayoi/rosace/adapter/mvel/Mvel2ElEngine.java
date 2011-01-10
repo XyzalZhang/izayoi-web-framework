@@ -38,9 +38,13 @@ public class Mvel2ElEngine implements ElEngine {
 
     public static class Tricker {
 
-        public static Object eval(String el, Map<String, Object> context) throws Exception {
-            Class.forName("org.mvel2.MVEL");
-            return EVAL.invoke(null,el, context);
+        public static Object eval(String el, Map<String, Object> context) {
+            try {
+                Class.forName("org.mvel2.MVEL");
+                return EVAL.invoke(null, el, context);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         static Method EVAL;
