@@ -139,20 +139,21 @@ public class Cycle implements AttrGrammar {
                 String[] split = el.split("\\s*;\\s*");
                 preScriptlet = preScriptlet + "for (" +
                         engine.precompileEl(varname + "=(" + split[0] + ")") + ";" +
-                        "(Boolean) " + engine.precompileEl(split[1]) + ";" +
+                        "Boolean.TRUE.equals(" + engine.precompileEl(split[1]) + ");" +
                         engine.precompileEl(split[2]) + ") {";
             } else if (vtype.equals("range")) {
                 String iterable = Cycle.class.getCanonicalName() + ".asIterable(" + value.replace("..", ",") + ")";
                 preScriptlet = preScriptlet +
                         "java.util.Iterator " + itername + " = ((Iterable)" + iterable + ").iterator();" +
-                        "while (" + itername + ".hasNext()) { Object " + varname + " = " + itername + ".next();";
+                        "while (" + itername + ".hasNext()) { Object " + varname + " = " + itername + ".next();" +
+                        engine.precompilePut(varname, varname);
             } else {
                 String iterable = Cycle.class.getCanonicalName() + ".asIterable(" + engine.precompileEl(el) + ")";
                 preScriptlet = preScriptlet +
                         "java.util.Iterator " + itername + " = ((Iterable)" + iterable + ").iterator();" +
-                        "while (" + itername + ".hasNext()) { Object " + varname + " = " + itername + ".next();";
+                        "while (" + itername + ".hasNext()) { Object " + varname + " = " + itername + ".next();" +
+                        engine.precompilePut(varname, varname);
             }
-            helperScriptlet = helperScriptlet + engine.precompilePut(varname, varname);
             helperScriptlet = helperScriptlet + engine.precompileOpenScope();
             sufScriptlet = engine.precompileCloseScope() + " }" + sufScriptlet;
         }

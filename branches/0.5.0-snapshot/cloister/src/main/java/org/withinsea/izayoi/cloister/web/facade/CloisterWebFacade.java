@@ -22,6 +22,7 @@ import org.withinsea.izayoi.cloister.core.kernal.Scope;
 import org.withinsea.izayoi.cloister.web.feature.jspscript.JspScriptEngine;
 import org.withinsea.izayoi.cloister.web.impl.*;
 import org.withinsea.izayoi.cloister.web.kernal.CloisterWebConfig;
+import org.withinsea.izayoi.common.servlet.ServletFilterUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -44,14 +45,23 @@ public class CloisterWebFacade implements Filter {
     protected Environment globalEnvironment;
     protected Scope globalScope;
     protected Dispatcher dispatcher;
+    protected Set<String> bypassPaths;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+
         this.servletContext = filterConfig.getServletContext();
         this.globalConfig = getConfig();
         this.globalEnvironment = createGlobalEnvironment();
         this.globalScope = createGlobalScope();
         this.dispatcher = createDispatcher();
+        this.bypassPaths = new LinkedHashSet<String>();
+        {
+            String bypassConf = globalConfig.getProperty("cloister.bypass").trim();
+            if (!bypassConf.equals("")) {
+                bypassPaths.addAll(Arrays.asList(bypassConf.split("[\\s;, ]+")));
+            }
+        }
     }
 
     @Override
@@ -69,6 +79,11 @@ public class CloisterWebFacade implements Filter {
 
     protected void doFilter(HttpServletRequest httpReq, HttpServletResponse httpResp, FilterChain chain)
             throws IOException, ServletException, CloisterException {
+
+        if (ServletFilterUtils.matchUrlPattern(ServletFilterUtils.getRequestPath(httpReq), bypassPaths)) {
+            chain.doFilter(httpReq, httpResp);
+            return;
+        }
 
         try {
 
@@ -103,7 +118,10 @@ public class CloisterWebFacade implements Filter {
             httpResp.sendError(404, hiddenRequest.getPath());
 
         } catch (Dispatching dispatching) {
-            if (!dispatching.isFinish()) {
+
+            if (dispatching.isCancel()) {
+                httpResp.sendError(404, ServletFilterUtils.getRequestPath(httpReq));
+            } else if (!dispatching.isFinish()) {
                 throw dispatching;
             }
         }
@@ -163,14 +181,6 @@ public class CloisterWebFacade implements Filter {
         String encoding = globalConfig.getProperty("cloister.encoding");
         boolean ignoreUnsupported = Boolean.parseBoolean(globalConfig.getProperty("cloister.ignoreUnsupported"));
 
-        Set<String> bypassPaths = new LinkedHashSet<String>();
-        {
-            String bypassConf = globalConfig.getProperty("cloister.bypass").trim();
-            if (!bypassConf.equals("")) {
-                bypassPaths.addAll(Arrays.asList(bypassConf.split("[\\s;, ]+")));
-            }
-        }
-
         PathvarMatcher pathvarMatcher = new PathvarMatcher();
 
         DynapageEngineManager dynapageEngineManager = new DynapageEngineManager();
@@ -199,7 +209,6 @@ public class CloisterWebFacade implements Filter {
         dispatcher.setPostscriptManager(postscriptManager);
         dispatcher.setPostscriptEncloser(postscriptEncloser);
         dispatcher.setEncoding(encoding);
-        dispatcher.setBypassPaths(bypassPaths);
 
         return dispatcher;
     }

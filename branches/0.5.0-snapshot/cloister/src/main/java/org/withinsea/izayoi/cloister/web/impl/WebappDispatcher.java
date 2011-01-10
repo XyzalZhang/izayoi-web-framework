@@ -7,6 +7,7 @@ import org.withinsea.izayoi.cloister.web.kernal.RequestAware;
 import org.withinsea.izayoi.common.servlet.ParamsAdjustHttpServletRequestWrapper;
 import org.withinsea.izayoi.common.servlet.ServletFilterUtils;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
@@ -46,7 +47,8 @@ public class WebappDispatcher extends DefaultDispatcher {
         } else {
             RequestAware reqa = (RequestAware) request;
             if (target.getPath().endsWith("/") && !request.getPath().endsWith("/")) {
-                redirect(request, request.getPath() + "/");
+                ServletContext servletContext = reqa.getHttpServletRequest().getSession().getServletContext();
+                redirect(request, ("/" + servletContext.getContextPath() + request.getPath() + "/").replaceAll("/+", "/"));
             } else {
                 ParamsAdjustHttpServletRequestWrapper wrappedHttpReq = new ParamsAdjustHttpServletRequestWrapper(reqa.getHttpServletRequest());
                 wrappedHttpReq.appendParams(target.getParameters());

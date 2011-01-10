@@ -5,12 +5,9 @@ import org.withinsea.izayoi.cloister.core.kernal.CloisterConstants;
 import org.withinsea.izayoi.cloister.core.kernal.CodefilePath;
 import org.withinsea.izayoi.cloister.core.kernal.Request;
 import org.withinsea.izayoi.cloister.core.kernal.Responder;
-import org.withinsea.izayoi.common.servlet.ServletFilterUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -35,14 +32,8 @@ public abstract class Dispatcher implements Responder {
 
     abstract protected void redirect(Request request, String targetPath) throws CloisterException;
 
-    protected Set<String> bypassPaths = Collections.emptySet();
-
     @Override
     public void respond(Request request) throws CloisterException {
-
-        if (ServletFilterUtils.matchUrlPattern(request.getPath(), bypassPaths)) {
-            return;
-        }
 
         if (!request.getPath().equals(request.getScope().getAttributes().get(CloisterConstants.ATTR_REDISPATCHED_REQUEST))) {
             Target mappedTarget = map(request);
@@ -83,14 +74,6 @@ public abstract class Dispatcher implements Responder {
                 }
             }
         }
-    }
-
-    public Set<String> getBypassPaths() {
-        return bypassPaths;
-    }
-
-    public void setBypassPaths(Set<String> bypassPaths) {
-        this.bypassPaths = bypassPaths;
     }
 
     protected static class Target {
