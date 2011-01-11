@@ -1,5 +1,6 @@
 package org.withinsea.izayoi.rosace.core.kernel;
 
+import org.withinsea.izayoi.common.util.Vars;
 import org.withinsea.izayoi.common.util.Varstack;
 import org.withinsea.izayoi.rosace.core.exception.RosaceRuntimeException;
 
@@ -48,13 +49,37 @@ public class PrecompiletimeContext {
         return (T) stack.pop();
     }
 
-    protected Varstack scopeAttributes = new Varstack();
+    protected Vars globalAttributes;
+    protected Varstack scopeAttributes;;
     protected TemplateEngine engine;
     protected ElEngineManager elEngineManager;
 
     public PrecompiletimeContext(TemplateEngine templateEngine, ElEngineManager elEngineManager) {
         this.engine = templateEngine;
         this.elEngineManager = elEngineManager;
+        this.globalAttributes = new Vars();
+        this.scopeAttributes = new Varstack();
+        scopeAttributes.push(globalAttributes);
+        scopeAttributes.push();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getGlobalAttribute(String key) {
+        return (T) globalAttributes.get(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getGlobalAttribute(String key, T defaultValue) {
+        T value = (T) globalAttributes.get(key);
+        return (value == null) ? defaultValue : value;
+    }
+
+    public <T> void setGlobalAttribute(String key, T value) {
+        if (isLocked()) {
+            throw new RosaceRuntimeException("Invalid attribute setting, context locked.");
+        } else {
+            globalAttributes.put(key, value);
+        }
     }
 
     @SuppressWarnings("unchecked")

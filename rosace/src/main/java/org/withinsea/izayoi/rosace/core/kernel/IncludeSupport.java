@@ -16,7 +16,7 @@ public abstract class IncludeSupport {
 
     abstract protected void doInclude(Writer writer, String path, Map<String, Object> context) throws RosaceException;
 
-    public final void include(Writer writer, String path, Map<String, Object> context) throws RosaceException {
+    public final boolean include(Writer writer, String path, Map<String, Object> context) throws RosaceException {
 
         String selfPath = Tracer.getPath();
         if (selfPath == null) {
@@ -26,6 +26,7 @@ public abstract class IncludeSupport {
         Tracer.getIncludingStack().push(new Tracer.Including(path, context));
         try {
             doInclude(writer, path, context);
+            return !Tracer.getIncludingStack().peek().isFailed();
         } finally {
             Tracer.getIncludingStack().pop();
         }
@@ -69,6 +70,7 @@ public abstract class IncludeSupport {
             protected String includerPath;
             protected String targetPath;
             protected Map<String, Object> context;
+            protected boolean failed = false;
 
             public Including(String targetPath, Map<String, Object> context) {
                 this.includerPath = getPath();
@@ -86,6 +88,14 @@ public abstract class IncludeSupport {
 
             public Map<String, Object> getContext() {
                 return context;
+            }
+
+            public boolean isFailed() {
+                return failed;
+            }
+
+            public void setFailed(boolean failed) {
+                this.failed = failed;
             }
         }
     }

@@ -33,6 +33,7 @@ import org.withinsea.izayoi.rosace.core.impl.template.HostlangUtils;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.AttrGrammar;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.Grammar;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.RoundoffGrammar;
+import org.withinsea.izayoi.rosace.core.kernel.IncludeSupport;
 import org.withinsea.izayoi.rosace.core.kernel.RosaceConstants;
 
 /**
@@ -89,14 +90,20 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
         int start = code.indexOf("<% " + SECTION_MARK);
         int end = code.lastIndexOf(SECTION_MARK + " %>") + (SECTION_MARK + " %>").length();
         if (start >= 0 && end >= 0 && start <= end) {
-            String invalidSectionCheck = Call.class.getCanonicalName() + ".isSection("
-                + RosaceConstants.VARIABLE_VARSTACK + ")";
+            String invalidSectionCheck = "if (" +
+                    Call.class.getCanonicalName() + ".isSection(" + RosaceConstants.VARIABLE_VARSTACK + ")) {" +
+                    Def.class.getCanonicalName() + ".setIncludingFailed();" +
+                    "return; }";
             code = code.substring(0, dt)
                     + code.substring(start, end).replace("<% " + SECTION_MARK, "<%").replace(SECTION_MARK + " %>", "%>")
-                    + "<% if (" + invalidSectionCheck + ") return; %>"
+                    + "<%" + invalidSectionCheck + "%>"
                     + code.substring(dt, start) + code.substring(end);
         }
         return code;
+    }
+
+    public static void setIncludingFailed() {
+        IncludeSupport.Tracer.getIncludingStack().peek().setFailed(true);
     }
 }
 

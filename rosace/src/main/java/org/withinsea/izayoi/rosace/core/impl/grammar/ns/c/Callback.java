@@ -46,8 +46,7 @@ public class Callback extends Call {
             return false;
         } else {
             String callerPath = IncludeSupport.Tracer.getIncludingStack().peek().getIncluderPath();
-            call(renderer, writer, varstack, callerPath + target);
-            return true;
+            return call(renderer, writer, varstack, callerPath + target);
         }
     }
 }
