@@ -60,7 +60,7 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
         String section = attrvalue.trim();
 
         if (attrname.equals("def")) {
-            processAttr(elem, section);
+            processAttr(elem, ":" + section);
         }
 
         String sectionCheck = Call.class.getCanonicalName() + ".isSection("
@@ -89,8 +89,11 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
         int start = code.indexOf("<% " + SECTION_MARK);
         int end = code.lastIndexOf(SECTION_MARK + " %>") + (SECTION_MARK + " %>").length();
         if (start >= 0 && end >= 0 && start <= end) {
-            code = code.substring(0, dt) +
-                    code.substring(start, end).replace("<% " + SECTION_MARK, "<%").replace(SECTION_MARK + " %>", "%>")
+            String invalidSectionCheck = Call.class.getCanonicalName() + ".isSection("
+                + RosaceConstants.VARIABLE_VARSTACK + ")";
+            code = code.substring(0, dt)
+                    + code.substring(start, end).replace("<% " + SECTION_MARK, "<%").replace(SECTION_MARK + " %>", "%>")
+                    + "<% if (" + invalidSectionCheck + ") return; %>"
                     + code.substring(dt, start) + code.substring(end);
         }
         return code;

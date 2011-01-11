@@ -1,9 +1,9 @@
 <%@ page import="org.withinsea.izayoi.common.util.Vars" %>
 <%!
-    String name;
+    String helloName;
     Vars execute() {
         return new Vars(
-                "name", (name == null) ? "withinsea" : name
+                "helloName", (helloName == null) ? "izayoi" : helloName
         );
     }
 %>

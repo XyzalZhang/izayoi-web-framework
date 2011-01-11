@@ -1,6 +1,5 @@
 package org.withinsea.izayoi.rosace.web.impl;
 
-import org.withinsea.izayoi.common.servlet.ServletFilterUtils;
 import org.withinsea.izayoi.rosace.core.exception.RosaceException;
 import org.withinsea.izayoi.rosace.core.kernel.IncludeSupport;
 
@@ -9,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Deque;
 import java.util.Map;
 
 /**
@@ -16,17 +16,17 @@ import java.util.Map;
  * Date: 10-12-31
  * Time: 下午2:30
  */
-public class HttpIncludeSupport implements IncludeSupport {
+public class HttpIncludeSupport extends IncludeSupport {
 
     @Override
-    public void include(Writer writer, String path, Map<String, Object> context) throws RosaceException {
+    protected void doInclude(Writer writer, String path, Map<String, Object> context) throws RosaceException {
 
         HttpServletRequest httpReq = (HttpServletRequest) context.get("request");
         HttpServletResponse httpResp = (HttpServletResponse) context.get("response");
 
-        String requestPath = ServletFilterUtils.getRequestPath(httpReq);
-        String includePath = (path == null) ? requestPath
-                : (!path.startsWith("/")) ? requestPath.replaceAll("/[^/]+$", "/") + path
+        String selfPath = Tracer.getPath();
+        String includePath = (path == null) ? selfPath
+                : (!path.startsWith("/")) ? selfPath.replaceAll("/[^/]+$", "/") + path
                 : path;
         try {
             writer.flush();
