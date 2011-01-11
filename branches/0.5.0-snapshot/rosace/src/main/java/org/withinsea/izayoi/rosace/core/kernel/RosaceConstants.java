@@ -44,8 +44,6 @@ public class RosaceConstants {
     public static final String ATTR_IMPORTS = PREFIX + "IMPORTS";
 
     /* runtime attributes */
-    public static final String ATTR_TEMPLATE_PATH = PREFIX + "ATTR_TEMPLATE_PATH";
     public static final String ATTR_INCLUDE_SUPPORT = PREFIX + "ATTR_INCLUDE_SUPPORT";
     public static final String ATTR_INCLUDE_SECTION = PREFIX + "ATTR_INCLUDE_SECTION";
-    public static final String ATTR_INCLUDED_CONTEXT = PREFIX + "ATTR_INCLUDED_CONTEXT";
 }

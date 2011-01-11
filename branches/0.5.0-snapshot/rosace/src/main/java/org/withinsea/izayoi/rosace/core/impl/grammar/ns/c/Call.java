@@ -103,6 +103,8 @@ public class Call implements AttrGrammar {
             ((TemplateCompiler.CompiledTemplate) renderer).renderTo(writer, varstack);
             varstack.pop();
 
+            return true;
+
         } else {
 
             IncludeSupport includeSupport = (IncludeSupport) varstack.get(RosaceConstants.ATTR_INCLUDE_SUPPORT);
@@ -111,11 +113,11 @@ public class Call implements AttrGrammar {
             }
 
             varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section);
-            includeSupport.include(writer, path, varstack);
+            boolean successed = includeSupport.include(writer, path, varstack);
             varstack.pop();
-        }
 
-        return true;
+            return successed;
+        }
     }
 
     public static boolean isSection(Varstack varstack, String section) {
