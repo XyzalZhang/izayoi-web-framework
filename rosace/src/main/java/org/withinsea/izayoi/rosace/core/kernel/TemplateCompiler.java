@@ -9,6 +9,7 @@ import org.withinsea.izayoi.rosace.core.exception.RosaceRuntimeException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.security.ProtectionDomain;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,7 +120,7 @@ public class TemplateCompiler {
         public void render(Writer writer, Map<String, Object> context) throws RosaceException {
             render(writer, context, new IncludeSupport() {
                 @Override
-                public void include(Writer writer, String path, Map<String, Object> context) throws RosaceException {
+                public void doInclude(Writer writer, String path, Map<String, Object> context) throws RosaceException {
                     if (path != null) {
                         throw new RosaceRuntimeException("missing IncludeSupport for multi-templates rendering.");
                     } else if (context.get(RosaceConstants.ATTR_INCLUDE_SECTION) == null) {
@@ -134,16 +135,24 @@ public class TemplateCompiler {
         @Override
         public void render(Writer writer, Map<String, Object> context, IncludeSupport includeSupport, String path) throws RosaceException {
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> includedContext = (Map<String, Object>) context.get(RosaceConstants.ATTR_INCLUDED_CONTEXT);
+            Map<String, Object> includerContext = null;
+            {
+                Deque<IncludeSupport.Tracer.Including> includingStack = IncludeSupport.Tracer.getIncludingStack();
+                if (!includingStack.isEmpty()) {
+                    includerContext = includingStack.peek().getContext();
+                }
+            }
 
             Varstack varstack = new Varstack(new Vars(
-                    RosaceConstants.ATTR_INCLUDE_SUPPORT, includeSupport,
-                    RosaceConstants.ATTR_TEMPLATE_PATH, path));
-            try {
+                    RosaceConstants.ATTR_INCLUDE_SUPPORT, includeSupport));
+            {
                 varstack.push(context);
-                if (includedContext != null) varstack.push(includedContext);
+                if (includerContext != null) varstack.push(includerContext);
                 varstack.push();
+            }
+
+            IncludeSupport.Tracer.setPath(path);
+            try {
                 renderTo(new PrintWriter(writer), varstack);
             } catch (RosaceException e) {
                 throw e;

@@ -1,1 +1,28 @@
-hello, ${name}.
+<html c:call="layout.html">
+<body>
+    main block:
+    <div c:def="main">
+        <div>hello, ${helloName}.</div>
+        <div c:call="user/withinsea/"></div>
+        <hr />
+        <div c:var.folder="${new java.io.File('z:/soft/')}"
+             c:var.depth="${0}"
+             c:def="folder">
+            [<strong>${folder.getPath()}</strong>]
+            <ul>
+                <li c:for.folder="${folder.listFiles()}"
+                    c:if="${folder.isDirectory() && depth < 1}">
+                    <div c:var.depth="${depth + 1}"
+                         c:call=":folder"></div>
+                </li>
+                <li c:for.folder="${folder.listFiles()}"
+                    c:if="${folder.isFile()}">
+                    <div>
+                        ${folder.name}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

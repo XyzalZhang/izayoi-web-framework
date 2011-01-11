@@ -1,0 +1,32 @@
+<html>
+<head>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: silver;
+            font-family: consolas;
+        }
+
+        #main {
+            margin-left: 20%;
+            padding: 0 10px;
+            border-left: 3px double #696969;
+            background: white;
+        }
+
+        ul {
+            margin: 0
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <strong>callback:</strong>
+        <hr/>
+        <div c:callback=":main">
+            ${msg}
+        </div>
+    </div>
+</body>
+</html>

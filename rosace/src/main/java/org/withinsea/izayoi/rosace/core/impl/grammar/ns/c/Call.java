@@ -54,28 +54,32 @@ public class Call implements AttrGrammar {
         Element elem = attr.getParent();
         String attrvalue = attr.getValue();
         processAttr(elem, attrvalue);
-        elem.detach();
+        attr.detach();
     }
 
-    protected void processAttr(Element range, String includePath) throws RosaceException {
+    protected void processAttr(Element range, String target) throws RosaceException {
 
         PrecompiletimeContext ctx = PrecompiletimeContext.get();
         DomTemplateEngine engine = ctx.getEngine();
 
-        includePath = includePath.trim();
-        boolean embedded = !(includePath.startsWith("${") && includePath.endsWith("}")) || includePath.indexOf("${", 1) > 0;
-        String includePathCode = embedded
-                ? precompileEmbeddedELs(engine, includePath)
-                : engine.precompileEl(includePath.substring(2, includePath.length() - 1).trim());
+        target = target.trim();
+        boolean embedded = !(target.startsWith("${") && target.endsWith("}")) || target.indexOf("${", 1) > 0;
+        String targetCode = embedded
+                ? precompileEmbeddedELs(engine, target)
+                : engine.precompileEl(target.substring(2, target.length() - 1).trim());
 
         try {
-            DomUtils.insertAfter("<%" + Call.class.getCanonicalName() + ".doInclude(this," +
-                    RosaceConstants.VARIABLE_WRITER + ", " +
-                    RosaceConstants.VARIABLE_VARSTACK + ", " +
-                    includePathCode + "); %>", range);
+            DomUtils.surroundBy(range, "<% if (!" + precompileCall(targetCode) + ") { %>", "<% } %>");
         } catch (Exception e) {
             throw new RosaceException(e);
         }
+    }
+
+    protected String precompileCall(String targetCode) throws RosaceException {
+        return Call.class.getCanonicalName() + ".call(this," +
+                RosaceConstants.VARIABLE_WRITER + ", " +
+                RosaceConstants.VARIABLE_VARSTACK + ", " +
+                targetCode + ")";
     }
 
     protected String precompileEmbeddedELs(final DomTemplateEngine engine, String text) {
@@ -86,12 +90,14 @@ public class Call implements AttrGrammar {
         }) + "\"";
     }
 
-    public static void doInclude(Renderer renderer, PrintWriter writer, Varstack varstack, String includePath) throws Exception {
+    public static boolean call(Renderer renderer, PrintWriter writer, Varstack varstack, String target) throws Exception {
 
-        String path = (includePath.indexOf(":") < 0) ? null : includePath.split(":", 2)[0];
-        String section = (includePath.indexOf(":") < 0) ? includePath : includePath.split(":", 2)[1];
+        target = target.endsWith(":") ? target.substring(0, target.length() - 1) : target;
 
-        if ((path == null) && (renderer instanceof TemplateCompiler.CompiledTemplate)) {
+        String path = (target.indexOf(":") < 0) ? target : target.split(":", 2)[0];
+        String section = (target.indexOf(":") < 0) ? null : target.split(":", 2)[1];
+
+        if ((path.equals("")) && (renderer instanceof TemplateCompiler.CompiledTemplate)) {
 
             varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section);
             ((TemplateCompiler.CompiledTemplate) renderer).renderTo(writer, varstack);
@@ -104,15 +110,19 @@ public class Call implements AttrGrammar {
                 throw new RosaceRuntimeException("missing IncludeSupport for multi-templates including.");
             }
 
-            varstack.push(
-                    RosaceConstants.ATTR_INCLUDE_SECTION, section,
-                    RosaceConstants.ATTR_INCLUDED_CONTEXT, varstack);
+            varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section);
             includeSupport.include(writer, path, varstack);
             varstack.pop();
         }
+
+        return true;
     }
 
     public static boolean isSection(Varstack varstack, String section) {
         return (section != null) && (!section.equals("")) && section.equals(varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION));
+    }
+
+    public static boolean isSection(Varstack varstack) {
+        return varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION) != null;
     }
 }
