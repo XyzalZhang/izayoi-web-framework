@@ -66,8 +66,14 @@ public class IncludedUrlAdjust implements AttrGrammar {
 
     public static String adjust(String url, Map<String, Object> context) {
 
-        Deque<IncludeSupport.Tracer.Including> includingStack = IncludeSupport.Tracer.getIncludingStack();
+        try {
+            Class.forName("javax.servlet.http.HttpServletRequest");
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+
         HttpServletRequest httpReq = (HttpServletRequest) context.get("request");
+        Deque<IncludeSupport.Tracer.Including> includingStack = IncludeSupport.Tracer.getIncludingStack();
         boolean hasBaseUrl = Boolean.TRUE.equals(context.get(RosaceConstants.ATTR_HAS_BASEURL));
 
         if (httpReq == null || hasBaseUrl || includingStack.isEmpty()
