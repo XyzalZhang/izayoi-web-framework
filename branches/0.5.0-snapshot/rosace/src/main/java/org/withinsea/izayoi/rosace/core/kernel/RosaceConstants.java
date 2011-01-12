@@ -42,8 +42,10 @@ public class RosaceConstants {
     public static final String ATTR_LOCKED = PREFIX + "LOCKED";
     public static final String ATTR_ELTYPE = PREFIX + "ELTYPE";
     public static final String ATTR_IMPORTS = PREFIX + "IMPORTS";
+    public static final String ATTR_CALL_ID = PREFIX + "CALL_ID";
 
     /* runtime attributes */
     public static final String ATTR_INCLUDE_SUPPORT = PREFIX + "ATTR_INCLUDE_SUPPORT";
     public static final String ATTR_INCLUDE_SECTION = PREFIX + "ATTR_INCLUDE_SECTION";
+    public static final String ATTR_HAS_BASEURL = PREFIX + "ATTR_HAS_BASEURL";
 }

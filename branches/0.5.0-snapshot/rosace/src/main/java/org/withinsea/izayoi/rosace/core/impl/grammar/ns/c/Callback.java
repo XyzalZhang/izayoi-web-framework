@@ -48,8 +48,8 @@ public class Callback extends Call {
         if (includingStack.isEmpty()) {
             return false;
         } else {
-            String callbackScopeId = (String) varstack.get(ATTR_CALL_ID);
-            String suffix = (callbackScopeId == null) ? "" : ("@" + callbackScopeId);
+            String callbackScopeCallId = (String) varstack.get(RosaceConstants.ATTR_CALL_ID);
+            String suffix = (callbackScopeCallId == null) ? "" : ("@" + callbackScopeCallId);
             String callerPath = IncludeSupport.Tracer.getIncludingStack().peek().getIncluderPath();
             return call(null, renderer, writer, varstack, callerPath + target + suffix);
         }
