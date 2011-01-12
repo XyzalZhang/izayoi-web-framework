@@ -8,6 +8,11 @@
             font-family: consolas;
         }
 
+        #sider {
+            float: left;
+            width: 20%;
+        }
+
         #main {
             margin-left: 20%;
             padding: 0 10px;
@@ -21,11 +26,18 @@
     </style>
 </head>
 <body>
+    <div id="sider">
+        <strong>callback:</strong>
+        <hr />
+        <div c:callback=":sider">
+            ${msg} [name:sider]
+        </div>
+    </div>
     <div id="main">
         <strong>callback:</strong>
-        <hr/>
+        <hr />
         <div c:callback=":main">
-            ${msg}
+            ${msg}<br />[name:main]
         </div>
     </div>
 </body>

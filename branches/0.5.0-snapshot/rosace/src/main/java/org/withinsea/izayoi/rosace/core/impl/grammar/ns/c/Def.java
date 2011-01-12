@@ -34,6 +34,7 @@ import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.AttrGrammar;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.Grammar;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.RoundoffGrammar;
 import org.withinsea.izayoi.rosace.core.kernel.IncludeSupport;
+import org.withinsea.izayoi.rosace.core.kernel.PrecompiletimeContext;
 import org.withinsea.izayoi.rosace.core.kernel.RosaceConstants;
 
 /**
@@ -53,19 +54,25 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
     @Override
     public void processAttr(Attribute attr) throws RosaceException {
 
+        PrecompiletimeContext ctx = PrecompiletimeContext.get();
+        String scopeId = ctx.getScopeAttribute(ATTR_CALL_ID);
+        String suffix = (scopeId == null) ? "" : ("@" + scopeId);
+
         Element elem = attr.getParent();
         Document doc = elem.getDocument();
         String attrname = attr.getName();
         String attrvalue = attr.getValue();
+        if (attrvalue.indexOf("@") >= 0) {
+            throw new RosaceException("'" + attrvalue + "' is not a valid Def block name. '@' is not allowed.");
+        }
 
         String section = attrvalue.trim();
-
         if (attrname.equals("def")) {
             processAttr(elem, ":" + section);
         }
 
         String sectionCheck = Call.class.getCanonicalName() + ".isSection("
-                + RosaceConstants.VARIABLE_VARSTACK + ", \"" + HostlangUtils.jspString(section) + "\")";
+                + RosaceConstants.VARIABLE_VARSTACK + ", \"" + HostlangUtils.jspString(section + suffix) + "\")";
         try {
             DomUtils.prepend(doc, "<% return; } " + SECTION_MARK + " %>");
             DomUtils.prepend(doc, elem.detach());
@@ -85,20 +92,23 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
     @Override
     @Priority(Grammar.Priority.HIGH)
     public String roundoffCode(String code) throws RosaceException {
+
+        String invalidSectionCheck = "if (" +
+                Call.class.getCanonicalName() + ".isSection(" + RosaceConstants.VARIABLE_VARSTACK + ")) {" +
+                Def.class.getCanonicalName() + ".setIncludingFailed();" +
+                "return; }";
+
         int dt = code.indexOf("<!DOCTYPE");
         if (dt < 0) dt = 0;
         int start = code.indexOf("<% " + SECTION_MARK);
         int end = code.lastIndexOf(SECTION_MARK + " %>") + (SECTION_MARK + " %>").length();
         if (start >= 0 && end >= 0 && start <= end) {
-            String invalidSectionCheck = "if (" +
-                    Call.class.getCanonicalName() + ".isSection(" + RosaceConstants.VARIABLE_VARSTACK + ")) {" +
-                    Def.class.getCanonicalName() + ".setIncludingFailed();" +
-                    "return; }";
             code = code.substring(0, dt)
                     + code.substring(start, end).replace("<% " + SECTION_MARK, "<%").replace(SECTION_MARK + " %>", "%>")
                     + "<%" + invalidSectionCheck + "%>"
                     + code.substring(dt, start) + code.substring(end);
         }
+
         return code;
     }
 
