@@ -11,11 +11,9 @@ import org.withinsea.izayoi.rosace.core.kernel.ElEngineManager;
 import org.withinsea.izayoi.rosace.core.kernel.RosaceConfig;
 import org.withinsea.izayoi.rosace.core.kernel.TemplateCompiler;
 import org.withinsea.izayoi.rosace.core.kernel.TemplateEngineManager;
+import org.withinsea.izayoi.rosace.web.impl.IncludedUrlAdjust;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Mo Chen <withinsea@gmail.com>
@@ -34,7 +32,9 @@ public class Rosaces {
     public static final Set<Grammar> DEFAULT_GLOBAL_GRAMMARS; static {
         String base = "org.withinsea.izayoi.rosace.core.impl.grammar.global";
         try {
-            DEFAULT_GLOBAL_GRAMMARS = ClassUtils.instantiatePackageClasses(Grammar.class, base);
+            DEFAULT_GLOBAL_GRAMMARS = new LinkedHashSet<Grammar>();
+            DEFAULT_GLOBAL_GRAMMARS.addAll(ClassUtils.instantiatePackageClasses(Grammar.class, base));
+            DEFAULT_GLOBAL_GRAMMARS.add(new IncludedUrlAdjust());
         } catch (Exception e) {
             throw new RosaceRuntimeException(e);
         }

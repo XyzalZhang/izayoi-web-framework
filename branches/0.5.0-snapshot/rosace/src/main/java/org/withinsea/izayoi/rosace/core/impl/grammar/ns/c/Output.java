@@ -43,7 +43,7 @@ public class Output implements AttrGrammar {
     }
 
     @Override
-    @Priority(Priority.LOWER)
+    @Priority(Priority.LOWEST)
     public void processAttr(Attribute attr) throws RosaceException {
 
         Element elem = attr.getParent();
