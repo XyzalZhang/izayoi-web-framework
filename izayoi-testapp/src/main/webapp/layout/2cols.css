@@ -1,0 +1,22 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background: silver;
+    font-family: consolas;
+}
+
+#sider {
+    float: left;
+    width: 20%;
+}
+
+#main {
+    margin-left: 20%;
+    padding: 0 10px;
+    border-left: 3px double #696969;
+    background: white;
+}
+
+ul {
+    margin: 0
+}

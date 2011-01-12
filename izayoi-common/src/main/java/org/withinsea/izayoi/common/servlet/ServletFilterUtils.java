@@ -94,6 +94,10 @@ public class ServletFilterUtils {
         return isIncluded(request) ? (String) request.getAttribute(INCLUDE_SERVLET_PATH) : request.getServletPath();
     }
 
+    public static String getClientPath(HttpServletRequest request) {
+        return isForwarded(request) ? (String) request.getAttribute(FORWARD_SERVLET_PATH) : request.getServletPath();
+    }
+
     public static void chain(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                              Filter... filters) throws ServletException, IOException {
         chain(request, response, chain, Arrays.asList(filters));

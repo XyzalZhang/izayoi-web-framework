@@ -1,12 +1,11 @@
-<html c:call="layout.html">
+<html c:call="layout/2cols.html">
 <body>
     main block:
     <div c:def="sider">
-        <div>hello, ${helloName}.</div>
-        <div c:call="user/withinsea/"></div>
+        <div c:call="user/izayoi/"></div>
     </div>
     <div c:def="main">
-        <div c:var.folder="${new java.io.File('z:/soft/')}"
+        <div c:var.folder="${new java.io.File('c:/')}"
              c:var.depth="${0}"
              c:def="folder">
             [<strong>${folder.getPath()}</strong>]
