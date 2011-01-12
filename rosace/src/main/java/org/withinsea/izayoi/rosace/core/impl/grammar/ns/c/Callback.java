@@ -1,6 +1,7 @@
 package org.withinsea.izayoi.rosace.core.impl.grammar.ns.c;
 
 import org.dom4j.Attribute;
+import org.dom4j.Element;
 import org.withinsea.izayoi.common.util.Varstack;
 import org.withinsea.izayoi.rosace.core.exception.RosaceException;
 import org.withinsea.izayoi.rosace.core.kernel.IncludeSupport;
@@ -24,12 +25,14 @@ public class Callback extends Call {
 
     @Override
     public void processAttr(Attribute attr) throws RosaceException {
+        Element elem = attr.getParent();
         String attrvalue = attr.getValue();
         if (!attrvalue.startsWith(":")) {
             throw new RosaceException("'" + attrvalue + "' is not a valid value: " +
                     "callback value should be a section name started with ':'.");
         }
-        super.processAttr(attr);
+        processAttr(elem, attrvalue);
+        attr.detach();
     }
 
     @Override
@@ -45,8 +48,10 @@ public class Callback extends Call {
         if (includingStack.isEmpty()) {
             return false;
         } else {
+            String callbackScopeId = (String) varstack.get(ATTR_CALL_ID);
+            String suffix = (callbackScopeId == null) ? "" : ("@" + callbackScopeId);
             String callerPath = IncludeSupport.Tracer.getIncludingStack().peek().getIncluderPath();
-            return call(renderer, writer, varstack, callerPath + target);
+            return call(null, renderer, writer, varstack, callerPath + target + suffix);
         }
     }
 }

@@ -32,6 +32,7 @@ import org.withinsea.izayoi.common.util.Varstack;
 import org.withinsea.izayoi.rosace.core.exception.RosaceException;
 import org.withinsea.izayoi.rosace.core.exception.RosaceRuntimeException;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.DomTemplateEngine;
+import org.withinsea.izayoi.rosace.core.impl.template.dom.IdGenerator;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.AttrGrammar;
 import org.withinsea.izayoi.rosace.core.kernel.*;
 
@@ -44,6 +45,9 @@ import java.io.PrintWriter;
  */
 public class Call implements AttrGrammar {
 
+    public static String ATTR_GENERATOR_KEY = "call";
+    public static String ATTR_CALL_ID = Call.class.getCanonicalName() + ".ATTR_CALL_ID";
+
     @Override
     public boolean acceptAttr(Attribute attr) {
         return attr.getName().equals("call");
@@ -51,10 +55,16 @@ public class Call implements AttrGrammar {
 
     @Override
     public void processAttr(Attribute attr) throws RosaceException {
+
+        String callId = IdGenerator.get(ATTR_GENERATOR_KEY).nextId();
+
         Element elem = attr.getParent();
         String attrvalue = attr.getValue();
         processAttr(elem, attrvalue);
         attr.detach();
+
+        PrecompiletimeContext ctx = PrecompiletimeContext.get();
+        ctx.setScopeAttribute(ATTR_CALL_ID, callId);
     }
 
     protected void processAttr(Element range, String target) throws RosaceException {
@@ -62,11 +72,14 @@ public class Call implements AttrGrammar {
         PrecompiletimeContext ctx = PrecompiletimeContext.get();
         DomTemplateEngine engine = ctx.getEngine();
 
+        String scopeId = ctx.getScopeAttribute(ATTR_CALL_ID);
+        String suffix = (scopeId == null) ? "" : ("@" + scopeId);
+
         target = target.trim();
         boolean embedded = !(target.startsWith("${") && target.endsWith("}")) || target.indexOf("${", 1) > 0;
         String targetCode = embedded
-                ? precompileEmbeddedELs(engine, target)
-                : engine.precompileEl(target.substring(2, target.length() - 1).trim());
+                ? precompileEmbeddedELs(engine, target + suffix)
+                : "(" + engine.precompileEl(target.substring(2, target.length() - 1).trim()) + "+\"" + suffix + "\")";
 
         try {
             DomUtils.surroundBy(range, "<% if (!" + precompileCall(targetCode) + ") { %>", "<% } %>");
@@ -76,7 +89,10 @@ public class Call implements AttrGrammar {
     }
 
     protected String precompileCall(String targetCode) throws RosaceException {
-        return Call.class.getCanonicalName() + ".call(this," +
+        String callId = IdGenerator.get(ATTR_GENERATOR_KEY).currentId();
+        return Call.class.getCanonicalName() + ".call(" +
+                (callId == null ? "null," : ("\"" + callId + "\",")) +
+                "this," +
                 RosaceConstants.VARIABLE_WRITER + ", " +
                 RosaceConstants.VARIABLE_VARSTACK + ", " +
                 targetCode + ")";
@@ -90,12 +106,13 @@ public class Call implements AttrGrammar {
         }) + "\"";
     }
 
-    public static boolean call(Renderer renderer, PrintWriter writer, Varstack varstack, String target) throws Exception {
+    public static boolean call(String callId, Renderer renderer,
+                               PrintWriter writer, Varstack varstack, String target) throws Exception {
 
-        target = target.endsWith(":") ? target.substring(0, target.length() - 1) : target;
-
+        String[] split = target.split("@", 2);
+        target = split[0].endsWith(":") ? split[0].substring(0, split[0].length() - 1) : split[0];
         String path = (target.indexOf(":") < 0) ? target : target.split(":", 2)[0];
-        String section = (target.indexOf(":") < 0) ? null : target.split(":", 2)[1];
+        String section = (target.indexOf(":") < 0) ? null : (target.split(":", 2)[1] + (split.length < 2 ? "" : ("@" + split[1])));
 
         if ((path.equals("")) && (renderer instanceof TemplateCompiler.CompiledTemplate)) {
 
@@ -112,7 +129,7 @@ public class Call implements AttrGrammar {
                 throw new RosaceRuntimeException("missing IncludeSupport for multi-templates including.");
             }
 
-            varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section);
+            varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section, ATTR_CALL_ID, callId);
             boolean successed = includeSupport.include(writer, path, varstack);
             varstack.pop();
 

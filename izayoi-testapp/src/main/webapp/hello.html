@@ -1,10 +1,11 @@
 <html c:call="layout.html">
 <body>
     main block:
-    <div c:def="main">
+    <div c:def="sider">
         <div>hello, ${helloName}.</div>
         <div c:call="user/withinsea/"></div>
-        <hr />
+    </div>
+    <div c:def="main">
         <div c:var.folder="${new java.io.File('z:/soft/')}"
              c:var.depth="${0}"
              c:def="folder">
