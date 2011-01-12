@@ -25,7 +25,6 @@ import java.util.*;
 public class IncludedUrlAdjust implements AttrGrammar {
 
     protected static Set<String> URL_ATTRS = new HashSet<String>(Arrays.asList("href", "url", "src"));
-    protected static String ATTR_HAS_BASE = IncludedUrlAdjust.class.getCanonicalName() + ".ATTR_HAS_BASE";
 
     @Override
     public boolean acceptAttr(Attribute attr) {
@@ -43,7 +42,7 @@ public class IncludedUrlAdjust implements AttrGrammar {
 
         if (attr.getParent().getName().toLowerCase().equals("base")) {
             try {
-                DomUtils.insertBefore("<%" + engine.precompilePut(ATTR_HAS_BASE, "true") + "%>", elem);
+                DomUtils.insertBefore("<%" + engine.precompilePut(RosaceConstants.ATTR_HAS_BASEURL, "true") + "%>", elem);
             } catch (Exception e) {
                 throw new RosaceException(e);
             }
@@ -69,9 +68,9 @@ public class IncludedUrlAdjust implements AttrGrammar {
 
         Deque<IncludeSupport.Tracer.Including> includingStack = IncludeSupport.Tracer.getIncludingStack();
         HttpServletRequest httpReq = (HttpServletRequest) context.get("request");
-        boolean hasBase = Boolean.TRUE.equals(context.get(ATTR_HAS_BASE));
+        boolean hasBaseUrl = Boolean.TRUE.equals(context.get(RosaceConstants.ATTR_HAS_BASEURL));
 
-        if (httpReq == null || hasBase || includingStack.isEmpty()
+        if (httpReq == null || hasBaseUrl || includingStack.isEmpty()
                 || url.startsWith("/") || url.matches("^\\d+://.*")) {
             return url;
         }

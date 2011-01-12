@@ -28,6 +28,7 @@ import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.withinsea.izayoi.common.dom4j.DomUtils;
+import org.withinsea.izayoi.common.util.Varstack;
 import org.withinsea.izayoi.rosace.core.exception.RosaceException;
 import org.withinsea.izayoi.rosace.core.impl.template.HostlangUtils;
 import org.withinsea.izayoi.rosace.core.impl.template.dom.grammar.AttrGrammar;
@@ -55,8 +56,8 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
     public void processAttr(Attribute attr) throws RosaceException {
 
         PrecompiletimeContext ctx = PrecompiletimeContext.get();
-        String scopeId = ctx.getScopeAttribute(ATTR_CALL_ID);
-        String suffix = (scopeId == null) ? "" : ("@" + scopeId);
+        String scopeCallId = ctx.getScopeAttribute(RosaceConstants.ATTR_CALL_ID);
+        String suffix = (scopeCallId == null) ? "" : ("@" + scopeCallId);
 
         Element elem = attr.getParent();
         Document doc = elem.getDocument();
@@ -71,7 +72,7 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
             processAttr(elem, ":" + section);
         }
 
-        String sectionCheck = Call.class.getCanonicalName() + ".isSection("
+        String sectionCheck = Def.class.getCanonicalName() + ".isSection("
                 + RosaceConstants.VARIABLE_VARSTACK + ", \"" + HostlangUtils.jspString(section + suffix) + "\")";
         try {
             DomUtils.prepend(doc, "<% return; } " + SECTION_MARK + " %>");
@@ -93,10 +94,8 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
     @Priority(Grammar.Priority.HIGH)
     public String roundoffCode(String code) throws RosaceException {
 
-        String invalidSectionCheck = "if (" +
-                Call.class.getCanonicalName() + ".isSection(" + RosaceConstants.VARIABLE_VARSTACK + ")) {" +
-                Def.class.getCanonicalName() + ".setIncludingFailed();" +
-                "return; }";
+        String needRetryCode = Def.class.getCanonicalName() + ".needRetry(" + RosaceConstants.VARIABLE_VARSTACK + ")";
+        String checkFailedCode = Def.class.getCanonicalName() + ".checkFailed(" + RosaceConstants.VARIABLE_VARSTACK + ")";
 
         int dt = code.indexOf("<!DOCTYPE");
         if (dt < 0) dt = 0;
@@ -104,16 +103,39 @@ public class Def extends Call implements AttrGrammar, RoundoffGrammar {
         int end = code.lastIndexOf(SECTION_MARK + " %>") + (SECTION_MARK + " %>").length();
         if (start >= 0 && end >= 0 && start <= end) {
             code = code.substring(0, dt)
+                    + "<% do { %>"
                     + code.substring(start, end).replace("<% " + SECTION_MARK, "<%").replace(SECTION_MARK + " %>", "%>")
-                    + "<%" + invalidSectionCheck + "%>"
+                    + "<% } while (" + needRetryCode + "); %>"
+                    + "<% if (" + checkFailedCode + ") return; %>"
                     + code.substring(dt, start) + code.substring(end);
         }
-
         return code;
     }
 
-    public static void setIncludingFailed() {
-        IncludeSupport.Tracer.getIncludingStack().peek().setFailed(true);
+    public static boolean isSection(Varstack varstack, String section) {
+        return (section != null) && (!section.equals("")) && section.equals(varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION));
+    }
+
+    public static boolean needRetry(Varstack varstack) {
+        String section = (String) varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION);
+        if (section == null) {
+            return false;
+        } else if (section.indexOf("@") < 0) {
+            return false;
+        } else {
+            varstack.put(RosaceConstants.ATTR_INCLUDE_SECTION, section.replaceAll("@.*", ""));
+            return true;
+        }
+    }
+
+    public static boolean checkFailed(Varstack varstack) {
+        String section = (String) varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION);
+        if (section != null) {
+            IncludeSupport.Tracer.getIncludingStack().peek().setFailed(true);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

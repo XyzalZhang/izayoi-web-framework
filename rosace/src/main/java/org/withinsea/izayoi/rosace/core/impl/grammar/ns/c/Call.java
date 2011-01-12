@@ -45,8 +45,7 @@ import java.io.PrintWriter;
  */
 public class Call implements AttrGrammar {
 
-    public static String ATTR_GENERATOR_KEY = "call";
-    public static String ATTR_CALL_ID = Call.class.getCanonicalName() + ".ATTR_CALL_ID";
+    public static String GENERATOR_KEY = "call";
 
     @Override
     public boolean acceptAttr(Attribute attr) {
@@ -56,7 +55,7 @@ public class Call implements AttrGrammar {
     @Override
     public void processAttr(Attribute attr) throws RosaceException {
 
-        String callId = IdGenerator.get(ATTR_GENERATOR_KEY).nextId();
+        String callId = IdGenerator.get(GENERATOR_KEY).nextId();
 
         Element elem = attr.getParent();
         String attrvalue = attr.getValue();
@@ -64,7 +63,7 @@ public class Call implements AttrGrammar {
         attr.detach();
 
         PrecompiletimeContext ctx = PrecompiletimeContext.get();
-        ctx.setScopeAttribute(ATTR_CALL_ID, callId);
+        ctx.setScopeAttribute(RosaceConstants.ATTR_CALL_ID, callId);
     }
 
     protected void processAttr(Element range, String target) throws RosaceException {
@@ -72,7 +71,7 @@ public class Call implements AttrGrammar {
         PrecompiletimeContext ctx = PrecompiletimeContext.get();
         DomTemplateEngine engine = ctx.getEngine();
 
-        String scopeId = ctx.getScopeAttribute(ATTR_CALL_ID);
+        String scopeId = ctx.getScopeAttribute(RosaceConstants.ATTR_CALL_ID);
         String suffix = (scopeId == null) ? "" : ("@" + scopeId);
 
         target = target.trim();
@@ -89,7 +88,7 @@ public class Call implements AttrGrammar {
     }
 
     protected String precompileCall(String targetCode) throws RosaceException {
-        String callId = IdGenerator.get(ATTR_GENERATOR_KEY).currentId();
+        String callId = IdGenerator.get(GENERATOR_KEY).currentId();
         return Call.class.getCanonicalName() + ".call(" +
                 (callId == null ? "null," : ("\"" + callId + "\",")) +
                 "this," +
@@ -129,19 +128,11 @@ public class Call implements AttrGrammar {
                 throw new RosaceRuntimeException("missing IncludeSupport for multi-templates including.");
             }
 
-            varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section, ATTR_CALL_ID, callId);
+            varstack.push(RosaceConstants.ATTR_INCLUDE_SECTION, section, RosaceConstants.ATTR_CALL_ID, callId);
             boolean successed = includeSupport.include(writer, path, varstack);
             varstack.pop();
 
             return successed;
         }
-    }
-
-    public static boolean isSection(Varstack varstack, String section) {
-        return (section != null) && (!section.equals("")) && section.equals(varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION));
-    }
-
-    public static boolean isSection(Varstack varstack) {
-        return varstack.get(RosaceConstants.ATTR_INCLUDE_SECTION) != null;
     }
 }
